@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <FrameLayout
+        android:id="@+id/frameLayout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:maxHeight="200dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_default="wrap"
+        app:layout_constraintHeight_max="200dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/imageView2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            app:srcCompat="@drawable/group_40" />
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="TutorMatch"
+            android:textColor="#000000"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+    </FrameLayout>
+
+    <ImageView
+        android:id="@+id/imageViewTop"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@drawable/group_41"
+        app:layout_constraintEnd_toEndOf="@id/frameLayout"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/frameLayout" />
+
+    <LinearLayout
+        android:id="@+id/Ricercapara"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="3dp"
+        android:layout_marginEnd="3dp"
+        android:background="@drawable/rectangle_16"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageViewTop">
+
+        <LinearLayout
+            android:id="@+id/Interno"
+            android:layout_width="392dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:orientation="vertical"
+            app:layout_constraintTop_toBottomOf="@+id/imageViewTop">
+
+            <LinearLayout
+                android:id="@+id/Interno_2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:orientation="horizontal"
+                app:layout_constraintTop_toBottomOf="@+id/imageViewTop">
+
+                <TextView
+                    android:id="@+id/textView4"
+                    android:layout_width="58dp"
+                    android:layout_height="43dp"
+                    android:layout_weight="1"
+                    android:text="Materia:" />
+
+                <Spinner
+                    android:id="@+id/spinner_materia"
+                    android:layout_width="205dp"
+                    android:layout_height="48dp"
+                    android:layout_marginBottom="16dp"
+                    android:paddingTop="7dp"
+                    android:paddingBottom="7dp"
+                    android:spinnerMode="dropdown" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/Interno_3"
+                android:layout_width="match_parent"
+                android:layout_height="62dp"
+                android:layout_alignParentBottom="true"
+                android:orientation="horizontal"
+                app:layout_constraintTop_toBottomOf="@+id/imageViewTop">
+
+                <TextView
+                    android:id="@+id/textView8"
+                    android:layout_width="214dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Costo:" />
+
+                <EditText
+                    android:id="@+id/editTextNumber"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:layout_weight="48"
+                    android:ems="10"
+                    android:hint="Enter number"
+                    android:inputType="number" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/Interno_4"
+                android:layout_width="match_parent"
+                android:layout_height="118dp"
+                android:layout_alignParentBottom="true"
+                android:orientation="vertical"
+                app:layout_constraintTop_toBottomOf="@+id/imageViewTop">
+
+                <TextView
+                    android:id="@+id/textView9"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Descrizione:"
+                    android:textAlignment="center" />
+
+                <ScrollView
+                    android:id="@+id/scroll_view"
+                    android:layout_width="143dp"
+                    android:layout_height="68dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginStart="70dp"
+                    android:layout_marginEnd="70dp"
+                    android:layout_marginBottom="0dp"
+                    android:background="@drawable/rectangle_16"
+                    android:padding="16dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/relativeLayout"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/imageViewTop">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@android:color/transparent"
+                            android:text="Inserire testo."
+                            android:textColor="@android:color/black"
+                            android:textSize="16sp" />
+
+
+                    </LinearLayout>
+                </ScrollView>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/Interno_5"
+                android:layout_width="match_parent"
+                android:layout_height="62dp"
+                android:layout_alignParentBottom="true"
+                android:orientation="horizontal"
+                app:layout_constraintTop_toBottomOf="@+id/imageViewTop">
+
+                <TextView
+                    android:id="@+id/textView10"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Modalità insegnamento:" />
+
+                <CheckBox
+                    android:id="@+id/checkBox2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Online" />
+
+                <CheckBox
+                    android:id="@+id/checkBox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Presenza" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/Interno_6"
+                android:layout_width="match_parent"
+                android:layout_height="62dp"
+                android:layout_alignParentBottom="true"
+                android:orientation="horizontal"
+                app:layout_constraintTop_toBottomOf="@+id/imageViewTop">
+
+                <Button
+                    android:id="@+id/button4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Elimina" />
+
+                <Button
+                    android:id="@+id/button5"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Salva" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+
+    <RelativeLayout
+        android:id="@+id/relativeLayout"
+        android:layout_width="402dp"
+        android:layout_height="67dp"
+        android:layout_marginBottom="4dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <LinearLayout
+            android:id="@+id/button_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/ricerca"
+                android:contentDescription="Icona per la ricerca di tutor"
+                android:outlineProvider="none"
+                android:scaleType="fitCenter" />
+
+            <ImageButton
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/lista"
+                android:contentDescription="Icona per la ricerca di tutor"
+                android:outlineProvider="none"
+                android:scaleType="fitCenter" />
+
+            <ImageButton
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/home"
+                android:contentDescription="Icona per la ricerca di tutor"
+                android:outlineProvider="none"
+                android:scaleType="fitCenter" />
+
+            <ImageButton
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/chat"
+                android:contentDescription="Icona per la ricerca di tutor"
+                android:outlineProvider="none"
+                android:scaleType="fitCenter" />
+
+            <ImageButton
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/profilo"
+                android:contentDescription="Icona per la ricerca di tutor"
+                android:outlineProvider="none"
+                android:scaleType="fitCenter" />
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout6"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@+id/relativeLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/Ricercapara">
+
+        <ImageButton
+            android:id="@+id/imageButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="descrizione"
+            app:srcCompat="@drawable/group_42" />
+
+        <ScrollView
+            android:id="@+id/scroll_view_box"
+            android:layout_width="364dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginStart="70dp"
+            android:layout_marginEnd="70dp"
+            android:layout_marginBottom="0dp"
+            android:background="@drawable/rectangle_16"
+            android:padding="16dp"
+            app:layout_constraintBottom_toBottomOf="@+id/relativeLayout"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/imageViewTop">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+        </ScrollView>
+
+    </LinearLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
