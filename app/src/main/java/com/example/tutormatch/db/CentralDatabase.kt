@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 @Database(entities = [Studenti::class], version=1)
-abstract class GeneralDatabase: RoomDatabase() {
+abstract class CentralDatabase: RoomDatabase() {
     abstract fun studentiDao(): StudentiDao
     abstract fun tutorDao(): TutorDao
     abstract fun annunciDao(): AnnunciDao
@@ -17,13 +17,13 @@ abstract class GeneralDatabase: RoomDatabase() {
 
     companion object {
         @Volatile
-        private var INSTANCE: GeneralDatabase? = null
+        private var INSTANCE: CentralDatabase? = null
 
-        fun getInstance(context: Context): GeneralDatabase {
+        fun getInstance(context: Context): CentralDatabase {
             return INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
                     context.applicationContext,
-                    GeneralDatabase::class.java, "student_database"
+                    CentralDatabase::class.java, "student_database"
                 ).allowMainThreadQueries()
                     .fallbackToDestructiveMigration()
                     .build()
