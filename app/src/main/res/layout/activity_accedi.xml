@@ -37,8 +37,8 @@
 
     <ImageView
         android:id="@+id/imageView4"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="413dp"
+        android:layout_height="285dp"
         android:maxHeight="200dp"
         android:scaleType="centerCrop"
         app:layout_constraintBottom_toTopOf="@+id/linearLayout"
@@ -58,6 +58,12 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
+        <TextView
+            android:id="@+id/textView12"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Email" />
+
         <EditText
             android:id="@+id/email"
             android:layout_width="match_parent"
@@ -67,6 +73,12 @@
             android:inputType="textEmailAddress"
             android:minHeight="48dp"
             android:padding="10dp" />
+
+        <TextView
+            android:id="@+id/textView13"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Password" />
 
         <EditText
             android:id="@+id/password"
@@ -78,14 +90,6 @@
             android:minHeight="48dp"
             android:padding="10dp" />
 
-        <TextView
-            android:id="@+id/forgot_password"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="10dp"
-            android:text="Password dimenticata?"
-            android:textColor="#0000FF" />
-
         <Button
             android:id="@+id/button3"
             android:layout_width="match_parent"
@@ -95,14 +99,23 @@
             android:text="Accedi"
             android:textColor="#FFFFFF" />
 
-        <TextView
-            android:id="@+id/register"
-            android:layout_width="wrap_content"
+        <Button
+            android:id="@+id/button8"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:padding="10dp"
             android:text="Non hai un account? Registrati"
-            android:textColor="#0000FF" />
+            android:background="@android:color/transparent"
+            android:textColor="@android:color/holo_blue_dark"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/button9"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Password dimenticata?"
+            android:background="@android:color/transparent"
+            android:textColor="@android:color/holo_blue_dark"
+            android:textAllCaps="false" />
 
     </LinearLayout>
 
