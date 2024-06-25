@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@id/navigation_home">
+
+    <fragment
+        android:id="@+id/navigation_ricerca"
+        android:name="com.example.tutormatch.ui.ricerca.RicercaFragment"
+        android:label="Ricerca"
+        tools:layout="@layout/activity_ricercatutor" />
+
+    <fragment
+        android:id="@+id/navigation_lista"
+        android:name="com.example.tutormatch.ui.lista.ListaFragment"
+        android:label="Lista"
+        tools:layout="@layout/activity_prenotazionistudente" />
+
+    <fragment
+        android:id="@+id/navigation_home"
+        android:name="com.example.tutormatch.ui.home.HomeFragment"
+        android:label="Home"
+        tools:layout="@layout/activity_homestudente" />
+
+    <fragment
+        android:id="@+id/navigation_chat"
+        android:name="com.example.tutormatch.ui.chat.ChatFragment"
+        android:label="Chat"
+        tools:layout="@layout/activity_chat" />
+
+    <fragment
+        android:id="@+id/navigation_profilo"
+        android:name="com.example.tutormatch.ui.profilo.ProfiloFragment"
+        android:label="Profilo"
+        tools:layout="@layout/activity_profilo" />
+
+</navigation>
