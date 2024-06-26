@@ -6,20 +6,20 @@ import androidx.room.*
 interface CalendarioDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun inserisci(calendario: Calendario)
+    fun inserisci(calendario: Calendario)
 
     @Update
-    suspend fun aggiorna(calendario: Calendario)
+    fun aggiorna(calendario: Calendario)
 
     @Delete
-    suspend fun elimina(calendario: Calendario)
+    fun elimina(calendario: Calendario)
 
     @Query("SELECT * FROM calendario WHERE id = :id")
-    suspend fun getCalendarioById(id: Int): Calendario?
+    fun getCalendarioById(id: Int): Calendario?
 
     @Query("SELECT * FROM calendario")
-    suspend fun getAllCalendari(): List<Calendario>
+    fun getAllCalendari(): List<Calendario>
 
     @Query("SELECT * FROM calendario WHERE email_prof = :emailProf")
-    suspend fun getCalendariByProf(emailProf: String): List<Calendario>
+    fun getCalendariByProf(emailProf: String): List<Calendario>
 }

@@ -6,18 +6,18 @@ import androidx.room.*
 interface AnnuncioDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun inserisci(annuncio: Annuncio)
+    fun insert(annuncio: Annuncio)
 
     @Update
-    suspend fun aggiorna(annuncio: Annuncio)
+    fun update(annuncio: Annuncio)
 
     @Delete
-    suspend fun elimina(annuncio: Annuncio)
+    fun delete(annuncio: Annuncio)
 
     @Query("SELECT * FROM annuncio WHERE id = :id")
-    suspend fun getAnnuncioById(id: Int): Annuncio?
+    fun getAnnuncioById(id: Int): Annuncio?
 
     @Query("SELECT * FROM annuncio")
-    suspend fun getAllAnnunci(): List<Annuncio>
+    fun getAllAnnunci(): List<Annuncio>
 
 }

@@ -5,10 +5,14 @@ import androidx.room.*
 @Dao
 interface PrenotazioneDao {
     @Insert
-    suspend fun inserisci(prenotazione: Prenotazione)
+    fun insert(prenotazione: Prenotazione)
 
     @Delete
-    suspend fun delete(prenotazione: Prenotazione)
+    fun delete(prenotazione: Prenotazione)
+
+    @Query("SELECT materia, inizio_lez FROM prenotazione WHERE email_studente = :email")
+    fun getAllPrenotazioniByEmail(email: String): List<Prenotazione>
+
 
 
 }
