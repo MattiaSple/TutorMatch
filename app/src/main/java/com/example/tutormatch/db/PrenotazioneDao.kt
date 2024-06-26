@@ -11,7 +11,7 @@ interface PrenotazioneDao {
     @Delete
     fun delete(prenotazione: Prenotazione)
 
-    @Query("SELECT materia FROM prenotazione WHERE email_studente = :email")
+    @Query("SELECT * FROM prenotazione WHERE email_studente = :email")
     fun getAllPrenotazioniByEmail(email: String): List<Prenotazione>
 
     @Transaction
