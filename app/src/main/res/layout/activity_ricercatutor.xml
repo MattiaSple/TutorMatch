@@ -171,72 +171,6 @@
     </LinearLayout>
 
 
-    <RelativeLayout
-        android:id="@+id/relativeLayout"
-        android:layout_width="402dp"
-        android:layout_height="67dp"
-        android:layout_marginBottom="4dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <LinearLayout
-            android:id="@+id/button_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:orientation="horizontal">
-
-            <ImageButton
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="@drawable/ricerca"
-                android:contentDescription="Icona per la ricerca di tutor"
-                android:outlineProvider="none"
-                android:scaleType="fitCenter" />
-
-            <ImageButton
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="@drawable/lista"
-                android:contentDescription="Icona per la ricerca di tutor"
-                android:outlineProvider="none"
-                android:scaleType="fitCenter" />
-
-            <ImageButton
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="@drawable/home"
-                android:contentDescription="Icona per la ricerca di tutor"
-                android:outlineProvider="none"
-                android:scaleType="fitCenter" />
-
-            <ImageButton
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="@drawable/chat"
-                android:contentDescription="Icona per la ricerca di tutor"
-                android:outlineProvider="none"
-                android:scaleType="fitCenter" />
-
-            <ImageButton
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="@drawable/profilo"
-                android:contentDescription="Icona per la ricerca di tutor"
-                android:outlineProvider="none"
-                android:scaleType="fitCenter" />
-
-        </LinearLayout>
-
-    </RelativeLayout>
-
     <LinearLayout
         android:layout_width="375dp"
         android:layout_height="421dp"
@@ -259,5 +193,21 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/frameLayout" />
 
+    <RelativeLayout
+        android:id="@+id/relativeLayout"
+        android:layout_width="0dp"
+        android:layout_height="102dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottom_navigation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:background="@drawable/rectangle_13"
+            app:menu="@menu/activity_bottomnav"></com.google.android.material.bottomnavigation.BottomNavigationView>
+
+    </RelativeLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
