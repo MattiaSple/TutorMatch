@@ -3,23 +3,23 @@
     <group >
         <item
             android:id="@+id/navigation_ricerca"
-            android:icon="@drawable/ic_menu_camera"
+            android:icon="@drawable/ricerca"
             android:title="" />
         <item
             android:id="@+id/navigation_lista"
-            android:icon="@drawable/ic_menu_camera"
+            android:icon="@drawable/lista"
             android:title="" />
         <item
             android:id="@+id/navigation_home"
-            android:icon="@drawable/ic_menu_camera"
+            android:icon="@drawable/home"
             android:title="" />
         <item
             android:id="@+id/navigation_chat"
-            android:icon="@drawable/ic_menu_camera"
+            android:icon="@drawable/chat"
             android:title="" />
         <item
             android:id="@+id/navigation_profilo"
-            android:icon="@drawable/ic_menu_camera"
+            android:icon="@drawable/profilo"
             android:title="" />
     </group>
 </menu>
