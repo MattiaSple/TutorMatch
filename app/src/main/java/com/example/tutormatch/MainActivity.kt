@@ -12,8 +12,9 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
         val tutor = findViewById<Button>(R.id.creaAccountTutor)
-        tutor.setOnClickListener{
-            intent = Intent(this,SecondActivity::class.java)
+        tutor.setOnClickListener {
+            val intent = Intent(this, SecondActivity::class.java)
+            intent.putExtra("EXTRA_BOOLEAN", true)
             startActivity(intent)
         }
     }

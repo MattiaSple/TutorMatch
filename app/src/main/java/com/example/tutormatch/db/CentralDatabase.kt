@@ -13,7 +13,6 @@ abstract class CentralDatabase: RoomDatabase() {
     abstract fun prenotazioneDao(): PrenotazioneDao
     abstract fun chatDao(): ChatDao
 
-
     companion object {
         @Volatile
         private var INSTANCE: CentralDatabase? = null
@@ -22,7 +21,7 @@ abstract class CentralDatabase: RoomDatabase() {
             return INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
                     context.applicationContext,
-                    CentralDatabase::class.java, "student_database"
+                    CentralDatabase::class.java, "central_database"
                 ).allowMainThreadQueries()
                     .fallbackToDestructiveMigration()
                     .build()

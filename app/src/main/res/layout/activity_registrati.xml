@@ -126,8 +126,52 @@
                 android:minHeight="48dp"
                 android:padding="10dp" />
 
+            <TextView
+                android:id="@+id/textView28"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Residenza" />
 
+            <EditText
+                android:id="@+id/residenza"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="#000000"
+                android:hint="Residenza"
+                android:minHeight="48dp"
+                android:padding="10dp" />
+
+            <TextView
+                android:id="@+id/textView29"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Via" />
+
+            <EditText
+                android:id="@+id/via"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="#000000"
+                android:hint="Via"
+                android:minHeight="48dp"
+                android:padding="10dp" />
+
+            <TextView
+                android:id="@+id/textView30"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Civico" />
+
+            <EditText
+                android:id="@+id/civico"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="#000000"
+                android:hint="Civico"
+                android:minHeight="48dp"
+                android:padding="10dp" />
         </LinearLayout>
+
     </ScrollView>
 
     <LinearLayout
