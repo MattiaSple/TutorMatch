@@ -17,8 +17,8 @@ class ListaViewModel(application: Application): AndroidViewModel(application){
     private var _listaPrenotazione = MutableLiveData(listOf<Prenotazione>())
     val listaPrenotazione: LiveData<List<Prenotazione>> get() = _listaPrenotazione
 
-    fun leggiPrenotazione(email: String, id_calendario: Int){
-        _prenotazione.value = db.prenotazioneDao().getInfoPrenotazione(email, id_calendario)}
+//    fun leggiPrenotazione(email: String, id_calendario: Int){
+//        _prenotazione.value = db.prenotazioneDao().getInfoPrenotazione(email, id_calendario)}
 
     fun eliminaPrenotazione(prenotazione: Prenotazione){
         db.prenotazioneDao().delete(prenotazione)
