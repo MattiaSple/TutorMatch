@@ -13,7 +13,7 @@ class SecondActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_registrati)
 
-        viewModel = ViewModelProvider(this,ViewModelProvider.AndroidViewModelFactory.getInstance(application)).get(SecondActivityViewModel::class.java)
+        //viewModel = ViewModelProvider(this,ViewModelProvider.AndroidViewModelFactory.getInstance(application)).get(SecondActivityViewModel::class.java)
 
         val isVerified = intent.getBooleanExtra("EXTRA_BOOLEAN", false)
         val nome = findViewById<EditText>(R.id.name)
