@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
     app:startDestination="@id/navigation_home">
-
     <fragment
         android:id="@+id/navigation_ricerca"
         android:name="com.example.tutormatch.ui.ricerca.RicercaFragment"
@@ -34,5 +33,4 @@
         android:name="com.example.tutormatch.ui.profilo.ProfiloFragment"
         android:label="Profilo"
         tools:layout="@layout/activity_profilo" />
-
 </navigation>
