@@ -11,7 +11,7 @@ data class Utente(
     val password: String,
     val residenza: String,
     val via: String,
-    val civico: Int,
+    val civico: String,
     val ruolo: Boolean)
 
 

@@ -7,11 +7,11 @@ import androidx.room.RoomDatabase
 
 @Database(entities = [Prenotazione::class, Annuncio::class, Calendario::class, Utente::class, Chat::class], version=1)
 abstract class CentralDatabase: RoomDatabase() {
-    abstract fun UtenteDao(): UtenteDao
-    abstract fun AnnuncioDao(): AnnuncioDao
-    abstract fun CalendarioDao(): CalendarioDao
-    abstract fun PrenotazioneDao(): PrenotazioneDao
-    abstract fun ChatDao(): ChatDao
+    abstract fun utenteDao(): UtenteDao
+    abstract fun annuncioDao(): AnnuncioDao
+    abstract fun calendarioDao(): CalendarioDao
+    abstract fun prenotazioneDao(): PrenotazioneDao
+    abstract fun chatDao(): ChatDao
 
 
     companion object {
