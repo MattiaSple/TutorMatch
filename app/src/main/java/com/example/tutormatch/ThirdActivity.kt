@@ -7,6 +7,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import android.util.Log
 import androidx.lifecycle.Observer
+import androidx.navigation.findNavController
+
 class ThirdActivity:AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -16,6 +18,7 @@ class ThirdActivity:AppCompatActivity() {
             setContentView(R.layout.activity_hometutor)
         }else{
             setContentView(R.layout.activity_homestudente)
+            val navController = this.findNavController(R.id.myNavHostFragment)
         }
     }
 }

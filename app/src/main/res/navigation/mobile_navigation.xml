@@ -14,13 +14,13 @@
         android:id="@+id/navigation_lista"
         android:name="com.example.tutormatch.ui.lista.ListaFragment"
         android:label="Lista"
-        tools:layout="@layout/activity_prenotazionistudente" />
+        tools:layout="@layout/fragment_prenotazionistudente" />
 
     <fragment
         android:id="@+id/navigation_home"
         android:name="com.example.tutormatch.ui.home.HomeFragment"
         android:label="Home"
-        tools:layout="@layout/activity_homestudente" />
+        tools:layout="@layout/fragment_homestudente" />
 
     <fragment
         android:id="@+id/navigation_chat"
