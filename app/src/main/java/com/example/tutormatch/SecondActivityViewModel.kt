@@ -9,6 +9,12 @@ import com.example.tutormatch.db.Utente
 
 class SecondActivityViewModel(application: Application): AndroidViewModel(application) {
     private val db: CentralDatabase = CentralDatabase.getInstance(application) //instanzio il db
+    private val _extraBoolean = MutableLiveData<Boolean>()
+    val extraBoolean: LiveData<Boolean> get() = _extraBoolean
+
+    fun setExtraBoolean(value: Boolean) {
+        _extraBoolean.value = value
+    }
 
     private var _utente = MutableLiveData(Utente("","","","","","","",false))
     val utente: LiveData<Utente> get() = _utente

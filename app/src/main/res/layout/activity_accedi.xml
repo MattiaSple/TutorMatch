@@ -100,7 +100,7 @@
             android:textColor="#FFFFFF" />
 
         <Button
-            android:id="@+id/button8"
+            android:id="@+id/back"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Non hai un account? Registrati"
