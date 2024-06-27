@@ -192,16 +192,17 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:backgroundTint="#4D7881"
-            android:text="Crea un account"
+            android:text="Crea un account tutor"
             android:textColor="#FFFFFF" />
 
-        <TextView
-            android:id="@+id/login"
+        <Button
+            android:id="@+id/back"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:background="@android:color/transparent"
             android:padding="10dp"
-            android:text="Hai già un account? Accedi"
+            android:text="Torna alla home"
             android:textColor="#0000FF" />
     </LinearLayout>
 

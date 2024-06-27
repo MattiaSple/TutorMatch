@@ -14,8 +14,8 @@ interface AnnuncioDao {
     @Delete
     fun delete(annuncio: Annuncio)
 
-    @Query("SELECT * FROM annuncio WHERE id = :id")
-    fun getAnnuncioById(id: Int): Annuncio?
+    //@Query("SELECT * FROM annuncio WHERE id = :id")
+    //fun getAnnuncioById(id: Int): Annuncio?
 
     @Query("SELECT * FROM annuncio")
     fun getAllAnnunci(): List<Annuncio>
