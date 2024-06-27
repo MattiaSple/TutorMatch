@@ -53,15 +53,18 @@ dependencies {
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.androidx.room.common)
-    implementation(libs.androidx.room.runtime)   // Room runtime
+    implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
-
     implementation(libs.androidx.mediarouter)
     implementation(libs.androidx.ui.desktop)
+
+    // Room dependencies
     implementation("androidx.room:room-runtime:2.5.1")
     kapt("androidx.room:room-compiler:2.5.1")
 
+    // Testing dependencies
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 }
+

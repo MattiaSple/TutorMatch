@@ -3,11 +3,11 @@
     <group >
         <item
             android:id="@+id/navigation_ricerca"
-            android:icon="@drawable/ricerca"
+            android:icon="@drawable/group_11__1_"
             android:title="" />
         <item
             android:id="@+id/navigation_lista"
-            android:icon="@drawable/lista"
+            android:icon="@drawable/subtract__3_"
             android:title="" />
         <item
             android:id="@+id/navigation_home"
