@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.appcompat.app.AlertDialog
@@ -69,7 +70,7 @@ class SecondActivity : AppCompatActivity() {
                     val intent = Intent(this, MainActivity::class.java)
                     startActivity(intent)
                 } else {
-                    // Aggiungi un messaggio di errore per campi mancanti o email non valida
+                    Toast.makeText(this,"INSERISCI TUTTI I CAMPI PORCO DIO", Toast.LENGTH_SHORT).show()
                 }
             }
 
