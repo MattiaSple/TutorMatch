@@ -5,4 +5,5 @@
     <string name="crea_un_account_tutor">Crea un Account Tutor</string>
     <string name="crea_un_account_studente">Crea un Account Studente</string>
     <string name="accedi">Accedi</string>
+    <string name="nomeRegistrazione">Nome</string>
 </resources>
