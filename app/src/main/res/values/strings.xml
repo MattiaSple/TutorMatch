@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">TutorMatch</string>
+    <string name="benvenuto">Benvenuto in TutorMatch!</string>
+    <string name="intro">Benvenuti nella nostra applicazione!\nQui, studenti e tutor trovano il perfetto equilibrio....(continua)!</string>
+    <string name="crea_un_account_tutor">Crea un Account Tutor</string>
+    <string name="crea_un_account_studente">Crea un Account Studente</string>
+    <string name="accedi">Accedi</string>
 </resources>

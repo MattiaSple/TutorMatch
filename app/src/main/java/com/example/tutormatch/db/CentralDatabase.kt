@@ -11,7 +11,7 @@ abstract class CentralDatabase: RoomDatabase() {
     abstract fun annuncioDao(): AnnuncioDao
     abstract fun calendarioDao(): CalendarioDao
     abstract fun prenotazioneDao(): PrenotazioneDao
-    abstract fun chatDao(): ChatDao
+    //abstract fun chatDao(): ChatDao
 
     companion object {
         @Volatile

@@ -18,7 +18,7 @@ class ThirdActivity:AppCompatActivity() {
             setContentView(R.layout.activity_hometutor)
         }else{
             setContentView(R.layout.activity_homestudente)
-            val navController = this.findNavController(R.id.myNavHostFragment)
+            //val navController = this.findNavController(R.id.myNavHostFragment)
         }
     }
 }

@@ -10,64 +10,64 @@
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="60dp"
-        android:layout_marginTop="92dp"
-        android:layout_marginEnd="60dp"
-        android:layout_marginBottom="399dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_width="256dp"
+        android:layout_height="290dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="60dp"
+        android:layout_marginEnd="40dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/young_boys_and_young_girl_jumping" />
 
     <TextView
-        android:id="@+id/textView"
-        android:layout_width="399dp"
-        android:layout_height="43dp"
+        android:id="@+id/titolo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginStart="126dp"
-        android:layout_marginTop="36dp"
+        android:layout_marginTop="30dp"
         android:layout_marginEnd="126dp"
-        android:layout_marginBottom="344dp"
-        android:text="Benvenuto in TutorMatch!"
+        android:fontFamily="@font/poppins_light"
+        android:text="@string/benvenuto"
         android:textAlignment="center"
-        android:textSize="30sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:textSize="26sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView"
-        app:layout_constraintVertical_bias="0.1" />
+        app:layout_constraintTop_toBottomOf="@+id/imageView" />
 
     <TextView
-        android:id="@+id/textView2"
-        android:layout_width="302dp"
-        android:layout_height="59dp"
+        android:id="@+id/Introduzione"
+        android:layout_width="304dp"
+        android:layout_height="54dp"
         android:layout_marginStart="54dp"
-        android:layout_marginTop="1dp"
+        android:layout_marginTop="5dp"
         android:layout_marginEnd="54dp"
-        android:layout_marginBottom="262dp"
-        android:text="Qui, studenti e tutor trovano l perfetto equilibrio per un apprendimento confrotevole e personalizzato"
+        android:text="@string/intro"
         android:textAlignment="center"
-        android:textSize="10sp"
+        android:textColor="#8D6E63"
+        android:textColorLink="#673AB7"
+        android:textSize="14sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
+        app:layout_constraintTop_toBottomOf="@+id/titolo"
+        app:layout_constraintVertical_bias="0.05" />
 
     <Button
         android:id="@+id/creaAccountTutor"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_width="330dp"
+        android:layout_height="48dp"
         android:layout_marginStart="60dp"
-        android:layout_marginTop="45dp"
+        android:layout_marginTop="35dp"
         android:layout_marginEnd="60dp"
-        android:text="Crea un Account Tutor"
-        android:textAlignment="center"
         android:backgroundTint="#4D7881"
+        android:text="@string/crea_un_account_tutor"
+        android:textAlignment="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView2"
+        app:layout_constraintTop_toBottomOf="@+id/Introduzione"
         app:layout_constraintWidth_percent="0.8" />
 
     <Button
@@ -77,8 +77,8 @@
         android:layout_marginStart="60dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="60dp"
-        android:text="Crea un Account Studente"
         android:backgroundTint="#4D7881"
+        android:text="@string/crea_un_account_studente"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/creaAccountTutor"
@@ -92,12 +92,19 @@
         android:layout_marginTop="40dp"
         android:layout_marginEnd="110dp"
         android:layout_marginBottom="46dp"
-        android:text="Accedi"
         android:backgroundTint="#4D7881"
+        android:text="@string/accedi"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/creaAccountStudente"
         app:layout_constraintWidth_percent="0.8" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="20dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

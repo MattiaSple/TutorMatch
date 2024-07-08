@@ -5,7 +5,7 @@ import androidx.room.*
 @Dao
 interface PrenotazioneDao {
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(prenotazione: Prenotazione)
 
     @Delete
