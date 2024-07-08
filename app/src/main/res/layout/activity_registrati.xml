@@ -5,21 +5,24 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+
     <FrameLayout
         android:id="@+id/frameLayout"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="0dp"
         android:maxHeight="200dp"
+        app:layout_constraintBottom_toTopOf="@+id/scrollView"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintHeight_default="wrap"
-        app:layout_constraintHeight_max="200dp">
+        app:layout_constraintHeight_max="200dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
             android:id="@+id/imageView2"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:contentDescription="Registrati"
             android:scaleType="centerCrop"
             app:srcCompat="@drawable/group_40" />
 
@@ -30,32 +33,19 @@
             android:layout_gravity="center"
             android:text="Registrati"
             android:textColor="#FFFFFF"
-            android:textSize="24sp"
+            android:textSize="34sp"
             android:textStyle="bold" />
 
     </FrameLayout>
 
-    <ImageView
-        android:id="@+id/imageView4"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:maxHeight="250dp"
-        android:scaleType="centerCrop"
-        app:layout_constraintBottom_toTopOf="@+id/scrollView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/frameLayout"
-        app:srcCompat="@drawable/group_39" />
-
     <ScrollView
         android:id="@+id/scrollView"
-        android:layout_width="415dp"
-        android:layout_height="159dp"
+        android:layout_width="0dp"
+        android:layout_height="627dp"
+        android:layout_marginTop="10dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/imageView4">
+        app:layout_constraintTop_toBottomOf="@+id/frameLayout">
 
         <LinearLayout
             android:id="@+id/linearLayout"
@@ -64,18 +54,29 @@
             android:orientation="vertical"
             android:padding="16dp">
 
+            <ImageView
+                android:id="@+id/imageView3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:importantForAccessibility="no"
+                android:scaleType="fitCenter"
+                app:srcCompat="@drawable/group_39" />
+
             <TextView
                 android:id="@+id/textView21"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Nome" />
+                android:text="@string/textNome"
+                android:textSize="16sp" />
 
             <EditText
                 android:id="@+id/name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:autofillHints="name"
                 android:backgroundTint="#000000"
-                android:hint="@string/nomeRegistrazione"
+                android:hint="@string/editTextNome"
+                android:inputType="textPersonName"
                 android:minHeight="48dp"
                 android:padding="10dp" />
 
@@ -83,14 +84,16 @@
                 android:id="@+id/textView25"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Cognome" />
+                android:text="@string/textCognome"
+                android:textSize="16sp" />
 
             <EditText
                 android:id="@+id/surname"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:backgroundTint="#000000"
-                android:hint="Cognome"
+                android:hint="@string/editTextCognome"
+                android:inputType="textPersonName"
                 android:minHeight="48dp"
                 android:padding="10dp" />
 
@@ -98,14 +101,15 @@
                 android:id="@+id/textView26"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Email" />
+                android:text="@string/textEmail"
+                android:textSize="16sp" />
 
             <EditText
                 android:id="@+id/email"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:backgroundTint="#000000"
-                android:hint="Email"
+                android:hint="@string/editTextEmail"
                 android:inputType="textEmailAddress"
                 android:minHeight="48dp"
                 android:padding="10dp" />
@@ -114,14 +118,15 @@
                 android:id="@+id/textView27"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Password" />
+                android:text="@string/textPassword"
+                android:textSize="16sp" />
 
             <EditText
                 android:id="@+id/password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:backgroundTint="#000000"
-                android:hint="Password"
+                android:hint="@string/editTextPassword"
                 android:inputType="textPassword"
                 android:minHeight="48dp"
                 android:padding="10dp" />
@@ -130,29 +135,34 @@
                 android:id="@+id/textView28"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Residenza" />
+                android:text="@string/textResidenza"
+                android:textSize="16sp" />
 
             <EditText
                 android:id="@+id/residenza"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:backgroundTint="#000000"
-                android:hint="Residenza"
+                android:hint="@string/editTextResidenza"
+                android:inputType="textCapWords"
                 android:minHeight="48dp"
                 android:padding="10dp" />
+            <!-- android:autofillHints="addressLocality" -->
+
 
             <TextView
                 android:id="@+id/textView29"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Via" />
+                android:text="@string/textVia"
+                android:textSize="16sp" />
 
             <EditText
                 android:id="@+id/via"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:backgroundTint="#000000"
-                android:hint="Via"
+                android:hint="@string/editTextVia"
                 android:minHeight="48dp"
                 android:padding="10dp" />
 
@@ -160,51 +170,51 @@
                 android:id="@+id/textView30"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Civico" />
+                android:text="@string/textCivico"
+                android:textSize="16sp" />
 
             <EditText
                 android:id="@+id/civico"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:autofillHints="postalCode"
                 android:backgroundTint="#000000"
-                android:hint="Civico"
+                android:hint="@string/editTextCivico"
+                android:inputType="number"
                 android:minHeight="48dp"
                 android:padding="10dp" />
+
+            <LinearLayout
+                android:id="@+id/linearLayout_2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <Button
+                    android:id="@+id/accedi"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:backgroundTint="#4D7881"
+                    android:text="Crea un account tutor"
+                    android:textColor="#FFFFFF" />
+
+                <Button
+                    android:id="@+id/back"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:background="@android:color/transparent"
+                    android:padding="10dp"
+                    android:text="@string/tornaHome"
+                    android:textColor="#0000FF" />
+            </LinearLayout>
+
         </LinearLayout>
 
     </ScrollView>
-
-    <LinearLayout
-        android:id="@+id/linearLayout_2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:orientation="vertical"
-        android:padding="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/scrollView">
-
-        <Button
-            android:id="@+id/accedi"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:backgroundTint="#4D7881"
-            android:text="Crea un account tutor"
-            android:textColor="#FFFFFF" />
-
-        <Button
-            android:id="@+id/back"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:background="@android:color/transparent"
-            android:padding="10dp"
-            android:text="Torna alla home"
-            android:textColor="#0000FF" />
-    </LinearLayout>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,9 +1,27 @@
 <resources>
+    <!-- tag della pagina Home (activity_main) -->
+
     <string name="app_name">TutorMatch</string>
     <string name="benvenuto">Benvenuto in TutorMatch!</string>
     <string name="intro">Benvenuti nella nostra applicazione!\nQui, studenti e tutor trovano il perfetto equilibrio....(continua)!</string>
     <string name="crea_un_account_tutor">Crea un Account Tutor</string>
     <string name="crea_un_account_studente">Crea un Account Studente</string>
     <string name="accedi">Accedi</string>
-    <string name="nomeRegistrazione">Nome</string>
+
+    <!-- tag della pagina Registrati (activity_registrati) -->
+    <string name="editTextNome">Mario</string>
+    <string name="textNome">Nome</string>
+    <string name="textCognome">Cognome</string>
+    <string name="editTextCognome">Rossi</string>
+    <string name="textEmail">Email</string>
+    <string name="editTextEmail">m.rossi@gmail.com</string>
+    <string name="textPassword">Password</string>
+    <string name="editTextPassword">*****</string>
+    <string name="textResidenza">Residenza</string>
+    <string name="editTextResidenza">Ancona</string>
+    <string name="textVia">Via</string>
+    <string name="editTextVia">Mario torresi</string>
+    <string name="textCivico">Civico</string>
+    <string name="editTextCivico">33</string>
+    <string name="tornaHome">Torna alla home</string>
 </resources>
