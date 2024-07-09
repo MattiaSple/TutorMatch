@@ -1,14 +1,16 @@
 package com.example.tutormatch
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
-import androidx.databinding.DataBindingUtil
 import com.example.tutormatch.db.Utente
 import androidx.lifecycle.Observer
 import com.example.tutormatch.ui.lista.UtenteViewModel
@@ -78,9 +80,13 @@ class SecondActivity : AppCompatActivity() {
                     val intent = Intent(this, MainActivity::class.java)
                     startActivity(intent)
                 } else {
-                    Toast.makeText(this,"INSERISCI TUTTI I CAMPI PORCO DIO", Toast.LENGTH_SHORT).show()
+                    showToastWithDelay(this, accedi)
+                    //Toast.makeText(this,"TESTA DI CAZZO INSERISCI I DATI", Toast.LENGTH_SHORT).show()
+
                 }
             }
+
+
 
             back.setOnClickListener {
                 val intent = Intent(this, MainActivity::class.java)
@@ -130,4 +136,17 @@ class SecondActivity : AppCompatActivity() {
 //            }
         }
     }
+}
+
+private fun showToastWithDelay(context: Context, button: Button) {
+    // Disabilita il bottone
+    button.isEnabled = false
+
+    // Mostra il Toast
+    Toast.makeText(context, "RIEMPI I CAMPI DIO SANTO", Toast.LENGTH_SHORT).show()
+
+    // Usa un Handler per riabilitare il bottone dopo il ritardo specificato
+    Handler(Looper.getMainLooper()).postDelayed({
+        button.isEnabled = true
+    }, 2500)
 }
