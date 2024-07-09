@@ -8,7 +8,7 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
-import androidx.appcompat.app.AlertDialog
+import androidx.databinding.DataBindingUtil
 import com.example.tutormatch.db.Utente
 import androidx.lifecycle.Observer
 import com.example.tutormatch.ui.lista.UtenteViewModel
@@ -18,6 +18,12 @@ class SecondActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+//        // Ottieni il binding
+//        val binding: ActivityRegistratiBinding = DataBindingUtil.setContentView(
+//            this, R.layout.activity_registrati
+//        )
+
         //Inizializzo un viewmodel che abbia anche un context, tramite un modelFactory
         utenteViewModel = ViewModelProvider(this,ViewModelProvider.AndroidViewModelFactory.getInstance(application)).get(UtenteViewModel::class.java)
 
@@ -27,14 +33,16 @@ class SecondActivity : AppCompatActivity() {
             }
         })
 
-
-
         val extraExists = intent.hasExtra("EXTRA_BOOLEAN")
+
+
+
+
         if (extraExists) {
             setContentView(R.layout.activity_registrati)
             val isVerified = intent.getBooleanExtra("EXTRA_BOOLEAN", false)
             val nome = findViewById<EditText>(R.id.name)
-            val cognome = findViewById<EditText>(R.id.surname)
+            val cognome = findViewById<EditText>(R.id.cognome)
             val email = findViewById<EditText>(R.id.email)
             val password = findViewById<EditText>(R.id.password)
             val residenza = findViewById<EditText>(R.id.residenza)
@@ -43,7 +51,7 @@ class SecondActivity : AppCompatActivity() {
             val accedi = findViewById<Button>(R.id.accedi)
             val back = findViewById<Button>(R.id.back)
 
-            if (isVerified) {
+            if (extraExists) {
                 accedi.text = "Registrati come tutor"
             } else {
                 accedi.text = "Registrati come studente"

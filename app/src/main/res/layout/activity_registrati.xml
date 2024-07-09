@@ -42,7 +42,7 @@
     <ScrollView
         android:id="@+id/scrollView"
         android:layout_width="0dp"
-        android:layout_height="627dp"
+        android:layout_height="540dp"
         android:layout_marginTop="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -89,7 +89,7 @@
                 android:textSize="16sp" />
 
             <EditText
-                android:id="@+id/surname"
+                android:id="@+id/cognome"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:backgroundTint="#000000"
@@ -164,6 +164,7 @@
                 android:layout_height="wrap_content"
                 android:backgroundTint="#000000"
                 android:hint="@string/editTextVia"
+                android:inputType="textPostalAddress"
                 android:minHeight="48dp"
                 android:padding="10dp" />
 
