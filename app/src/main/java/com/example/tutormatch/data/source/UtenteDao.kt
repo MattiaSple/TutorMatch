@@ -1,6 +1,7 @@
-package com.example.tutormatch.db
+package com.example.tutormatch.data.source
 
 import androidx.room.*
+import com.example.tutormatch.data.model.Utente
 
 @Dao
 interface UtenteDao {

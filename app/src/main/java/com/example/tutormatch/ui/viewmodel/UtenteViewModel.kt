@@ -1,10 +1,10 @@
-package com.example.tutormatch.ui.lista
+package com.example.tutormatch.ui.viewmodel
 
 import android.app.Application
 import android.widget.Toast
 import androidx.lifecycle.*
-import com.example.tutormatch.db.CentralDatabase
-import com.example.tutormatch.db.Utente
+import com.example.tutormatch.data.source.CentralDatabase
+import com.example.tutormatch.data.model.Utente
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

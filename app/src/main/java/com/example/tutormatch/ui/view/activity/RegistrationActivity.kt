@@ -1,4 +1,4 @@
-package com.example.tutormatch
+package com.example.tutormatch.ui.view.activity
 
 import android.content.Context
 import android.content.Intent
@@ -10,34 +10,44 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
-import com.example.tutormatch.db.Utente
+import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
-import com.example.tutormatch.ui.lista.UtenteViewModel
+import androidx.lifecycle.ViewModelProvider
+import com.example.tutormatch.R
+import com.example.tutormatch.data.model.Utente
+import com.example.tutormatch.databinding.ActivityRegistratiBinding
+import com.example.tutormatch.ui.viewmodel.UtenteViewModel
 
-class SecondActivity : AppCompatActivity() {
+class RegistrationActivity : AppCompatActivity() {
     lateinit var utenteViewModel: UtenteViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-//        // Ottieni il binding
-//        val binding: ActivityRegistratiBinding = DataBindingUtil.setContentView(
-//            this, R.layout.activity_registrati
-//        )
+        // Ottieni il binding
+        val binding: ActivityRegistratiBinding = DataBindingUtil.setContentView(
+            this, R.layout.activity_registrati
+        )
+
+
+
 
         //Inizializzo un viewmodel che abbia anche un context, tramite un modelFactory
-        utenteViewModel = ViewModelProvider(this,ViewModelProvider.AndroidViewModelFactory.getInstance(application)).get(UtenteViewModel::class.java)
+        utenteViewModel = ViewModelProvider(
+            this,
+            ViewModelProvider.AndroidViewModelFactory.getInstance(application)
+        ).get(UtenteViewModel::class.java)
 
         utenteViewModel.listaUtenti.observe(this, Observer { utenti ->
             utenti.forEach { utente ->
-                Log.d("CentralDatabase", "Utente: ${utente.nome} ${utente.cognome} ${utente.ruolo} ${utente.email}")
+                Log.d(
+                    "CentralDatabase",
+                    "Utente: ${utente.nome} ${utente.cognome} ${utente.ruolo} ${utente.email}"
+                )
             }
         })
 
         val extraExists = intent.hasExtra("EXTRA_BOOLEAN")
-
-
 
 
         if (extraExists) {
@@ -50,7 +60,7 @@ class SecondActivity : AppCompatActivity() {
             val residenza = findViewById<EditText>(R.id.residenza)
             val via = findViewById<EditText>(R.id.via)
             val civico = findViewById<EditText>(R.id.civico)
-            val accedi = findViewById<Button>(R.id.accedi)
+            val accedi = findViewById<Button>(R.id.registrazione)
             val back = findViewById<Button>(R.id.back)
 
             if (extraExists) {
@@ -76,7 +86,7 @@ class SecondActivity : AppCompatActivity() {
                     )
                     utenteViewModel.insert(utente)
                     utenteViewModel.delete(utente)
-                    val intent = Intent(this, MainActivity::class.java)
+                    val intent = Intent(this, HomeActivity::class.java)
                     startActivity(intent)
                 } else {
                     showToastWithDelay(this, accedi)
@@ -86,14 +96,14 @@ class SecondActivity : AppCompatActivity() {
 
 
             back.setOnClickListener {
-                val intent = Intent(this, MainActivity::class.java)
+                val intent = Intent(this, HomeActivity::class.java)
                 startActivity(intent)
             }
         } else {
             setContentView(R.layout.activity_accedi)
             val email = findViewById<EditText>(R.id.email)
             val password = findViewById<EditText>(R.id.password)
-            val accedi = findViewById<Button>(R.id.accedi)
+            val accedi = findViewById<Button>(R.id.registrazione)
             val back = findViewById<Button>(R.id.back)
 
 //            accedi.setOnClickListener {
@@ -110,7 +120,7 @@ class SecondActivity : AppCompatActivity() {
 //                    }
 //
 //                    if (loginSuccess) {
-//                        val intent = Intent(this, ThirdActivity::class.java)
+//                        val intent = Intent(this, LoginActivity::class.java)
 //                        intent.putExtra("EXTRA_BOOLEAN", ruolo)
 //                        startActivity(intent)
 //                    } else {
@@ -128,7 +138,7 @@ class SecondActivity : AppCompatActivity() {
 //            }
 //
 //            back.setOnClickListener {
-//                val intent = Intent(this, MainActivity::class.java)
+//                val intent = Intent(this, HomeActivity::class.java)
 //                startActivity(intent)
 //            }
         }

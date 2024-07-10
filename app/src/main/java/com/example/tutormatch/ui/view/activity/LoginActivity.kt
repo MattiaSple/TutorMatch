@@ -1,15 +1,10 @@
-package com.example.tutormatch
-import android.content.Intent
-import android.os.Bundle
-import android.widget.Button
-import android.widget.EditText
-import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
-import android.util.Log
-import androidx.lifecycle.Observer
-import androidx.navigation.findNavController
+package com.example.tutormatch.ui.view.activity
 
-class ThirdActivity:AppCompatActivity() {
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+import com.example.tutormatch.R
+
+class LoginActivity: AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val isVerified = intent.getBooleanExtra("EXTRA_BOOLEAN", false)

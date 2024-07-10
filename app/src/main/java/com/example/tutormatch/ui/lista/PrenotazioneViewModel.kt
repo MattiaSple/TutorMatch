@@ -2,8 +2,8 @@ package com.example.tutormatch.ui.lista
 
 import android.app.Application
 import androidx.lifecycle.*
-import com.example.tutormatch.db.CentralDatabase
-import com.example.tutormatch.db.Prenotazione
+import com.example.tutormatch.data.source.CentralDatabase
+import com.example.tutormatch.data.model.Prenotazione
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

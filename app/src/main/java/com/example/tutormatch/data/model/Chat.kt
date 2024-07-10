@@ -1,4 +1,4 @@
-package com.example.tutormatch.db
+package com.example.tutormatch.data.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

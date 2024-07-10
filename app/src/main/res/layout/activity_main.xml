@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".ui.view.activity.HomeActivity">
 
 
     <ImageView
@@ -66,6 +66,7 @@
         android:layout_marginEnd="60dp"
         android:layout_marginBottom="10dp"
         android:backgroundTint="#4D7881"
+        android:onClick="navigateToTutor"
         android:text="@string/crea_un_account_tutor"
         android:textAlignment="center"
         app:layout_constraintBottom_toTopOf="@+id/creaAccountStudente"
@@ -79,20 +80,22 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:backgroundTint="#4D7881"
+        android:onClick="navigateToStudent"
         android:text="@string/crea_un_account_studente"
-        app:layout_constraintBottom_toTopOf="@+id/accedi"
+        app:layout_constraintBottom_toTopOf="@+id/registrazione"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/creaAccountTutor"
         app:layout_constraintWidth_percent="0.8" />
 
     <Button
-        android:id="@+id/accedi"
+        android:id="@+id/registrazione"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="40dp"
         android:layout_marginBottom="80dp"
         android:backgroundTint="#4D7881"
+        android:onClick="accedi"
         android:text="@string/accedi"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

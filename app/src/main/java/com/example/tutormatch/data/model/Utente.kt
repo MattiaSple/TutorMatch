@@ -1,4 +1,4 @@
-package com.example.tutormatch.db
+package com.example.tutormatch.data.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -13,5 +13,3 @@ data class Utente(
     val via: String,
     val civico: String,
     val ruolo: Boolean)
-
-
