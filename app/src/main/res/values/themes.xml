@@ -1,8 +1,15 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.TutorMatch" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <!-- Colore di sfondo dell'app -->
+        <item name="android:windowBackground">@color/colorBackground</item>
+        <!-- Colore di sfondo delle attività -->
+        <item name="android:colorBackground">@color/colorBackground</item>
+        <!-- Colore della barra di stato -->
+        <item name="android:statusBarColor">@color/statusBarColor</item>
+
+
+
     </style>
 
     <style name="Theme.TutorMatch" parent="Base.Theme.TutorMatch" />

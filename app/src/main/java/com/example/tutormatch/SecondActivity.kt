@@ -74,15 +74,12 @@ class SecondActivity : AppCompatActivity() {
                         via.text.toString(),
                         isVerified
                     )
-
                     utenteViewModel.insert(utente)
                     utenteViewModel.delete(utente)
                     val intent = Intent(this, MainActivity::class.java)
                     startActivity(intent)
                 } else {
                     showToastWithDelay(this, accedi)
-                    //Toast.makeText(this,"TESTA DI CAZZO INSERISCI I DATI", Toast.LENGTH_SHORT).show()
-
                 }
             }
 

@@ -46,7 +46,6 @@ class UtenteViewModel(application: Application) : AndroidViewModel(application) 
             withContext(Dispatchers.Main) {
                 _listaUtenti.postValue(aggiornataLista)
                 Toast.makeText(getApplication(), "Account creato!", Toast.LENGTH_SHORT).show()
-
             }
         }
     }
