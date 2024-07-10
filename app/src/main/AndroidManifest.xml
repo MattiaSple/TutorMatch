@@ -20,7 +20,7 @@
             android:name=".ui.view.activity.LoginActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.view.activity.HomeActivity"
+            android:name=".ui.view.activity.MainActivity"
             android:screenOrientation="portrait"
             android:exported="true">
             <intent-filter>

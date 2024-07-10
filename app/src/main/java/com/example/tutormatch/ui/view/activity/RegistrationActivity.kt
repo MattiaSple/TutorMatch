@@ -86,7 +86,7 @@ class RegistrationActivity : AppCompatActivity() {
                     )
                     utenteViewModel.insert(utente)
                     utenteViewModel.delete(utente)
-                    val intent = Intent(this, HomeActivity::class.java)
+                    val intent = Intent(this, MainActivity::class.java)
                     startActivity(intent)
                 } else {
                     showToastWithDelay(this, accedi)
@@ -96,7 +96,7 @@ class RegistrationActivity : AppCompatActivity() {
 
 
             back.setOnClickListener {
-                val intent = Intent(this, HomeActivity::class.java)
+                val intent = Intent(this, MainActivity::class.java)
                 startActivity(intent)
             }
         } else {
@@ -138,7 +138,7 @@ class RegistrationActivity : AppCompatActivity() {
 //            }
 //
 //            back.setOnClickListener {
-//                val intent = Intent(this, HomeActivity::class.java)
+//                val intent = Intent(this, MainActivity::class.java)
 //                startActivity(intent)
 //            }
         }
