@@ -103,7 +103,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:background="@drawable/rectangle_13"
-            app:menu="@menu/activity_bottomnav"></com.google.android.material.bottomnavigation.BottomNavigationView>
+            app:menu="@menu/bottom_nav_menu"></com.google.android.material.bottomnavigation.BottomNavigationView>
 
     </RelativeLayout>
 

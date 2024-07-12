@@ -103,22 +103,21 @@
             android:id="@+id/back"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Non hai un account? Registrati"
             android:background="@android:color/transparent"
-            android:textColor="@android:color/holo_blue_dark"
-            android:textAllCaps="false" />
+            android:text="Non hai un account? Registrati"
+            android:textAllCaps="false"
+            android:textColor="@android:color/holo_blue_dark" />
 
         <Button
             android:id="@+id/button9"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Password dimenticata?"
             android:background="@android:color/transparent"
-            android:textColor="@android:color/holo_blue_dark"
-            android:textAllCaps="false" />
+            android:text="Password dimenticata?"
+            android:textAllCaps="false"
+            android:textColor="@android:color/holo_blue_dark" />
 
     </LinearLayout>
-
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

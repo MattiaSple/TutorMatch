@@ -17,9 +17,9 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
-
     buildFeatures {
         dataBinding = true
+        viewBinding = true
     }
 
     buildTypes {
@@ -61,6 +61,7 @@ dependencies {
     // Room dependencies
     implementation("androidx.room:room-runtime:2.5.1")
     kapt("androidx.room:room-compiler:2.5.1")
+    implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
 
     // Testing dependencies
     testImplementation(libs.junit)

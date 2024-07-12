@@ -1,10 +1,10 @@
-package com.example.tutormatch.ui.chat
+package com.example.tutormatch.ui.prenotazioni
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
-class ChatViewModel : ViewModel() {
+class PrenotazioniViewModel : ViewModel() {
 
     private val _text = MutableLiveData<String>().apply {
         value = "This is home Fragment"
