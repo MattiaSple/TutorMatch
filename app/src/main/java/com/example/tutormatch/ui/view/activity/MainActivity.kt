@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity() {
 
     // Funzione chiamata quando si clicca il pulsante "Accedi"
     fun accedi(v: View) {
-        val intent = Intent(this, RegistrationActivity::class.java)
+        val intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
     }
 

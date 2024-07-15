@@ -1,225 +1,247 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="viewModel"
+            type="com.example.tutormatch.ui.viewmodel.RegistrationViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".ui.view.activity.RegistrationActivity">
 
 
-    <FrameLayout
-        android:id="@+id/frameLayout"
-        android:layout_width="0dp"
-        android:layout_height="100dp"
-        android:maxHeight="200dp"
-        app:layout_constraintBottom_toTopOf="@+id/scrollView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_default="wrap"
-        app:layout_constraintHeight_max="200dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <ImageView
-            android:id="@+id/imageView2"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:contentDescription="Registrati"
-            android:scaleType="centerCrop"
-            app:srcCompat="@drawable/group_40" />
-
-        <TextView
-            android:id="@+id/titolo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:fontFamily="@font/poppins_light"
-            android:text="Registrati"
-            android:textColor="#FFFFFF"
-            android:textSize="34sp"
-            android:textStyle="bold" />
-
-    </FrameLayout>
-
-    <ScrollView
-        android:id="@+id/scrollView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/frameLayout">
-
-        <LinearLayout
-            android:id="@+id/linearLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+        <FrameLayout
+            android:id="@+id/frameLayout"
+            android:layout_width="0dp"
+            android:layout_height="135dp"
+            android:maxHeight="200dp"
+            app:layout_constraintBottom_toTopOf="@+id/scrollView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_default="wrap"
+            app:layout_constraintHeight_max="200dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
-                android:id="@+id/imageView3"
+                android:id="@+id/imageView2"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:importantForAccessibility="no"
-                android:scaleType="fitCenter"
-                app:srcCompat="@drawable/group_39" />
+                android:layout_height="match_parent"
+                android:contentDescription="Registrati"
+                android:scaleType="centerCrop"
+                app:srcCompat="@drawable/group_40" />
 
             <TextView
-                android:id="@+id/textView21"
-                android:layout_width="match_parent"
+                android:id="@+id/titolo"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:fontFamily="@font/poppins_light"
-                android:text="@string/textNome"
-                android:textSize="16sp" />
+                android:text="Registrati"
+                android:textColor="#FFFFFF"
+                android:textSize="34sp"
+                android:textStyle="bold" />
 
-            <EditText
-                android:id="@+id/name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:autofillHints="name"
-                android:backgroundTint="#000000"
-                android:hint="@string/editTextNome"
-                android:inputType="textPersonName"
-                android:minHeight="48dp"
-                android:padding="10dp" />
+        </FrameLayout>
 
-            <TextView
-                android:id="@+id/textView25"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/textCognome"
-                android:textSize="16sp" />
-
-            <EditText
-                android:id="@+id/cognome"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:backgroundTint="#000000"
-                android:hint="@string/editTextCognome"
-                android:inputType="textPersonName"
-                android:minHeight="48dp"
-                android:padding="10dp" />
-
-            <TextView
-                android:id="@+id/textView26"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/textEmail"
-                android:textSize="16sp" />
-
-            <EditText
-                android:id="@+id/email"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:backgroundTint="#000000"
-                android:hint="@string/editTextEmail"
-                android:inputType="textEmailAddress"
-                android:minHeight="48dp"
-                android:padding="10dp" />
-
-            <TextView
-                android:id="@+id/textView27"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/textPassword"
-                android:textSize="16sp" />
-
-            <EditText
-                android:id="@+id/password"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:backgroundTint="#000000"
-                android:hint="@string/editTextPassword"
-                android:inputType="textPassword"
-                android:minHeight="48dp"
-                android:padding="10dp" />
-
-            <TextView
-                android:id="@+id/textView28"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/textResidenza"
-                android:textSize="16sp" />
-
-            <EditText
-                android:id="@+id/residenza"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:backgroundTint="#000000"
-                android:hint="@string/editTextResidenza"
-                android:inputType="textCapWords"
-                android:minHeight="48dp"
-                android:padding="10dp"
-                android:autofillHints="addressLocality" />
-
-
-            <TextView
-                android:id="@+id/textView29"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/textVia"
-                android:textSize="16sp" />
-
-            <EditText
-                android:id="@+id/via"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:backgroundTint="#000000"
-                android:hint="@string/editTextVia"
-                android:inputType="textPostalAddress"
-                android:minHeight="48dp"
-                android:padding="10dp" />
-
-            <TextView
-                android:id="@+id/textView30"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/textCivico"
-                android:textSize="16sp" />
-
-            <EditText
-                android:id="@+id/civico"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:autofillHints="postalCode"
-                android:backgroundTint="#000000"
-                android:hint="@string/editTextCivico"
-                android:inputType="number"
-                android:minHeight="48dp"
-                android:padding="10dp" />
+        <ScrollView
+            android:id="@+id/scrollView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/frameLayout">
 
             <LinearLayout
-                android:id="@+id/linearLayout_2"
+                android:id="@+id/linearLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
                 android:orientation="vertical"
                 android:padding="16dp">
 
-                <Button
-                    android:id="@+id/registrazione"
+                <ImageView
+                    android:id="@+id/imageView3"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:backgroundTint="#4D7881"
-                    android:text="Crea un account tutor"
-                    android:textColor="#FFFFFF" />
+                    android:importantForAccessibility="no"
+                    android:scaleType="fitCenter"
+                    app:srcCompat="@drawable/group_39" />
 
-                <Button
-                    android:id="@+id/back"
-                    android:layout_width="wrap_content"
+                <TextView
+                    android:id="@+id/textView21"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:background="@android:color/transparent"
+                    android:fontFamily="@font/poppins_light"
+                    android:text="@string/textNome"
+                    android:textSize="16sp" />
+
+                <EditText
+                    android:id="@+id/name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:autofillHints="name"
+                    android:backgroundTint="#000000"
+                    android:hint="@string/editTextNome"
+                    android:inputType="textPersonName"
+                    android:minHeight="48dp"
                     android:padding="10dp"
-                    android:text="@string/tornaHome"
-                    android:textColor="#0000FF" />
+                    android:text="@={viewModel.nome}"/>
+
+                <TextView
+                    android:id="@+id/textView25"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/textCognome"
+                    android:textSize="16sp" />
+
+                <EditText
+                    android:id="@+id/cognome"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:autofillHints=""
+                    android:backgroundTint="#000000"
+                    android:hint="@string/editTextCognome"
+                    android:inputType="textPersonName"
+                    android:minHeight="48dp"
+                    android:padding="10dp"
+                    android:text="@={viewModel.cognome}"/>
+
+                <TextView
+                    android:id="@+id/textView26"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:autofillHints=""
+                    android:text="@string/textEmail"
+                    android:textSize="16sp" />
+
+                <EditText
+                    android:id="@+id/email"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:autofillHints=""
+                    android:backgroundTint="#000000"
+                    android:hint="@string/editTextEmail"
+                    android:inputType="textEmailAddress"
+                    android:minHeight="48dp"
+                    android:padding="10dp"
+                    android:text="@={viewModel.email}"/>
+
+                <TextView
+                    android:id="@+id/textView27"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/textPassword"
+                    android:textSize="16sp"/>
+
+                <EditText
+                    android:id="@+id/password"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="#000000"
+                    android:hint="@string/editTextPassword"
+                    android:inputType="textPassword"
+                    android:minHeight="48dp"
+                    android:padding="10dp"
+                    android:text="@={viewModel.password}"/>
+
+                <TextView
+                    android:id="@+id/textView28"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/textResidenza"
+                    android:textSize="16sp" />
+
+                <EditText
+                    android:id="@+id/residenza"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:autofillHints="addressLocality"
+                    android:backgroundTint="#000000"
+                    android:hint="@string/editTextResidenza"
+                    android:inputType="textCapWords"
+                    android:minHeight="48dp"
+                    android:padding="10dp"
+                    android:text="@={viewModel.residenza}"/>
+
+
+                <TextView
+                    android:id="@+id/textView29"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/textVia"
+                    android:textSize="16sp" />
+
+                <EditText
+                    android:id="@+id/via"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="#000000"
+                    android:hint="@string/editTextVia"
+                    android:inputType="textPostalAddress"
+                    android:minHeight="48dp"
+                    android:padding="10dp"
+                    android:text="@={viewModel.via}"/>
+
+                <TextView
+                    android:id="@+id/textView30"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/textCivico"
+                    android:textSize="16sp" />
+
+                <EditText
+                    android:id="@+id/civico"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:autofillHints="postalCode"
+                    android:backgroundTint="#000000"
+                    android:hint="@string/editTextCivico"
+                    android:inputType="number"
+                    android:minHeight="48dp"
+                    android:padding="10dp"
+                    android:text="@={viewModel.civico}"/>
+
+                <LinearLayout
+                    android:id="@+id/linearLayout_2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|center"
+                    android:layout_marginBottom="8dp"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <Button
+                        android:id="@+id/registrazione"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:backgroundTint="#4D7881"
+                        android:onClick="@{() -> viewModel.onRegisterClick()}"
+                        android:text="Crea un account tutor"
+                        android:textColor="#FFFFFF" />
+
+                    <Button
+                        android:id="@+id/back"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:background="@android:color/transparent"
+                        android:onClick="@{() -> viewModel.onBackClick()}"
+                        android:padding="10dp"
+                        android:text="@string/tornaHome"
+                        android:textColor="#0000FF" />
+                </LinearLayout>
+
             </LinearLayout>
 
-        </LinearLayout>
-
-    </ScrollView>
+        </ScrollView>
 
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

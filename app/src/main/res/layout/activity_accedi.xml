@@ -1,9 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="viewModel"
+            type="com.example.tutormatch.ui.viewmodel.RegistrationViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".ui.view.activity.LoginActivity">
 
     <FrameLayout
         android:id="@+id/frameLayout"
@@ -72,7 +81,8 @@
             android:hint="Email"
             android:inputType="textEmailAddress"
             android:minHeight="48dp"
-            android:padding="10dp" />
+            android:padding="10dp"
+            android:text="@={viewModel.email}"/>
 
         <TextView
             android:id="@+id/textView13"
@@ -88,16 +98,17 @@
             android:hint="Password"
             android:inputType="textPassword"
             android:minHeight="48dp"
-            android:padding="10dp" />
+            android:padding="10dp"
+            android:text="@={viewModel.password}"/>
 
         <Button
-            android:id="@+id/registrazione"
+            android:id="@+id/accedi"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="60px"
             android:backgroundTint="#4D7881"
             android:text="Accedi"
-            android:textColor="#FFFFFF" />
+            android:onClick="@{() -> viewModel.onLoginClick()}"/>
 
         <Button
             android:id="@+id/back"
@@ -106,7 +117,8 @@
             android:background="@android:color/transparent"
             android:text="Non hai un account? Registrati"
             android:textAllCaps="false"
-            android:textColor="@android:color/holo_blue_dark" />
+            android:textColor="@android:color/holo_blue_dark"
+            android:onClick="@{() -> viewModel.onBackClick()}"/>
 
         <Button
             android:id="@+id/button9"
@@ -120,4 +132,5 @@
     </LinearLayout>
 
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
