@@ -61,7 +61,10 @@ dependencies {
     // Room dependencies
     implementation("androidx.room:room-runtime:2.5.1")
     kapt("androidx.room:room-compiler:2.5.1")
-    implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
+
+    //Fragments dependencies
+    implementation(libs.androidx.navigation.fragment.ktx)
+    implementation(libs.androidx.navigation.ui.ktx)
 
     // Testing dependencies
     testImplementation(libs.junit)

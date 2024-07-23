@@ -56,15 +56,10 @@ class LoginActivity : AppCompatActivity() {
                             putExtra("email", utente.email)
                         }
                         startActivity(intent)
-                        finish() // Chiude l'Activity corrente
+                        //finish() // Chiude l'Activity corrente
                     }
                 }
             }
         })
-
-        // Configura il pulsante di login
-        binding.accedi.setOnClickListener {
-            registrationViewModel.onLoginClick()
-        }
     }
 }

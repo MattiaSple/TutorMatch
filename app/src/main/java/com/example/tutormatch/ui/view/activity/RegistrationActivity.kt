@@ -38,6 +38,10 @@ class RegistrationActivity : AppCompatActivity() {
 
         val ruolo = intent.getBooleanExtra("EXTRA_BOOLEAN", false)
         registrationViewModel.setRuolo(ruolo)
+        if(!ruolo)
+        {
+            binding.registrazione.text = "Crea un account studente"
+        }
 
         // Osserva il LiveData showMessage per mostrare il Toast
         registrationViewModel.showMessage.observe(this, Observer { message ->
@@ -74,13 +78,6 @@ class RegistrationActivity : AppCompatActivity() {
                 )
             }
         })
-
-
-
-
-
-
-
     }
 }
 
