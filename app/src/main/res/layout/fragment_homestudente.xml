@@ -47,7 +47,6 @@
                 android:layout_marginStart="75dp"
                 android:layout_marginTop="18dp"
                 android:layout_marginEnd="65dp"
-                android:background="@drawable/rectangle_16"
                 android:padding="16dp">
 
                 <LinearLayout
