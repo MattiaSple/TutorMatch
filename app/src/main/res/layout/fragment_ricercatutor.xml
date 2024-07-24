@@ -25,7 +25,8 @@
             android:layout_weight="1"
             android:background="@android:color/transparent"
             android:padding="12dp"
-            app:srcCompat="@drawable/search" />
+            app:srcCompat="@drawable/search"
+            android:contentDescription="prova" />
 
         <TextView
             android:id="@+id/textView24"
@@ -37,11 +38,9 @@
 
     <LinearLayout
         android:id="@+id/Ricercapara"
-        android:layout_width="378dp"
-        android:layout_height="139dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginStart="3dp"
-        android:layout_marginEnd="3dp"
         android:background="@drawable/rectangle_16"
         android:gravity="center"
         android:orientation="horizontal"
@@ -51,8 +50,8 @@
 
         <LinearLayout
             android:id="@+id/Interno"
-            android:layout_width="378dp"
-            android:layout_height="126dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_alignParentBottom="true"
             android:orientation="vertical"
             app:layout_constraintTop_toBottomOf="@+id/imageViewTop">
@@ -77,6 +76,10 @@
                     android:text="Inserire materia" />
 
             </LinearLayout>
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="10dp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -105,6 +108,10 @@
 
             </LinearLayout>
 
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="10dp" />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="19dp"
@@ -132,6 +139,10 @@
                     android:text="TextView" />
             </LinearLayout>
 
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="87dp" />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -142,13 +153,15 @@
                     android:layout_width="147dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:backgroundTint="@color/statusBarColor"
                     android:text="Reset" />
 
                 <Button
                     android:id="@+id/button7"
-                    android:layout_width="155dp"
+                    android:layout_width="151dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:backgroundTint="@color/statusBarColor"
                     android:text="Ricerca" />
             </LinearLayout>
         </LinearLayout>
@@ -168,8 +181,6 @@
         android:id="@+id/textView7"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="28dp"
-        android:layout_marginBottom="10dp"
         android:text="Parametri di ricerca"
         app:layout_constraintBottom_toTopOf="@+id/Ricercapara"
         app:layout_constraintEnd_toEndOf="parent"
