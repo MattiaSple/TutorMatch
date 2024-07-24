@@ -3,6 +3,7 @@ package com.example.tutormatch.ui.view.activity
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
@@ -10,10 +11,12 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.tutormatch.R
 import com.example.tutormatch.databinding.ActivityAccediBinding
 import com.example.tutormatch.ui.viewmodel.RegistrationViewModel
+import com.example.tutormatch.ui.viewmodel.UtenteViewModel
 
 
 class LoginActivity : AppCompatActivity() {
     lateinit var registrationViewModel: RegistrationViewModel
+    private val utenteViewModel: UtenteViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,12 +51,11 @@ class LoginActivity : AppCompatActivity() {
                 if (it == "Login riuscito!") {
                     val utente = registrationViewModel.utente.value
                     if (utente != null) {
+                        utenteViewModel.setUserData(utente)
                         val intent = if (!utente.ruolo) {
                             Intent(this, HomeStudentActivity::class.java)
                         } else {
                             Intent(this, HomeTutorActivity::class.java)
-                        }.apply {
-                            putExtra("email", utente.email)
                         }
                         startActivity(intent)
                         //finish() // Chiude l'Activity corrente

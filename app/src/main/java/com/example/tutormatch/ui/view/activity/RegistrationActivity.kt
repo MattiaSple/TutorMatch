@@ -20,6 +20,7 @@ class RegistrationActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d("RegistrationActivity", "onCreate called")
 
         // Inizializza il ViewModel prima di utilizzarlo nel binding
         registrationViewModel = ViewModelProvider(
@@ -46,6 +47,7 @@ class RegistrationActivity : AppCompatActivity() {
         // Osserva il LiveData showMessage per mostrare il Toast
         registrationViewModel.showMessage.observe(this, Observer { message ->
             message?.let {
+                Log.d("RegistrationActivity", "showMessage observed: $it")
                 // Disabilita il bottone
                 binding.registrazione.isEnabled = false
 
@@ -62,6 +64,7 @@ class RegistrationActivity : AppCompatActivity() {
         // Osserva il LiveData navigateBack per gestire la navigazione
         registrationViewModel.navigateBack.observe(this, Observer { shouldNavigate ->
             if (shouldNavigate) {
+                Log.d("RegistrationActivity", "navigateBack observed")
                 val intent = Intent(this, MainActivity::class.java)
                 intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
                 startActivity(intent)
@@ -80,131 +83,3 @@ class RegistrationActivity : AppCompatActivity() {
         })
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//        val extraExists = intent.hasExtra("EXTRA_BOOLEAN")
-//
-//        if (extraExists) {
-//            setContentView(R.layout.activity_registrati)
-//            val isVerified = intent.getBooleanExtra("EXTRA_BOOLEAN", false)
-//            val nome = findViewById<EditText>(R.id.name)
-//            val cognome = findViewById<EditText>(R.id.cognome)
-//            val email = findViewById<EditText>(R.id.email)
-//            val password = findViewById<EditText>(R.id.password)
-//            val residenza = findViewById<EditText>(R.id.residenza)
-//            val via = findViewById<EditText>(R.id.via)
-//            val civico = findViewById<EditText>(R.id.civico)
-//            val accedi = findViewById<Button>(R.id.accedi)
-//            val back = findViewById<Button>(R.id.back)
-//
-//            accedi.text = if (extraExists) "Registrati come tutor" else "Registrati come studente"
-//
-//            accedi.setOnClickListener {
-//                if (email.text.toString().isNotEmpty() && nome.text.toString().isNotEmpty() && cognome.text.toString().isNotEmpty() &&
-//                    password.text.toString().isNotEmpty() && residenza.text.toString().isNotEmpty() && civico.text.toString().isNotEmpty() &&
-//                    via.text.toString().isNotEmpty() && email.text.toString().count { it == '@' } == 1 && email.text.toString().contains(".")
-//                ) {
-//                    val utente = Utente(
-//                        email.text.toString(),
-//                        nome.text.toString(),
-//                        cognome.text.toString(),
-//                        password.text.toString(),
-//                        residenza.text.toString(),
-//                        civico.text.toString(),
-//                        via.text.toString(),
-//                        isVerified
-//                    )
-//                    registrationViewModel.insert(utente)
-//                    registrationViewModel.delete(utente)
-//                    val intent = Intent(this, MainActivity::class.java)
-//                    startActivity(intent)
-//                } else {
-//                    showToastWithDelay(this, accedi)
-//                }
-//            }
-//
-//            back.setOnClickListener {
-//                val intent = Intent(this, MainActivity::class.java)
-//                startActivity(intent)
-//            }
-//        } else {
-//            setContentView(R.layout.activity_accedi)
-//            val email = findViewById<EditText>(R.id.email)
-//            val password = findViewById<EditText>(R.id.password)
-//            val accedi = findViewById<Button>(R.id.accedi)
-//            val back = findViewById<Button>(R.id.back)
-
-            // Commentato per evitare problemi di codice non completato
-            // accedi.setOnClickListener {
-            //     registrationViewModel.getAllUtenti()
-            //     registrationViewModel.listaUtenti.observe(this, Observer { utenti ->
-            //         var loginSuccess = false
-            //         var ruolo = false
-            //         for (utente in utenti) {
-            //             if (email.text.toString() == utente.email && password.text.toString() == utente.password) {
-            //                 loginSuccess = true
-            //                 ruolo = utente.ruolo
-            //                 break
-            //             }
-            //         }
-
-            //         if (loginSuccess) {
-            //             val intent = Intent(this, LoginActivity::class.java)
-            //             intent.putExtra("EXTRA_BOOLEAN", ruolo)
-            //             startActivity(intent)
-            //         } else {
-            //             AlertDialog.Builder(this).apply {
-            //                 setTitle("Errore")
-            //                 setMessage("Login fallito. Controlla le tue credenziali e riprova.")
-            //                 setPositiveButton("OK") { dialog, _ ->
-            //                     dialog.dismiss()
-            //                 }
-            //                 create()
-            //                 show()
-            //             }
-            //         }
-            //     })
-            // }
-
-        //}
-
-
-
-
-//private fun showToastWithDelay(context: Context, button: Button) {
-//    // Disabilita il bottone
-//    button.isEnabled = false
-//
-//    // Mostra il Toast
-//    Toast.makeText(context, "RIEMPI I CAMPI DIO SANTO", Toast.LENGTH_SHORT).show()
-//
-//    // Usa un Handler per riabilitare il bottone dopo il ritardo specificato
-//    Handler(Looper.getMainLooper()).postDelayed({
-//        button.isEnabled = true
-//    }, 2500)
-//}

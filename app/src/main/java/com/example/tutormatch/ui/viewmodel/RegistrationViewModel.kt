@@ -62,6 +62,7 @@ class RegistrationViewModel(application: Application) : AndroidViewModel(applica
                 via.value!!,
                 _ruolo
             )
+
             viewModelScope.launch(Dispatchers.IO) {
                 try {
                     Log.d("RegistrationViewModel", "Attempting to insert user: $utente")

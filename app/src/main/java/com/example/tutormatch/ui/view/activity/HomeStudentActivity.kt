@@ -8,6 +8,7 @@ import com.example.tutormatch.R
 import com.example.tutormatch.databinding.ActivityHomeStudenteBinding
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import android.util.Log
+import com.example.tutormatch.ui.viewmodel.UtenteViewModel
 
 class HomeStudentActivity : AppCompatActivity() {
 
@@ -15,6 +16,7 @@ class HomeStudentActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         binding = ActivityHomeStudenteBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -34,7 +36,16 @@ class HomeStudentActivity : AppCompatActivity() {
             // Log or show an error message
             Log.e("HomeStudentActivity", "NavController è null")
         }
+
+        val email = intent.getStringExtra("email")
+
+
+
     }
+
+
+
+
 
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
