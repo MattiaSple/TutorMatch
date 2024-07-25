@@ -72,14 +72,5 @@ class RegistrationActivity : AppCompatActivity() {
                 registrationViewModel.onNavigatedBack()
             }
         })
-
-        registrationViewModel.listaUtenti.observe(this, Observer { utenti ->
-            utenti.forEach { utente ->
-                Log.d(
-                    "RegistrationActivity",
-                    "Utente: ${utente.nome} ${utente.cognome} ${utente.ruolo} ${utente.email}"
-                )
-            }
-        })
     }
 }

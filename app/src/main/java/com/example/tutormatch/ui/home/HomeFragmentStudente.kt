@@ -4,18 +4,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
-import com.example.tutormatch.databinding.FragmentHomestudenteBinding
-import com.example.tutormatch.ui.viewmodel.UtenteViewModel
+import com.example.tutormatch.databinding.FragmentHomeStudenteBinding
 
-class HomeFragment : Fragment() {
+class HomeFragmentStudente : Fragment() {
 
-    private var _binding: FragmentHomestudenteBinding? = null
-    private val utenteViewModel: UtenteViewModel by viewModels()
-    // This property is only valid between onCreateView and
-    // onDestroyView.
+    private var _binding: FragmentHomeStudenteBinding? = null
     private val binding get() = _binding!!
 
     override fun onCreateView(
@@ -24,7 +18,7 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
 
-        _binding = FragmentHomestudenteBinding.inflate(inflater, container, false)
+        _binding = FragmentHomeStudenteBinding.inflate(inflater, container, false)
         val root: View = binding.root
         return root
     }

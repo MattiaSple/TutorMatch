@@ -7,9 +7,9 @@
 
     <fragment
         android:id="@+id/navigation_home"
-        android:name="com.example.tutormatch.ui.home.HomeFragment"
+        android:name="com.example.tutormatch.ui.home.HomeFragmentStudente"
         android:label="Home"
-        tools:layout="@layout/fragment_homestudente" />
+        tools:layout="@layout/fragment_home_studente" />
 
     <fragment
         android:id="@+id/navigation_ricercatutor"

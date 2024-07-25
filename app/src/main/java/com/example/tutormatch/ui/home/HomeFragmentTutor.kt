@@ -5,19 +5,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.example.tutormatch.databinding.FragmentCalendarioTutorBinding
+import com.example.tutormatch.databinding.FragmentHomeTutorBinding
 
+class HomeFragmentTutor : Fragment() {
 
-class CalendarioFragment : Fragment() {
-
-    private var _binding: FragmentCalendarioTutorBinding? = null
+    private var _binding: FragmentHomeTutorBinding? = null
     private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = FragmentCalendarioTutorBinding.inflate(inflater, container, false)
+        _binding = FragmentHomeTutorBinding.inflate(inflater, container, false)
         return binding.root
     }
 

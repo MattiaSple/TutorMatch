@@ -38,8 +38,8 @@ class RegistrationViewModel(application: Application) : AndroidViewModel(applica
     val utente: LiveData<Utente?> //le classi esterne accederanno solo a questa in lettura
         get() = _utente
 
-    private val _listaUtenti = MutableLiveData<List<Utente>>().apply { value = emptyList() }
-    val listaUtenti: LiveData<List<Utente>> get() = _listaUtenti
+//    private val _listaUtenti = MutableLiveData<List<Utente>>().apply { value = emptyList() }
+//    val listaUtenti: LiveData<List<Utente>> get() = _listaUtenti
 
 
     fun setRuolo(ruolo_utente: Boolean){
@@ -106,6 +106,13 @@ class RegistrationViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
+    fun insert(utente: Utente) {
+        viewModelScope.launch(Dispatchers.IO) {
+            utenteDao.insert(utente)
+        }
+    }
+
+
 //    fun getUtenteByEmail(email: String) {
 //        viewModelScope.launch {
 //            val utente = withContext(Dispatchers.IO) {
@@ -124,15 +131,6 @@ class RegistrationViewModel(application: Application) : AndroidViewModel(applica
 //        }
 //    }
 
-    fun insert(utente: Utente) {
-        viewModelScope.launch(Dispatchers.IO) {
-            utenteDao.insert(utente)
-            val aggiornataLista = utenteDao.getAllUtenti()
-            withContext(Dispatchers.Main) {
-                _listaUtenti.postValue(aggiornataLista)
-            }
-        }
-    }
 
 //    fun update(utente: Utente) {
 //        viewModelScope.launch(Dispatchers.IO) {

@@ -8,7 +8,6 @@ import com.example.tutormatch.R
 import com.example.tutormatch.databinding.ActivityHomeStudenteBinding
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import android.util.Log
-import com.example.tutormatch.ui.viewmodel.UtenteViewModel
 
 class HomeStudentActivity : AppCompatActivity() {
 
@@ -39,13 +38,7 @@ class HomeStudentActivity : AppCompatActivity() {
 
         val email = intent.getStringExtra("email")
 
-
-
     }
-
-
-
-
 
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_activity_main)

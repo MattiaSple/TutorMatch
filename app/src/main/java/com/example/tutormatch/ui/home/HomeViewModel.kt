@@ -1,13 +1,17 @@
-package com.example.tutormatch.ui.home
+package com.example.tutormatch.ui.viewmodel
 
-import androidx.lifecycle.LiveData
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.LiveData
 
-class HomeViewModel : ViewModel() {
+class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val _text = MutableLiveData<String>().apply {
-        value = "This is home Fragment"
+    private val _ruolo = MutableLiveData<Boolean>()
+    val ruolo: LiveData<Boolean>
+        get() = _ruolo
+
+    fun setRuolo(ruolo: Boolean) {
+        _ruolo.value = ruolo
     }
-    val text: LiveData<String> = _text
 }

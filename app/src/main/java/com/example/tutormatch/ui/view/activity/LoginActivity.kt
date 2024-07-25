@@ -3,7 +3,6 @@ package com.example.tutormatch.ui.view.activity
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
@@ -11,15 +10,14 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.tutormatch.R
 import com.example.tutormatch.databinding.ActivityAccediBinding
 import com.example.tutormatch.ui.viewmodel.RegistrationViewModel
-import com.example.tutormatch.ui.viewmodel.UtenteViewModel
 
 
 class LoginActivity : AppCompatActivity() {
     lateinit var registrationViewModel: RegistrationViewModel
-    private val utenteViewModel: UtenteViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         // Inizializza il ViewModel prima di utilizzarlo nel binding
         registrationViewModel = ViewModelProvider(
             this,
@@ -51,14 +49,15 @@ class LoginActivity : AppCompatActivity() {
                 if (it == "Login riuscito!") {
                     val utente = registrationViewModel.utente.value
                     if (utente != null) {
-                        utenteViewModel.setUserData(utente)
-                        val intent = if (!utente.ruolo) {
-                            Intent(this, HomeStudentActivity::class.java)
-                        } else {
-                            Intent(this, HomeTutorActivity::class.java)
-                        }
+                        val intent = Intent(this, HomeActivity::class.java)
+                        // Aggiungi i dati dell'utente come extra dell'intent
+                        intent.putExtra("email", utente.email)
+                        intent.putExtra("nome", utente.nome)
+                        intent.putExtra("cognome", utente.cognome)
+                        intent.putExtra("ruolo", utente.ruolo)
+
                         startActivity(intent)
-                        //finish() // Chiude l'Activity corrente
+                        finish() // Chiude l'Activity corrente
                     }
                 }
             }
