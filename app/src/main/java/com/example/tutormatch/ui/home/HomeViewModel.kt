@@ -9,11 +9,24 @@ class HomeViewModel : ViewModel() {
     private val _ruolo = MutableLiveData<Boolean>()
     val ruolo: LiveData<Boolean> get() = _ruolo
 
+    private val _nome = MutableLiveData<String>()
+    val nome: LiveData<String>
+        get() = nome
+
+    private val _cognome = MutableLiveData<String>()
+    val cognome: LiveData<String>
+        get() = cognome
+
     private val _saluto = MutableLiveData<String>()
+
     val saluto: LiveData<String> get() = _saluto
 
     fun setRuolo(isTutor: Boolean) {
         _ruolo.value = isTutor
-        _saluto.value = if (isTutor) "Ruolo: Tutor" else "Ruolo: Studente"
+    }
+    fun setBenvenuto(nome: String, cognome: String) {
+        _nome.value = nome
+        _cognome.value = cognome
+        _saluto.value = "benvenuto $nome $cognome"
     }
 }

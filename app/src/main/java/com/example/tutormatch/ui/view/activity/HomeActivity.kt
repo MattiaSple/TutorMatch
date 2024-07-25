@@ -27,7 +27,13 @@ class HomeActivity : AppCompatActivity() {
         ).get(HomeViewModel::class.java)
 
         val ruolo = intent.getBooleanExtra("ruolo", false)
+        val email = intent.getStringExtra("email")
+        val nome = intent.getStringExtra("nome")
+        val cognome = intent.getStringExtra("cognome")
         homeViewModel.setRuolo(ruolo)
+        if (nome != null && cognome != null) {
+            homeViewModel.setBenvenuto(nome, cognome)
+        }
         if (ruolo) {
             bindingTutor = ActivityHomeTutorBinding.inflate(layoutInflater)
             setContentView(bindingTutor.root)
