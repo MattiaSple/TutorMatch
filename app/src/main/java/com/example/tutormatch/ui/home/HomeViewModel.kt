@@ -1,17 +1,19 @@
 package com.example.tutormatch.ui.viewmodel
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 
-class HomeViewModel(application: Application) : AndroidViewModel(application) {
+class HomeViewModel : ViewModel() {
 
     private val _ruolo = MutableLiveData<Boolean>()
-    val ruolo: LiveData<Boolean>
-        get() = _ruolo
+    val ruolo: LiveData<Boolean> get() = _ruolo
 
-    fun setRuolo(ruolo: Boolean) {
-        _ruolo.value = ruolo
+    private val _saluto = MutableLiveData<String>()
+    val saluto: LiveData<String> get() = _saluto
+
+    fun setRuolo(isTutor: Boolean) {
+        _ruolo.value = isTutor
+        _saluto.value = if (isTutor) "Ruolo: Tutor" else "Ruolo: Studente"
     }
 }

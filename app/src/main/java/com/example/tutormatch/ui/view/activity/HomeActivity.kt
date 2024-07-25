@@ -27,9 +27,7 @@ class HomeActivity : AppCompatActivity() {
         ).get(HomeViewModel::class.java)
 
         val ruolo = intent.getBooleanExtra("ruolo", false)
-
         homeViewModel.setRuolo(ruolo)
-
         if (ruolo) {
             bindingTutor = ActivityHomeTutorBinding.inflate(layoutInflater)
             setContentView(bindingTutor.root)
