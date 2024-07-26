@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardBackgroundColor="@color/statusBarColor"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="4dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Titolo della prenotazione -->
+        <TextView
+            android:id="@+id/titolo_prenotazione"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <!-- Dettagli della prenotazione -->
+        <LinearLayout
+            android:id="@+id/dettagli_prenotazione"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="8dp"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/professore_prenotazione"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Professore: Filippo Ercoli" />
+
+            <TextView
+                android:id="@+id/orario_prenotazione"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Orario: 17:30" />
+
+            <TextView
+                android:id="@+id/durata_prenotazione"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Durata: 2 ore" />
+
+            <TextView
+                android:id="@+id/luogo_prenotazione"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Luogo: Online" />
+
+            <Button
+                android:id="@+id/btn_elimina_prenotazione"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Elimina" />
+        </LinearLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

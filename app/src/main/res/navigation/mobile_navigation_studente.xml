@@ -21,7 +21,7 @@
         android:id="@+id/navigation_studente"
         android:name="com.example.tutormatch.ui.prenotazioni.PrenotazioniFragment"
         android:label="Studente"
-        tools:layout="@layout/fragment_prenotazionistudente" />
+        tools:layout="@layout/fragment_prenotazioni_studente" />
     <fragment
         android:id="@+id/navigation_chat"
         android:name="com.example.tutormatch.ui.chat.ChatFragment"
