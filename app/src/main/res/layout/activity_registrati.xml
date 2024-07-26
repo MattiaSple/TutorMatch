@@ -27,24 +27,26 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <ImageView
-                android:id="@+id/imageView2"
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:contentDescription="Registrati"
-                android:scaleType="centerCrop"
-                app:srcCompat="@drawable/group_40" />
+                app:cardBackgroundColor="@color/statusBarColor"
+                app:cardElevation="4dp">
 
-            <TextView
-                android:id="@+id/titolo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:fontFamily="@font/poppins_light"
-                android:text="Registrati"
-                android:textColor="#FFFFFF"
-                android:textSize="34sp"
-                android:textStyle="bold" />
+                <TextView
+                    android:id="@+id/titolo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:fontFamily="@font/poppins_light"
+                    android:text="Registrati"
+                    android:textColor="@color/colorBackground"
+                    android:textSize="34sp"
+                    android:textStyle="bold" />
+
+            </androidx.cardview.widget.CardView>
 
         </FrameLayout>
 
