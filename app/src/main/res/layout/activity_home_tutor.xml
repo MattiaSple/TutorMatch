@@ -30,15 +30,17 @@
         app:layout_constraintRight_toRightOf="parent">
 
         <!-- Immagine di sfondo -->
-        <ImageView
-            android:id="@+id/background_image"
+        <androidx.cardview.widget.CardView
+            android:id="@+id/background_card"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_alignParentBottom="true"
+            android:layout_marginLeft="2dp"
+            android:layout_marginRight="2dp"
             android:layout_marginBottom="5dp"
             android:importantForAccessibility="no"
-            android:scaleType="centerCrop"
-            android:src="@drawable/rectangle_13" />
+            app:cardBackgroundColor="@color/statusBarColor"
+            app:cardCornerRadius="20dp" />
 
         <!-- BottomNavigationView -->
         <com.google.android.material.bottomnavigation.BottomNavigationView
