@@ -63,6 +63,8 @@ class HomeActivity : AppCompatActivity() {
                 navView.inflateMenu(R.menu.bottom_nav_menu_studente)
             }
             navController.setGraph(navGraphId)
+            // Imposta l'elemento "Home" come selezionato inizialmente
+            navView.selectedItemId = R.id.navigation_home
         } else {
             Log.e("HomeActivity", "NavController è null")
         }
