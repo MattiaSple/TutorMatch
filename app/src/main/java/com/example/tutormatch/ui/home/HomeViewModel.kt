@@ -11,11 +11,11 @@ class HomeViewModel : ViewModel() {
 
     private val _nome = MutableLiveData<String>()
     val nome: LiveData<String>
-        get() = nome
+        get() = _nome
 
     private val _cognome = MutableLiveData<String>()
     val cognome: LiveData<String>
-        get() = cognome
+        get() = _cognome
 
     private val _saluto = MutableLiveData<String>()
 
@@ -27,6 +27,6 @@ class HomeViewModel : ViewModel() {
     fun setBenvenuto(nome: String, cognome: String) {
         _nome.value = nome
         _cognome.value = cognome
-        _saluto.value = "benvenuto $nome $cognome"
+        _saluto.value = "Benvenuto $nome $cognome!"
     }
 }
