@@ -15,7 +15,7 @@ interface AnnuncioDao {
     @Delete
     fun delete(annuncio: Annuncio)
 
-    @Query("SELECT * FROM annuncio")
-    fun getAllAnnunci(): List<Annuncio>
+    @Query("SELECT * FROM annuncio WHERE email_prof = :emailTutor")
+    fun getAnnunciByEmail(emailTutor: String): List<Annuncio>
 
 }

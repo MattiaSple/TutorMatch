@@ -13,6 +13,10 @@ class HomeViewModel : ViewModel() {
     val nome: LiveData<String>
         get() = _nome
 
+    private val _email = MutableLiveData<String>()
+    val email: LiveData<String>
+        get() = _email
+
     private val _cognome = MutableLiveData<String>()
     val cognome: LiveData<String>
         get() = _cognome
@@ -21,12 +25,14 @@ class HomeViewModel : ViewModel() {
 
     val saluto: LiveData<String> get() = _saluto
 
-    fun setRuolo(isTutor: Boolean) {
-        _ruolo.value = isTutor
-    }
-    fun setBenvenuto(nome: String, cognome: String) {
+
+    fun caricaDati(ruolo: Boolean, nome: String, cognome: String, email: String)
+    {
+        _ruolo.value = ruolo
         _nome.value = nome
         _cognome.value = cognome
+        _email.value = email
         _saluto.value = "Benvenuto $nome $cognome!"
     }
+
 }

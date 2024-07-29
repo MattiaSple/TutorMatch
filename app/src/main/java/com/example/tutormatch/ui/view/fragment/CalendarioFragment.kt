@@ -1,4 +1,4 @@
-package com.example.tutormatch.ui.home
+package com.example.tutormatch.ui.view.fragment
 
 import android.os.Bundle
 import android.view.LayoutInflater

@@ -1,4 +1,4 @@
-package com.example.tutormatch.ui.chat
+package com.example.tutormatch.ui.view.fragment
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -6,10 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.tutormatch.databinding.FragmentChatBinding
-import com.example.tutormatch.ui.chat.ChatViewModel
+import com.example.tutormatch.ui.viewmodel.ChatViewModel
 
 class ChatFragment : Fragment() {
 

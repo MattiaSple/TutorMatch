@@ -1,4 +1,4 @@
-package com.example.tutormatch.ui.prenotazioni
+package com.example.tutormatch.ui.view.fragment
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.example.tutormatch.databinding.FragmentPrenotazioniStudenteBinding
+import com.example.tutormatch.ui.viewmodel.PrenotazioniViewModel
 
 class PrenotazioniFragment : Fragment() {
 

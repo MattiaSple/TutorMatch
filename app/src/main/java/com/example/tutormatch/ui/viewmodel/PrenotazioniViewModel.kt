@@ -1,4 +1,4 @@
-package com.example.tutormatch.ui.prenotazioni
+package com.example.tutormatch.ui.viewmodel
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

@@ -27,47 +27,43 @@ class HomeActivity : AppCompatActivity() {
         ).get(HomeViewModel::class.java)
 
         val ruolo = intent.getBooleanExtra("ruolo", false)
-        val email = intent.getStringExtra("email")
-        val nome = intent.getStringExtra("nome")
-        val cognome = intent.getStringExtra("cognome")
-        homeViewModel.setRuolo(ruolo)
-        if (nome != null && cognome != null) {
-            homeViewModel.setBenvenuto(nome, cognome)
-        }
+        val email = intent.getStringExtra("email") ?: ""
+        val nome = intent.getStringExtra("nome") ?: ""
+        val cognome = intent.getStringExtra("cognome") ?: ""
+
+        homeViewModel.caricaDati(ruolo, nome, cognome, email)
+
+
         if (ruolo) {
             bindingTutor = ActivityHomeTutorBinding.inflate(layoutInflater)
             setContentView(bindingTutor.root)
-            setupBottomNavigation(bindingTutor.navView, R.navigation.mobile_navigation_tutor, ruolo)
+            setupBottomNavigation(bindingTutor.navView, R.navigation.mobile_navigation_tutor, email)
         } else {
             bindingStudente = ActivityHomeStudenteBinding.inflate(layoutInflater)
             setContentView(bindingStudente.root)
-            setupBottomNavigation(bindingStudente.navView, R.navigation.mobile_navigation_studente, ruolo)
+            setupBottomNavigation(bindingStudente.navView, R.navigation.mobile_navigation_studente, email)
         }
     }
 
-    private fun setupBottomNavigation(navView: BottomNavigationView, navGraphId: Int, isTutor: Boolean) {
-        val navController = try {
-            findNavController(R.id.nav_host_fragment_activity_main)
-        } catch (e: Exception) {
-            Log.e("HomeActivity", "NavController non trovato", e)
-            null
-        }
+    private fun setupBottomNavigation(navView: BottomNavigationView, navGraphId: Int, email: String) {
+        val navController = findNavController(R.id.nav_host_fragment_activity_main)
+        navView.setupWithNavController(navController)
 
-        if (navController != null) {
-            navView.setupWithNavController(navController)
-
-            navView.menu.clear()
-            if (isTutor) {
-                navView.inflateMenu(R.menu.bottom_nav_menu_tutor)
-            } else {
-                navView.inflateMenu(R.menu.bottom_nav_menu_studente)
-            }
-            navController.setGraph(navGraphId)
-            // Imposta l'elemento "Home" come selezionato inizialmente
-            navView.selectedItemId = R.id.navigation_home
+        navView.menu.clear()
+        if (navGraphId == R.navigation.mobile_navigation_tutor) {
+            navView.inflateMenu(R.menu.bottom_nav_menu_tutor)
         } else {
-            Log.e("HomeActivity", "NavController è null")
+            navView.inflateMenu(R.menu.bottom_nav_menu_studente)
         }
+
+        // Log email value
+        Log.d("HomeActivity", "Passing email: $email")
+
+        val bundle = Bundle().apply {
+            putString("email", email)
+        }
+        navController.setGraph(navGraphId, bundle)
+        navView.selectedItemId = R.id.navigation_home
     }
 
     override fun onSupportNavigateUp(): Boolean {

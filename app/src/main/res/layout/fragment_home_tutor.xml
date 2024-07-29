@@ -1,13 +1,19 @@
-<?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <data>
+        <variable
+            name="viewModel"
+            type="com.example.tutormatch.ui.viewmodel.AnnunciViewModel" />
+    </data>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".HomeTutorActivity">
+        tools:context=".ui.view.fragment.HomeFragmentTutor">
 
+        <!-- CardView per il titolo -->
         <androidx.cardview.widget.CardView
             android:id="@+id/cardView"
             android:layout_width="0dp"
@@ -31,6 +37,7 @@
 
         </androidx.cardview.widget.CardView>
 
+        <!-- ScrollView per il contenuto principale -->
         <ScrollView
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -47,6 +54,7 @@
                 android:orientation="vertical"
                 android:padding="16dp">
 
+                <!-- CardView per creare un nuovo annuncio -->
                 <androidx.cardview.widget.CardView
                     android:id="@+id/cardViewTop"
                     android:layout_width="wrap_content"
@@ -67,6 +75,7 @@
 
                 </androidx.cardview.widget.CardView>
 
+                <!-- Sezione per inserire i dettagli dell'annuncio -->
                 <LinearLayout
                     android:id="@+id/Ricercapara"
                     android:layout_width="match_parent"
@@ -75,6 +84,7 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
+                    <!-- Campo per la materia -->
                     <LinearLayout
                         android:id="@+id/Interno_2"
                         android:layout_width="match_parent"
@@ -93,10 +103,12 @@
                             android:id="@+id/spinner_materia"
                             android:layout_width="0dp"
                             android:layout_height="48dp"
-                            android:layout_weight="2" />
+                            android:layout_weight="2"
+                            android:entries="@array/materie_array" />
 
                     </LinearLayout>
 
+                    <!-- Campo per il costo -->
                     <LinearLayout
                         android:id="@+id/Interno_3"
                         android:layout_width="match_parent"
@@ -118,9 +130,11 @@
                             android:layout_weight="2"
                             android:ems="10"
                             android:hint="Enter number"
-                            android:inputType="number" />
+                            android:inputType="number"
+                            android:text="@={viewModel.costo}" />
                     </LinearLayout>
 
+                    <!-- Campo per la descrizione -->
                     <LinearLayout
                         android:id="@+id/Interno_4"
                         android:layout_width="match_parent"
@@ -135,24 +149,16 @@
                             android:text="Descrizione:"
                             android:textAlignment="center" />
 
-                        <LinearLayout
+                        <EditText
+                            android:id="@+id/editTextDescrizione"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:background="@drawable/rectangle_16"
-                            android:orientation="vertical"
-                            android:padding="16dp">
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:background="@android:color/transparent"
-                                android:text="Inserire testo."
-                                android:textColor="@android:color/black"
-                                android:textSize="16sp" />
-
-                        </LinearLayout>
+                            android:hint="Inserire descrizione"
+                            android:minHeight="48dp"
+                            android:text="@={viewModel.descrizione}" />
                     </LinearLayout>
 
+                    <!-- Campo per la modalità di insegnamento -->
                     <LinearLayout
                         android:id="@+id/Interno_5"
                         android:layout_width="match_parent"
@@ -168,20 +174,23 @@
                             android:text="Modalità insegnamento:" />
 
                         <CheckBox
-                            android:id="@+id/checkBox2"
+                            android:id="@+id/checkBoxOnline"
                             android:layout_width="0dp"
                             android:layout_height="48dp"
                             android:layout_weight="1"
-                            android:text="Online" />
+                            android:text="Online"
+                            android:checked="@={viewModel.online}" />
 
                         <CheckBox
-                            android:id="@+id/checkBox"
+                            android:id="@+id/checkBoxPresenza"
                             android:layout_width="0dp"
                             android:layout_height="48dp"
                             android:layout_weight="1"
-                            android:text="Presenza" />
+                            android:text="Presenza"
+                            android:checked="@={viewModel.presenza}" />
                     </LinearLayout>
 
+                    <!-- Pulsanti per salvare o eliminare l'annuncio -->
                     <LinearLayout
                         android:id="@+id/Interno_6"
                         android:layout_width="match_parent"
@@ -198,7 +207,7 @@
                             android:textColor="@color/colorBackground" />
 
                         <Button
-                            android:id="@+id/button5"
+                            android:id="@+id/buttonSalva"
                             android:layout_width="0dp"
                             android:layout_height="48dp"
                             android:layout_weight="1"
@@ -208,6 +217,7 @@
                     </LinearLayout>
                 </LinearLayout>
 
+                <!-- CardView per mostrare i propri annunci -->
                 <androidx.cardview.widget.CardView
                     android:id="@+id/annunci_card"
                     android:layout_width="wrap_content"
@@ -229,6 +239,7 @@
 
                 </androidx.cardview.widget.CardView>
 
+                <!-- RecyclerView per elencare gli annunci -->
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/recyclerViewAnnunci"
                     android:layout_width="match_parent"
@@ -239,5 +250,4 @@
         </ScrollView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
 </layout>

@@ -11,16 +11,16 @@
 
     <item
         android:id="@+id/navigation_home"
-        android:icon="@drawable/home_1"
+        android:icon="@drawable/home"
         android:title="" />
 
     <item
         android:id="@+id/navigation_chat"
-        android:icon="@drawable/chat_1"
+        android:icon="@drawable/chat"
         android:title="" />
 
     <item
         android:id="@+id/navigation_profilo"
-        android:icon="@drawable/person_icon"
+        android:icon="@drawable/profilo"
         android:title="" />
 </menu>

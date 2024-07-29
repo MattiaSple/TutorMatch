@@ -1,4 +1,4 @@
-package com.example.tutormatch.ui.ricercatutor
+package com.example.tutormatch.ui.view.fragment
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -6,11 +6,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import com.example.tutormatch.databinding.FragmentRicercatutorBinding
+import com.example.tutormatch.databinding.FragmentProfiloBinding
+import com.example.tutormatch.ui.viewmodel.ProfiloViewModel
 
-class RicercatutorFragment : Fragment() {
+class ProfiloFragment : Fragment() {
 
-    private var _binding: FragmentRicercatutorBinding? = null
+    private var _binding: FragmentProfiloBinding? = null
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -22,9 +23,9 @@ class RicercatutorFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         val homeViewModel =
-            ViewModelProvider(this).get(RicercatutorViewModel::class.java)
+            ViewModelProvider(this).get(ProfiloViewModel::class.java)
 
-        _binding = FragmentRicercatutorBinding.inflate(inflater, container, false)
+        _binding = FragmentProfiloBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
 

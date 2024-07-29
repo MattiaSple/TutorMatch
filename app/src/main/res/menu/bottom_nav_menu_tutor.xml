@@ -2,22 +2,22 @@
 <!-- Il namespace xmlns:android è necessario per utilizzare gli attributi specifici di Android nel file XML -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Definizione del primo elemento del menu con id, icona e titolo -->
-    <item
-        android:id="@+id/navigation_home_tutor"
-        android:icon="@drawable/home"
-        android:title="" />
-
     <!-- Definizione del secondo elemento del menu con id, icona e titolo -->
     <item
         android:id="@+id/navigation_prenotazione_tutor"
-        android:icon="@drawable/ricerca"
+        android:icon="@drawable/lista_pren"
         android:title="" />
 
     <!-- Definizione del terzo elemento del menu con id, icona e titolo -->
     <item
         android:id="@+id/navigation_calendario_tutor"
-        android:icon="@drawable/lista"
+        android:icon="@drawable/calendario"
+        android:title="" />
+
+    <!-- Definizione del primo elemento del menu con id, icona e titolo -->
+    <item
+        android:id="@+id/navigation_home"
+        android:icon="@drawable/home"
         android:title="" />
 
     <!-- Definizione del quarto elemento del menu con id, icona e titolo -->

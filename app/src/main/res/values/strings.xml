@@ -27,6 +27,11 @@
 
     <!-- tag della pagina Homefragment "studente" (fragment_home_studente) -->
     <string name="tutorial">Benvenuto! Segui questi semplici passaggi per iniziare a utilizzare al meglio Tutormatch E FACCIAMO CALCIOBenvenuto! Segui questi semplici passaggi per iniziare a utilizzare al meglio Tutormatch E FACCIAMO CALCIOBenvenuto! Segui questi semplici passaggi per iniziare a utilizzare al meglio Tutormatch E FACCIAMO CALCIOBenvenuto! Segui questi semplici passaggi per iniziare a utilizzare al meglio Tutormatch E FACCIAMO CALCIOBenvenuto! Segui questi semplici passaggi per iniziare a utilizzare al meglio Tutormatch E FACCIAMO CALCIO</string>
-
+    <string-array name="materie_array">
+        <item>Matematica</item>
+        <item>Fisica</item>
+        <item>Chimica</item>
+        <!-- Aggiungi altri elementi se necessario -->
+    </string-array>
 
 </resources>

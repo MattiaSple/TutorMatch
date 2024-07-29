@@ -1,4 +1,4 @@
-package com.example.tutormatch.ui.chat
+package com.example.tutormatch.ui.adapter
 
 class ChatAdapter {
 }
