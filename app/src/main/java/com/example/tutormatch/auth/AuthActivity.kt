@@ -1,4 +1,4 @@
-package com.example.tutormatch.ui.view.activity
+package com.example.tutormatch.auth
 
 import android.content.Intent
 import android.os.Bundle
@@ -12,20 +12,20 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.tutormatch.R
 import com.example.tutormatch.databinding.ActivityRegistratiBinding
-import com.example.tutormatch.ui.viewmodel.RegistrationViewModel
+import com.example.tutormatch.ui.view.activity.MainActivity
 
-class RegistrationActivity : AppCompatActivity() {
+class AuthActivity : AppCompatActivity() {
 
-    lateinit var registrationViewModel: RegistrationViewModel
+    lateinit var authViewModel: AuthViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         // Inizializza il ViewModel prima di utilizzarlo nel binding
-        registrationViewModel = ViewModelProvider(
+        authViewModel = ViewModelProvider(
             this,
             ViewModelProvider.AndroidViewModelFactory.getInstance(application)
-        ).get(RegistrationViewModel::class.java)
+        ).get(AuthViewModel::class.java)
 
         // Ottieni il binding
         val binding: ActivityRegistratiBinding = DataBindingUtil.setContentView(
@@ -33,20 +33,20 @@ class RegistrationActivity : AppCompatActivity() {
         )
 
         // Collega il ViewModel al layout
-        binding.viewModel = registrationViewModel
+        binding.viewModel = authViewModel
         binding.lifecycleOwner = this
 
         val ruolo = intent.getBooleanExtra("EXTRA_BOOLEAN", false)
-        registrationViewModel.setRuolo(ruolo)
+        authViewModel.setRuolo(ruolo)
         if(!ruolo)
         {
             binding.registrazione.text = "Crea un account studente"
         }
 
         // Osserva il LiveData showMessage per mostrare il Toast
-        registrationViewModel.showMessage.observe(this, Observer { message ->
+        authViewModel.showMessage.observe(this, Observer { message ->
             message?.let {
-                Log.d("RegistrationActivity", "showMessage observed: $it")
+                Log.d("AuthActivity", "showMessage observed: $it")
                 // Disabilita il bottone
                 binding.registrazione.isEnabled = false
 
@@ -61,13 +61,13 @@ class RegistrationActivity : AppCompatActivity() {
         })
 
         // Osserva il LiveData navigateBack per gestire la navigazione
-        registrationViewModel.navigateBack.observe(this, Observer { shouldNavigate ->
+        authViewModel.navigateBack.observe(this, Observer { shouldNavigate ->
             if (shouldNavigate) {
                 val intent = Intent(this, MainActivity::class.java)
                 intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
                 startActivity(intent)
                 finish() // Chiude l'Activity corrente
-                registrationViewModel.onNavigatedBack()
+                authViewModel.onNavigatedBack()
             }
         })
     }

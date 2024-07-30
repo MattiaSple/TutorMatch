@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     id("kotlin-kapt")
+    id("com.google.gms.google-services")
+
 }
 
 android {
@@ -32,6 +34,9 @@ android {
         }
     }
 
+
+
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -57,6 +62,10 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.mediarouter)
     implementation(libs.androidx.ui.desktop)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.firestore)
+    implementation(libs.firebase.auth)
 
     // Room dependencies
     implementation("androidx.room:room-runtime:2.5.1")

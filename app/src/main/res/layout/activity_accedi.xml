@@ -6,7 +6,7 @@
     <data>
         <variable
             name="viewModel"
-            type="com.example.tutormatch.ui.viewmodel.RegistrationViewModel" />
+            type="com.example.tutormatch.auth.AuthViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -129,9 +129,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
+                android:onClick="@{() -> viewModel.onForgotPasswordClick()}"
                 android:text="Password dimenticata?"
                 android:textAllCaps="false"
                 android:textColor="@android:color/holo_blue_dark" />
+
 
         </LinearLayout>
 

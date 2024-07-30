@@ -1,11 +1,10 @@
 package com.example.tutormatch.data.model
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
+import com.google.firebase.Timestamp
+import com.google.firebase.firestore.DocumentReference
 
-@Entity(tableName = "calendario")
 data class Calendario(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val data: String,
-    val stato_pren: Boolean,
-    val email_prof: String)
+    val tutorRef: DocumentReference, // Riferimento al documento utente del tutor
+    val data: Timestamp, // Timestamp per la data e l'ora
+    val stato_pren: Boolean = false
+)

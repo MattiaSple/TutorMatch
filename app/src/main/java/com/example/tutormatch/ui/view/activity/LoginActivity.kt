@@ -9,45 +9,45 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.tutormatch.R
 import com.example.tutormatch.databinding.ActivityAccediBinding
-import com.example.tutormatch.ui.viewmodel.RegistrationViewModel
+import com.example.tutormatch.auth.AuthViewModel
 
 
 class LoginActivity : AppCompatActivity() {
-    lateinit var registrationViewModel: RegistrationViewModel
+    lateinit var authViewModel: AuthViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         // Inizializza il ViewModel prima di utilizzarlo nel binding
-        registrationViewModel = ViewModelProvider(
+        authViewModel = ViewModelProvider(
             this,
             ViewModelProvider.AndroidViewModelFactory.getInstance(application)
-        ).get(RegistrationViewModel::class.java)
+        ).get(AuthViewModel::class.java)
 
         val binding: ActivityAccediBinding = DataBindingUtil.setContentView(
             this, R.layout.activity_accedi
         )
 
-        binding.viewModel = registrationViewModel
+        binding.viewModel = authViewModel
         binding.lifecycleOwner = this
 
         // Osserva il LiveData navigateBack per gestire la navigazione
-        registrationViewModel.navigateBack.observe(this, Observer { shouldNavigate ->
+        authViewModel.navigateBack.observe(this, Observer { shouldNavigate ->
             if (shouldNavigate) {
                 val intent = Intent(this, MainActivity::class.java)
                 intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
                 startActivity(intent)
                 finish() // Chiude l'Activity corrente
-                registrationViewModel.onNavigatedBack()
+                authViewModel.onNavigatedBack()
             }
         })
 
         // Osserva showMessage per mostrare il messaggio e navigare
-        registrationViewModel.showMessage.observe(this, Observer { message ->
+        authViewModel.showMessage.observe(this, Observer { message ->
             message?.let {
                 Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
                 if (it == "Login riuscito!") {
-                    val utente = registrationViewModel.utente.value
+                    val utente = authViewModel.utente.value
                     if (utente != null) {
                         val intent = Intent(this, HomeActivity::class.java)
                         // Aggiungi i dati dell'utente come extra dell'intent
@@ -60,6 +60,14 @@ class LoginActivity : AppCompatActivity() {
                         finish() // Chiude l'Activity corrente
                     }
                 }
+            }
+        })
+
+        // Osserva passwordResetMessage per mostrare i messaggi di recupero password
+        authViewModel.passwordResetMessage.observe(this, Observer { message ->
+            message?.let {
+                Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
+                authViewModel.resetPasswordResetMessage() // Resetta il messaggio dopo averlo mostrato
             }
         })
     }

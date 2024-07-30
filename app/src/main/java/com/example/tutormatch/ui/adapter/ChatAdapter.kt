@@ -7,7 +7,7 @@ class ChatAdapter {
 //import android.view.ViewGroup
 //import androidx.recyclerview.widget.RecyclerView
 //import com.example.tutormatch.R
-//import com.example.tutormatch.data.model.Chat
+//import com.example.tutormatch.data.source.Chat
 //import kotlinx.android.synthetic.main.item_chat.view.*
 //
 //class ChatAdapter(

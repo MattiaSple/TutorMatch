@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.tutormatch.databinding.FragmentHomeTutorBinding
 import com.example.tutormatch.ui.adapter.AnnuncioAdapter
 import com.example.tutormatch.ui.viewmodel.AnnunciViewModel
+import com.google.firebase.firestore.FirebaseFirestore
 
 class HomeFragmentTutor : Fragment() {
 
@@ -29,23 +30,20 @@ class HomeFragmentTutor : Fragment() {
         annunciViewModel = ViewModelProvider(this).get(AnnunciViewModel::class.java)
 
         setupRecyclerView()
+
         // Recupera l'email dal bundle
         val email = arguments?.getString("email")
         email?.let {
             // Imposta l'email nel ViewModel
-            annunciViewModel.setEmailTutor(it)
+            val firestore = FirebaseFirestore.getInstance()
+            val tutorRef = firestore.collection("tutors").document(it)
+            annunciViewModel.setTutorReference(tutorRef)
         }
+
         // Imposta il listener per il pulsante Salva
         binding.buttonSalva.setOnClickListener {
             val materiaSpinner = binding.spinnerMateria.selectedItem as? String
             annunciViewModel.materia.value = materiaSpinner
-
-            // Recupera l'email dal bundle
-            val email1 = arguments?.getString("email")
-            email1?.let {
-                // Imposta l'email nel ViewModel
-                annunciViewModel.setEmailTutor(it)
-            }
 
             if (annunciViewModel.salvaAnnuncio()) {
                 Toast.makeText(context, "Annuncio salvato con successo", Toast.LENGTH_SHORT).show()

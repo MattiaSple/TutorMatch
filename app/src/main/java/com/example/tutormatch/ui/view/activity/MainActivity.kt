@@ -6,6 +6,7 @@ import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import com.example.tutormatch.R
+import com.example.tutormatch.auth.AuthActivity
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,7 +33,7 @@ class MainActivity : AppCompatActivity() {
 
     // Funzione per navigare alla seconda attività con un extra booleano
     private fun navigateToSecondActivity(type: Boolean){
-        val intent = Intent(this, RegistrationActivity::class.java).apply {
+        val intent = Intent(this, AuthActivity::class.java).apply {
             putExtra("EXTRA_BOOLEAN", type)
         }
         startActivity(intent)

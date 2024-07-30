@@ -1,24 +1,14 @@
 package com.example.tutormatch.data.model
 
-import androidx.room.*
+import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.GeoPoint
 
-@Entity(
-    tableName = "annuncio",
-    foreignKeys = [
-        ForeignKey(
-            entity = Utente::class,            // Tabella di riferimento
-            parentColumns = ["email"],         // Colonna primaria della tabella di riferimento
-            childColumns = ["email_prof"],     // Colonna nella tabella corrente che fa riferimento alla colonna primaria
-            onDelete = ForeignKey.CASCADE      // Azione da eseguire quando la riga di riferimento viene eliminata
-        )
-    ]
-)
 data class Annuncio(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val email_prof: String,
-    val materia: String,
-    val prezzo: Int,
-    val descrizione: String,
-    val mod_ins: Boolean)
-
-
+    val descrizione: String = "",
+    val materia: String = "",
+    val mod_on: Boolean = false,
+    val mod_pres: Boolean = false,
+    val posizione: GeoPoint = GeoPoint(0.0, 0.0),
+    val prezzo: Int = 0,
+    val tutor: DocumentReference
+)

@@ -1,6 +1,7 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".ui.view.fragment.HomeFragmentTutor">
 
     <data>
         <variable
@@ -10,8 +11,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".ui.view.fragment.HomeFragmentTutor">
+        android:layout_height="match_parent">
 
         <!-- CardView per il titolo -->
         <androidx.cardview.widget.CardView
@@ -100,7 +100,7 @@
                             android:text="Materia:" />
 
                         <Spinner
-                            android:id="@+id/spinner_materia"
+                            android:id="@+id/spinnerMateria"
                             android:layout_width="0dp"
                             android:layout_height="48dp"
                             android:layout_weight="2"
@@ -131,7 +131,7 @@
                             android:ems="10"
                             android:hint="Enter number"
                             android:inputType="number"
-                            android:text="@={viewModel.costo}" />
+                            android:text="@={viewModel.prezzo}" />
                     </LinearLayout>
 
                     <!-- Campo per la descrizione -->
@@ -213,7 +213,8 @@
                             android:layout_weight="1"
                             android:backgroundTint="@color/statusBarColor"
                             android:text="Salva"
-                            android:textColor="@color/colorBackground" />
+                            android:textColor="@color/colorBackground"
+                            android:onClick="@{() -> viewModel.salvaAnnuncio()}" />
                     </LinearLayout>
                 </LinearLayout>
 
