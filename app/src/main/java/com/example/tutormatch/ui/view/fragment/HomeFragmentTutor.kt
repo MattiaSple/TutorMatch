@@ -28,17 +28,15 @@ class HomeFragmentTutor : Fragment() {
             viewModel = ViewModelProvider(this@HomeFragmentTutor).get(AnnunciViewModel::class.java)
             lifecycleOwner = viewLifecycleOwner
         }
-
         annunciViewModel = ViewModelProvider(this).get(AnnunciViewModel::class.java)
-
         setupRecyclerView()
 
         // Recupera l'email dal bundle
-        val email = arguments?.getString("email")
-        email?.let {
+        val userId = arguments?.getString("userId")
+        userId?.let {
             // Imposta l'email nel ViewModel
             val firestore = FirebaseFirestore.getInstance()
-            val tutorRef = firestore.collection("tutors").document(it)
+            val tutorRef = firestore.collection("utenti").document(it)
             annunciViewModel.setTutorReference(tutorRef)
         }
 
@@ -46,12 +44,7 @@ class HomeFragmentTutor : Fragment() {
         binding.buttonSalva.setOnClickListener {
             val materiaSpinner = binding.spinnerMateria.selectedItem as? String
             annunciViewModel.materia.value = materiaSpinner
-
-            if (annunciViewModel.salvaAnnuncio()) {
-                Toast.makeText(context, "Annuncio salvato con successo", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(context, "Compila tutti i campi", Toast.LENGTH_SHORT).show()
-            }
+            annunciViewModel.salvaAnnuncio()
         }
 
         annunciViewModel.annunci.observe(viewLifecycleOwner, Observer { annunci ->

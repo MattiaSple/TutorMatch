@@ -51,7 +51,7 @@ class LoginActivity : AppCompatActivity() {
                     if (utente != null) {
                         val intent = Intent(this, HomeActivity::class.java)
                         // Aggiungi i dati dell'utente come extra dell'intent
-                        intent.putExtra("email", utente.email)
+                        intent.putExtra("userId", utente.userId)
                         intent.putExtra("nome", utente.nome)
                         intent.putExtra("cognome", utente.cognome)
                         intent.putExtra("ruolo", utente.ruolo)

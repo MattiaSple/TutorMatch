@@ -32,7 +32,7 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
     val presenza = MutableLiveData<Boolean>()
     val prezzo = MutableLiveData<String>() // Usato come String per legarlo all'EditText
 
-    private var _tutorRef: DocumentReference? = null
+    private lateinit var _tutorRef: DocumentReference
 
     // Funzione per impostare il riferimento del tutor
     fun setTutorReference(tutorRef: DocumentReference) {
@@ -45,6 +45,7 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
         _tutorRef?.let { tutorRef ->
             viewModelScope.launch(Dispatchers.IO) {
                 try {
+                    // Carica tutti gli annunci creati dal tutor
                     val querySnapshot = annunciCollection.whereEqualTo("tutor", tutorRef).get().await()
                     val loadedAnnunci = querySnapshot.documents.mapNotNull { it.toObject(Annuncio::class.java) }
                     _annunci.postValue(loadedAnnunci)
@@ -76,7 +77,7 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
             mod_on = onlineVal,
             mod_pres = presenzaVal,
             prezzo = prezzoVal,
-            tutor = _tutorRef ?: return false
+            tutor = _tutorRef // Imposta il riferimento al tutor
         )
 
         // Inserisce l'annuncio in Firestore

@@ -213,8 +213,8 @@
                             android:layout_weight="1"
                             android:backgroundTint="@color/statusBarColor"
                             android:text="Salva"
-                            android:textColor="@color/colorBackground"
-                            android:onClick="@{() -> viewModel.salvaAnnuncio()}" />
+                            android:textColor="@color/colorBackground"/>
+
                     </LinearLayout>
                 </LinearLayout>
 
