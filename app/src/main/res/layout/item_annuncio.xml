@@ -26,25 +26,38 @@
                 android:layout_height="wrap_content"
                 android:text="@{annuncio.materia}"
                 android:textSize="18sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:textColor="@color/colorBackground" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text='@{"Costo: " + annuncio.prezzo}'
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:textColor="@color/colorBackground" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@{annuncio.descrizione}"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:textColor="@color/colorBackground" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text='@{"Modalità: " + (annuncio.mod_on ? "Online" : "Presenza")}'
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:textColor="@color/colorBackground" />
+
+            <Button
+                android:id="@+id/btnDelete"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:text="Elimina"
+                android:textColor="@color/statusBarColor"
+                android:background="@android:color/white" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 </layout>

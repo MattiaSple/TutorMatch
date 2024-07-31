@@ -21,6 +21,10 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
     private val _annunci = MutableLiveData<List<Annuncio>>()
     val annunci: LiveData<List<Annuncio>> get() = _annunci
 
+    // LiveData per i messaggi di errore o stato
+    private val _message = MutableLiveData<String>()
+    val message: LiveData<String> get() = _message
+
     // LiveData per i campi di input
     val descrizione = MutableLiveData<String>()
     val materia = MutableLiveData<String>()
@@ -29,10 +33,6 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
     val prezzo = MutableLiveData<String>() // Usato come String per legarlo all'EditText
 
     private var _tutorRef: DocumentReference? = null
-
-    init {
-        loadAnnunci()
-    }
 
     // Funzione per impostare il riferimento del tutor
     fun setTutorReference(tutorRef: DocumentReference) {
@@ -49,7 +49,7 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
                     val loadedAnnunci = querySnapshot.documents.mapNotNull { it.toObject(Annuncio::class.java) }
                     _annunci.postValue(loadedAnnunci)
                 } catch (e: Exception) {
-                    // Gestisci l'errore
+                    _message.postValue("Errore nel caricamento degli annunci: ${e.message}")
                 }
             }
         }
@@ -61,11 +61,11 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
         val materiaVal = materia.value ?: ""
         val onlineVal = online.value ?: false
         val presenzaVal = presenza.value ?: false
-        val prezzoVal = prezzo.value?.toIntOrNull() ?: 0
+        val prezzoVal = prezzo.value ?: ""
 
         // Verifica che tutti i campi siano compilati
-        if (descrizioneVal.isBlank() || materiaVal.isBlank() || prezzoVal == 0) {
-            // Mostra un messaggio di errore (puoi aggiungere un LiveData per mostrare errori)
+        if (descrizioneVal.isBlank() || materiaVal.isBlank() || prezzoVal.isBlank()) {
+            _message.value = "Tutti i campi devono essere compilati"
             return false
         }
 
@@ -84,8 +84,9 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
             try {
                 annunciCollection.add(nuovoAnnuncio).await()
                 loadAnnunci()  // Aggiorna la lista degli annunci
+                _message.postValue("Annuncio salvato con successo")
             } catch (e: Exception) {
-                // Gestisci l'errore
+                _message.postValue("Errore nel salvataggio dell'annuncio: ${e.message}")
             }
         }
         return true
@@ -108,8 +109,9 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
                     annunciCollection.document(document.id).delete().await()
                 }
                 loadAnnunci()  // Aggiorna la lista degli annunci
+                _message.postValue("Annuncio eliminato con successo")
             } catch (e: Exception) {
-                // Gestisci l'errore
+                _message.postValue("Errore nell'eliminazione dell'annuncio: ${e.message}")
             }
         }
     }

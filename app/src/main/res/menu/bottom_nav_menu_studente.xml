@@ -1,6 +1,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/navigation_ricercatutor"
+        android:id="@+id/navigation_ricerca_tutor"
         android:icon="@drawable/ricerca_p"
         android:title="" />
 

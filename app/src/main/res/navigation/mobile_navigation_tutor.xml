@@ -18,7 +18,7 @@
     <fragment
         android:id="@+id/navigation_prenotazione_tutor"
         android:name="com.example.tutormatch.ui.view.fragment.PrenotazioniFragment"
-        android:label="Ricerca"
+        android:label="Prenotazione"
         tools:layout="@layout/fragment_prenotazioni_tutor" />
 
     <fragment

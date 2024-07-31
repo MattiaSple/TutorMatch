@@ -4,13 +4,13 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import com.example.tutormatch.R
 import com.example.tutormatch.databinding.ActivityHomeStudenteBinding
 import com.example.tutormatch.databinding.ActivityHomeTutorBinding
 import com.example.tutormatch.ui.view.fragment.*
 import com.example.tutormatch.ui.viewmodel.HomeViewModel
-import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class HomeActivity : AppCompatActivity() {
@@ -37,15 +37,15 @@ class HomeActivity : AppCompatActivity() {
         if (ruolo) {
             bindingTutor = ActivityHomeTutorBinding.inflate(layoutInflater)
             setContentView(bindingTutor.root)
-            setupBottomNavigation(bindingTutor.navView, email, nome, cognome, ruolo)
+            setupBottomNavigationTutor(bindingTutor.navView, email, nome, cognome, ruolo)
         } else {
             bindingStudente = ActivityHomeStudenteBinding.inflate(layoutInflater)
             setContentView(bindingStudente.root)
-            setupBottomNavigation(bindingStudente.navView, email, nome, cognome, ruolo)
+            setupBottomNavigationStudente(bindingStudente.navView, email, nome, cognome, ruolo)
         }
     }
 
-    private fun setupBottomNavigation(navView: BottomNavigationView, email: String, nome: String, cognome: String, ruolo: Boolean) {
+    private fun setupBottomNavigationTutor(navView: BottomNavigationView, email: String, nome: String, cognome: String, ruolo: Boolean) {
         navView.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.navigation_home -> {
@@ -73,6 +73,38 @@ class HomeActivity : AppCompatActivity() {
         }
         // Imposta il fragment iniziale
         replaceFragment(HomeFragmentTutor(), email, nome, cognome, ruolo)
+        navView.selectedItemId = R.id.navigation_home
+    }
+
+    private fun setupBottomNavigationStudente(navView: BottomNavigationView, email: String, nome: String, cognome: String, ruolo: Boolean) {
+        navView.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.navigation_home -> {
+                    replaceFragment(HomeFragmentStudente(), email, nome, cognome, ruolo)
+                    true
+                }
+                R.id.navigation_ricerca_tutor -> {
+                    replaceFragment(RicercaTutorFragment(), email, nome, cognome, ruolo)
+                    true
+                }
+                R.id.navigation_studente -> {
+                    replaceFragment(PrenotazioniFragment(), email, nome, cognome, ruolo)
+                    true
+                }
+                R.id.navigation_chat -> {
+                    replaceFragment(ChatFragment(), email, nome, cognome, ruolo)
+                    true
+                }
+                R.id.navigation_profilo -> {
+                    replaceFragment(ProfiloFragment(), email, nome, cognome, ruolo)
+                    true
+                }
+                else -> false
+            }
+        }
+        // Imposta il fragment iniziale
+        replaceFragment(HomeFragmentStudente(), email, nome, cognome, ruolo)
+        navView.selectedItemId = R.id.navigation_home
     }
 
     private fun replaceFragment(fragment: Fragment, email: String, nome: String, cognome: String, ruolo: Boolean) {

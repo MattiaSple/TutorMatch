@@ -117,10 +117,6 @@ class AuthViewModel : ViewModel() {
         _passwordResetMessage.value = null
     }
 
-    fun resetShowMessage() {
-        _showMessage.value = null
-    }
-
     // Metodo chiamato quando l'utente preme il pulsante per tornare indietro
     fun onBackClick() {
         _navigateBack.value = true

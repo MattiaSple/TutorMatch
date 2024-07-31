@@ -3,16 +3,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/navigation_home_tutor">
+    app:startDestination="@+id/navigation_home_studente">
 
     <fragment
-        android:id="@+id/navigation_home_tutor"
+        android:id="@+id/navigation_home_studente"
         android:name="com.example.tutormatch.ui.view.fragment.HomeFragmentStudente"
         android:label="Home"
         tools:layout="@layout/fragment_home_studente" />
 
     <fragment
-        android:id="@+id/navigation_ricercatutor"
+        android:id="@+id/navigation_ricerca_tutor"
         android:name="com.example.tutormatch.ui.view.fragment.RicercaTutorFragment"
         android:label="Ricerca"
         tools:layout="@layout/fragment_ricerca_tutor" />
