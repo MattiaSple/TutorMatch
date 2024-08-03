@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.tutormatch.databinding.FragmentProfiloBinding
@@ -12,24 +13,33 @@ import com.example.tutormatch.ui.viewmodel.ProfiloViewModel
 class ProfiloFragment : Fragment() {
 
     private var _binding: FragmentProfiloBinding? = null
-
-    // This property is only valid between onCreateView and
-    // onDestroyView.
     private val binding get() = _binding!!
+    private lateinit var profiloViewModel: ProfiloViewModel
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        val homeViewModel =
-            ViewModelProvider(this).get(ProfiloViewModel::class.java)
+        profiloViewModel = ViewModelProvider(this).get(ProfiloViewModel::class.java)
 
         _binding = FragmentProfiloBinding.inflate(inflater, container, false)
-        val root: View = binding.root
+        binding.lifecycleOwner = viewLifecycleOwner
+        binding.viewModel = profiloViewModel
 
+        // Recupera l'ID dell'utente dal bundle
+        val userId = arguments?.getString("userId")
+        userId?.let {
+            profiloViewModel.loadUserProfile(it)
+        }
 
-        return root
+        // Imposta il listener per il pulsante Salva
+        binding.registrazione.setOnClickListener {
+            userId?.let {
+                profiloViewModel.saveUserProfile(it)
+                Toast.makeText(context, "Profilo salvato con successo", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        return binding.root
     }
 
     override fun onDestroyView() {

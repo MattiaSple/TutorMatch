@@ -6,6 +6,16 @@
     app:startDestination="@+id/navigation_home_studente">
 
     <fragment
+        android:id="@+id/navigation_home"
+        android:name="com.example.tutormatch.ui.view.fragment.HomeFragmentStudente"
+        android:label="Home"
+        tools:layout="@layout/fragment_home_studente">
+        <argument
+            android:name="email"
+            app:argType="string" />
+    </fragment>
+
+    <fragment
         android:id="@+id/navigation_home_studente"
         android:name="com.example.tutormatch.ui.view.fragment.HomeFragmentStudente"
         android:label="Home"

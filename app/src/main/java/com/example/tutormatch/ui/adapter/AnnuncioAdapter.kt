@@ -25,7 +25,6 @@ class AnnuncioAdapter(
 
     fun setAnnunci(newAnnunci: List<Annuncio>) {
         annunci = newAnnunci
-        notifyDataSetChanged()
     }
 
     inner class AnnuncioViewHolder(private val binding: ItemAnnuncioBinding) : RecyclerView.ViewHolder(binding.root) {

@@ -10,5 +10,8 @@ data class Annuncio(
     val mod_pres: Boolean = false,
     val posizione: GeoPoint = GeoPoint(0.0, 0.0),
     val prezzo: String = "",
-    val tutor: DocumentReference
-)
+    val tutor: DocumentReference? = null // Cambiato a nullable
+) {
+    // Costruttore senza argomenti richiesto per la deserializzazione di Firestore
+    constructor() : this("", "", false, false, GeoPoint(0.0, 0.0), "", null)
+}

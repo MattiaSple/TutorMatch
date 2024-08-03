@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.tutormatch.databinding.FragmentHomeTutorBinding
 import com.example.tutormatch.ui.adapter.AnnuncioAdapter
@@ -24,17 +23,20 @@ class HomeFragmentTutor : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentHomeTutorBinding.inflate(inflater, container, false).apply {
-            viewModel = ViewModelProvider(this@HomeFragmentTutor).get(AnnunciViewModel::class.java)
-            lifecycleOwner = viewLifecycleOwner
-        }
+        _binding = FragmentHomeTutorBinding.inflate(inflater, container, false)
+
+        // Imposta il lifecycle owner e il ViewModel per il binding
+        binding.lifecycleOwner = viewLifecycleOwner
         annunciViewModel = ViewModelProvider(this).get(AnnunciViewModel::class.java)
+        binding.viewModel = annunciViewModel
+
+        // Configura il RecyclerView
         setupRecyclerView()
 
-        // Recupera l'email dal bundle
+        // Recupera l'ID dell'utente dal bundle
         val userId = arguments?.getString("userId")
         userId?.let {
-            // Imposta l'email nel ViewModel
+            // Imposta il riferimento al tutor nel ViewModel
             val firestore = FirebaseFirestore.getInstance()
             val tutorRef = firestore.collection("utenti").document(it)
             annunciViewModel.setTutorReference(tutorRef)
@@ -44,14 +46,21 @@ class HomeFragmentTutor : Fragment() {
         binding.buttonSalva.setOnClickListener {
             val materiaSpinner = binding.spinnerMateria.selectedItem as? String
             annunciViewModel.materia.value = materiaSpinner
-            annunciViewModel.salvaAnnuncio()
+            if (annunciViewModel.salvaAnnuncio()) {
+                Toast.makeText(context, "Annuncio salvato con successo", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(context, "Errore: tutti i campi devono essere compilati", Toast.LENGTH_SHORT).show()
+            }
         }
 
-        annunciViewModel.annunci.observe(viewLifecycleOwner, Observer { annunci ->
+        // Osserva i cambiamenti nei dati degli annunci
+        annunciViewModel.annunci.observe(viewLifecycleOwner, { annunci ->
             annuncioAdapter.setAnnunci(annunci)
+            annuncioAdapter.notifyDataSetChanged()
         })
 
-        annunciViewModel.message.observe(viewLifecycleOwner, Observer { message ->
+        // Osserva i messaggi di errore o stato
+        annunciViewModel.message.observe(viewLifecycleOwner, { message ->
             message?.let {
                 Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
             }

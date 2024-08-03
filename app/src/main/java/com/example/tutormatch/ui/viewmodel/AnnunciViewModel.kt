@@ -1,6 +1,7 @@
 package com.example.tutormatch.ui.viewmodel
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -45,9 +46,14 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
         _tutorRef?.let { tutorRef ->
             viewModelScope.launch(Dispatchers.IO) {
                 try {
-                    // Carica tutti gli annunci creati dal tutor
                     val querySnapshot = annunciCollection.whereEqualTo("tutor", tutorRef).get().await()
-                    val loadedAnnunci = querySnapshot.documents.mapNotNull { it.toObject(Annuncio::class.java) }
+                    val loadedAnnunci = querySnapshot.documents.mapNotNull { document ->
+                        try {
+                            document.toObject(Annuncio::class.java)
+                        } catch (e: Exception) {
+                            null
+                        }
+                    }
                     _annunci.postValue(loadedAnnunci)
                 } catch (e: Exception) {
                     _message.postValue("Errore nel caricamento degli annunci: ${e.message}")
@@ -56,6 +62,9 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
+
+
+    // Funzione per salvare un nuovo annuncio su Firestore
     // Funzione per salvare un nuovo annuncio su Firestore
     fun salvaAnnuncio(): Boolean {
         val descrizioneVal = descrizione.value ?: ""
@@ -63,6 +72,7 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
         val onlineVal = online.value ?: false
         val presenzaVal = presenza.value ?: false
         val prezzoVal = prezzo.value ?: ""
+
 
         // Verifica che tutti i campi siano compilati
         if (descrizioneVal.isBlank() || materiaVal.isBlank() || prezzoVal.isBlank()) {
@@ -92,6 +102,7 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
         }
         return true
     }
+
 
     // Funzione per eliminare un annuncio da Firestore
     fun eliminaAnnuncio(annuncio: Annuncio) {
