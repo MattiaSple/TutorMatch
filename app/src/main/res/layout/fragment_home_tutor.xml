@@ -80,7 +80,7 @@
                     android:id="@+id/Ricercapara"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/rectangle_16"
+                    android:gravity="center_horizontal"
                     android:orientation="vertical"
                     android:padding="16dp">
 
@@ -97,7 +97,8 @@
                             android:layout_width="0dp"
                             android:layout_height="48dp"
                             android:layout_weight="1"
-                            android:text="Materia:" />
+                            android:text="Materia:"
+                            android:textStyle="bold" />
 
                         <Spinner
                             android:id="@+id/spinnerMateria"
@@ -121,7 +122,8 @@
                             android:layout_width="0dp"
                             android:layout_height="48dp"
                             android:layout_weight="1"
-                            android:text="Costo:" />
+                            android:text="Costo:"
+                            android:textStyle="bold" />
 
                         <EditText
                             android:id="@+id/editTextNumber"
@@ -129,7 +131,7 @@
                             android:layout_height="48dp"
                             android:layout_weight="2"
                             android:ems="10"
-                            android:hint="Enter number"
+                            android:hint="Inserisci prezzo"
                             android:inputType="number"
                             android:text="@={viewModel.prezzo}" />
                     </LinearLayout>
@@ -147,7 +149,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="Descrizione:"
-                            android:textAlignment="center" />
+                            android:textAlignment="viewStart"
+                            android:textStyle="bold" />
 
                         <EditText
                             android:id="@+id/editTextDescrizione"
@@ -163,59 +166,43 @@
                         android:id="@+id/Interno_5"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:paddingBottom="8dp">
+                        android:orientation="horizontal">
 
                         <TextView
                             android:id="@+id/textView10"
                             android:layout_width="0dp"
-                            android:layout_height="40dp"
+                            android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Modalità insegnamento:" />
+                            android:text="Modalità:"
+                            android:textStyle="bold" />
 
                         <CheckBox
                             android:id="@+id/checkBoxOnline"
                             android:layout_width="0dp"
                             android:layout_height="48dp"
                             android:layout_weight="1"
-                            android:text="Online"
-                            android:checked="@={viewModel.online}" />
+                            android:checked="@={viewModel.online}"
+                            android:text="Online" />
 
                         <CheckBox
                             android:id="@+id/checkBoxPresenza"
                             android:layout_width="0dp"
                             android:layout_height="48dp"
                             android:layout_weight="1"
-                            android:text="Presenza"
-                            android:checked="@={viewModel.presenza}" />
+                            android:checked="@={viewModel.presenza}"
+                            android:text="Presenza" />
                     </LinearLayout>
 
                     <!-- Pulsanti per salvare o eliminare l'annuncio -->
-                    <LinearLayout
-                        android:id="@+id/Interno_6"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
+                    <Button
+                        android:id="@+id/buttonSalva"
+                        android:layout_width="wrap_content"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:backgroundTint="@color/statusBarColor"
+                        android:text="Salva"
+                        android:textColor="@color/colorBackground" />
 
-                        <Button
-                            android:id="@+id/button4"
-                            android:layout_width="0dp"
-                            android:layout_height="48dp"
-                            android:layout_weight="1"
-                            android:backgroundTint="@color/statusBarColor"
-                            android:text="Elimina"
-                            android:textColor="@color/colorBackground" />
-
-                        <Button
-                            android:id="@+id/buttonSalva"
-                            android:layout_width="0dp"
-                            android:layout_height="48dp"
-                            android:layout_weight="1"
-                            android:backgroundTint="@color/statusBarColor"
-                            android:text="Salva"
-                            android:textColor="@color/colorBackground"/>
-
-                    </LinearLayout>
                 </LinearLayout>
 
                 <!-- CardView per mostrare i propri annunci -->
@@ -223,8 +210,8 @@
                     android:id="@+id/annunci_card"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_margin="8dp"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginBottom="10dp"
                     app:cardBackgroundColor="@color/statusBarColor"
                     app:cardCornerRadius="20dp">
 

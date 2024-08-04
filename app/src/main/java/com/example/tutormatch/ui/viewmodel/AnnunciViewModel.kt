@@ -19,8 +19,8 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
     private val annunciCollection = firestore.collection("annunci")
 
     // LiveData per gli annunci
-    private val _annunci = MutableLiveData<List<Annuncio>>()
-    val annunci: LiveData<List<Annuncio>> get() = _annunci
+    private val _lista_annunci = MutableLiveData<List<Annuncio>>()
+    val lista_annunci: LiveData<List<Annuncio>> get() = _lista_annunci
 
     // LiveData per i messaggi di errore o stato
     private val _message = MutableLiveData<String>()
@@ -54,7 +54,7 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
                             null
                         }
                     }
-                    _annunci.postValue(loadedAnnunci)
+                    _lista_annunci.postValue(loadedAnnunci)
                 } catch (e: Exception) {
                     _message.postValue("Errore nel caricamento degli annunci: ${e.message}")
                 }
@@ -63,11 +63,10 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
     }
 
 
-
-    // Funzione per salvare un nuovo annuncio su Firestore
     // Funzione per salvare un nuovo annuncio su Firestore
     fun salvaAnnuncio(): Boolean {
-        val descrizioneVal = descrizione.value ?: ""
+        // Pulizia della descrizione rimuovendo spazi bianchi e accapo non necessari
+        val descrizioneVal = descrizione.value?.trim()?.replace("\\s+".toRegex(), " ") ?: ""
         val materiaVal = materia.value ?: ""
         val onlineVal = online.value ?: false
         val presenzaVal = presenza.value ?: false
@@ -75,8 +74,8 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
 
 
         // Verifica che tutti i campi siano compilati
-        if (descrizioneVal.isBlank() || materiaVal.isBlank() || prezzoVal.isBlank()) {
-            _message.value = "Tutti i campi devono essere compilati"
+        if (materiaVal.isBlank() || prezzoVal.isBlank()) {
+            _message.value = "Materia e Prezzo sono necessari!"
             return false
         }
 

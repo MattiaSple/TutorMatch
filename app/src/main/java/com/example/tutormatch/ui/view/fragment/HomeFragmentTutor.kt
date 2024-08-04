@@ -54,17 +54,17 @@ class HomeFragmentTutor : Fragment() {
         }
 
         // Osserva i cambiamenti nei dati degli annunci
-        annunciViewModel.annunci.observe(viewLifecycleOwner, { annunci ->
-            annuncioAdapter.setAnnunci(annunci)
+        annunciViewModel.lista_annunci.observe(viewLifecycleOwner) { listaAnnunci ->
+            annuncioAdapter.setAnnunci(listaAnnunci)
             annuncioAdapter.notifyDataSetChanged()
-        })
+        }
 
         // Osserva i messaggi di errore o stato
-        annunciViewModel.message.observe(viewLifecycleOwner, { message ->
+        annunciViewModel.message.observe(viewLifecycleOwner) { message ->
             message?.let {
                 Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
             }
-        })
+        }
 
         return binding.root
     }
