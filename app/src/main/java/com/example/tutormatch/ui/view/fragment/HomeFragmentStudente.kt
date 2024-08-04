@@ -12,8 +12,8 @@ import com.example.tutormatch.ui.viewmodel.HomeViewModel
 class HomeFragmentStudente : Fragment() {
 
     private val homeViewModel: HomeViewModel by activityViewModels()
-    private var _binding: FragmentHomeStudenteBinding? = null
-    private val binding get() = _binding!!
+    private lateinit var _binding: FragmentHomeStudenteBinding
+    private val binding get() = _binding
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -27,14 +27,11 @@ class HomeFragmentStudente : Fragment() {
         binding.viewModel = homeViewModel
         binding.lifecycleOwner = viewLifecycleOwner
 
-
-
         return root
-
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null
+        // Non impostare _binding a null qui, lascia che il garbage collector gestisca il binding
     }
 }

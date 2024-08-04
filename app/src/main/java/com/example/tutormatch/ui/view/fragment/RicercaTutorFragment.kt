@@ -11,11 +11,9 @@ import com.example.tutormatch.ui.viewmodel.RicercaTutorViewModel
 
 class RicercaTutorFragment : Fragment() {
 
-    private var _binding: FragmentRicercaTutorBinding? = null
+    private lateinit var _binding: FragmentRicercaTutorBinding
+    private val binding get() = _binding
 
-    // This property is only valid between onCreateView and
-    // onDestroyView.
-    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -34,6 +32,6 @@ class RicercaTutorFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null
+        // Non impostare _binding a null qui, lascia che il garbage collector gestisca il binding
     }
 }

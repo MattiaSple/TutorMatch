@@ -4,25 +4,96 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.example.tutormatch.databinding.FragmentCalendarioTutorBinding
-
+import com.example.tutormatch.ui.viewmodel.CalendarioViewModel
+import com.google.firebase.firestore.FirebaseFirestore
+import java.text.SimpleDateFormat
+import java.util.*
 
 class CalendarioFragment : Fragment() {
 
-    private var _binding: FragmentCalendarioTutorBinding? = null
-    private val binding get() = _binding!!
+    private lateinit var _binding: FragmentCalendarioTutorBinding
+    private val binding get() = _binding
+    private lateinit var calendarioViewModel: CalendarioViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentCalendarioTutorBinding.inflate(inflater, container, false)
+
+        calendarioViewModel = ViewModelProvider(this).get(CalendarioViewModel::class.java)
+
+        val userId = arguments?.getString("userId")
+        userId?.let {
+            val firestore = FirebaseFirestore.getInstance()
+            val tutorRef = firestore.collection("utenti").document(it)
+            calendarioViewModel.setTutorReference(tutorRef)
+
+            // Configura il calendario
+            var selectedDate: String? = null
+            binding.calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
+                selectedDate = String.format(Locale.getDefault(), "%04d-%02d-%02d", year, month + 1, dayOfMonth)
+            }
+
+            // Configura il menu a tendina degli orari
+            val orari = generateOrari()
+            val adapterInizio = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, orari)
+            adapterInizio.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            binding.spinnerOrariInizio.adapter = adapterInizio
+
+            val adapterFine = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, orari)
+            adapterFine.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            binding.spinnerOrariFine.adapter = adapterFine
+
+            // Aggiungi disponibilità
+            binding.buttonAggiungiDisponibilita.setOnClickListener {
+                val oraInizioSelezionata = binding.spinnerOrariInizio.selectedItem as String
+                val oraFineSelezionata = binding.spinnerOrariFine.selectedItem as String
+                selectedDate?.let { data ->
+                    calendarioViewModel.aggiungiDisponibilita(data, oraInizioSelezionata, oraFineSelezionata)
+                }
+            }
+
+            // Osserva le disponibilità
+            calendarioViewModel.lista_disponibilita.observe(viewLifecycleOwner) { listaDisponibilita ->
+                val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                val disponibilitaString = listaDisponibilita.map { "${dateFormat.format(it.data)} - ${it.oraInizio} alle ${it.oraFine} - ${if (it.stato_pren) "Prenotato" else "Disponibile"}" }
+                val listAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, disponibilitaString)
+                binding.listViewDisponibilita.adapter = listAdapter
+            }
+
+            // Osserva i messaggi
+            calendarioViewModel.message.observe(viewLifecycleOwner) { message ->
+                message?.let {
+                    Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
         return binding.root
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+    private fun generateOrari(): List<String> {
+        val orari = mutableListOf<String>()
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.HOUR_OF_DAY, 0)
+        calendar.set(Calendar.MINUTE, 0)
+
+        val dateFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+        val numFasce = 48  // Numero totale di fasce da 30 minuti in una giornata
+
+        var counter = 0
+        while (counter < numFasce) {
+            orari.add(dateFormat.format(calendar.time))
+            calendar.add(Calendar.MINUTE, 30)
+            counter++
+        }
+
+        return orari
     }
 }

@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context=".ui.view.fragment.CalendarioFragment">
 
     <FrameLayout
         android:id="@+id/frameLayout"
@@ -39,63 +40,81 @@
     </FrameLayout>
 
     <ScrollView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/frameLayout"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/frameLayout">
+        android:layout_margin="16dp">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical">
 
             <CalendarView
                 android:id="@+id/calendarView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/frameLayout" />
+                android:layout_marginTop="12dp" />
 
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cardView2"
-                android:layout_width="341dp"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                app:cardBackgroundColor="@color/statusBarColor"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="4dp"
-                app:layout_constraintEnd_toEndOf="@id/frameLayout"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/calendarView">
+                android:orientation="horizontal"
+                android:layout_marginTop="16dp">
 
                 <TextView
-                    android:id="@+id/OrarioGironoMese"
+                    android:id="@+id/textViewOrarioInizio"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:gravity="center"
-                    android:text="Orario del giorno X mese Y"
-                    android:textColor="@color/colorBackground"
-                    android:textSize="24sp"
-                    android:textStyle="bold" />
-            </androidx.cardview.widget.CardView>
+                    android:text="Orario Inizio"
+                    android:layout_marginEnd="8dp"
+                    android:layout_gravity="center" />
+
+                <Spinner
+                    android:id="@+id/spinnerOrariInizio"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:padding="8dp"
+                    android:backgroundTint="@color/statusBarColor"
+                    android:textColor="@color/colorBackground" />
+
+                <TextView
+                    android:id="@+id/textViewOrarioFine"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Orario Fine"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_gravity="center" />
+
+                <Spinner
+                    android:id="@+id/spinnerOrariFine"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:padding="8dp"
+                    android:backgroundTint="@color/statusBarColor"
+                    android:textColor="@color/colorBackground" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/buttonAggiungiDisponibilita"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_marginTop="16dp"
+                android:backgroundTint="@color/statusBarColor"
+                android:text="Aggiungi Disponibilità"
+                android:textColor="@color/colorBackground" />
 
             <ListView
+                android:id="@+id/listViewDisponibilita"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginBottom="2dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/cardView2" />
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp" />
         </LinearLayout>
     </ScrollView>
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>
