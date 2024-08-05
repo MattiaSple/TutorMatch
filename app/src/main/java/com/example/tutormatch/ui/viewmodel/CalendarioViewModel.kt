@@ -113,23 +113,43 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
         }
 
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
         val dataParsed = dateFormat.parse(dataVal)
 
-        // Crea un nuovo oggetto Calendario
-        val nuovaDisponibilita = Calendario(
-            tutorRef = _tutorRef,
-            data = dataParsed,
-            oraInizio = oraInizioVal,
-            oraFine = oraFineVal,
-            stato_pren = statoPrenVal
-        )
+        val inizioParsed = timeFormat.parse(oraInizioVal)
+        val fineParsed = timeFormat.parse(oraFineVal)
 
-        // Inserisce la disponibilità in Firestore
+        // Crea un nuovo oggetto Calendario per ogni intervallo di un'ora
+        val disponibilitaList = mutableListOf<Calendario>()
+        val calendar = Calendar.getInstance().apply { time = inizioParsed }
+
+        while (calendar.time.before(fineParsed)) {
+            val oraInizioStr = timeFormat.format(calendar.time)
+            calendar.add(Calendar.HOUR_OF_DAY, 1)
+            val oraFineStr = timeFormat.format(calendar.time)
+
+            // Se l'ora di fine supera l'ora fine specificata, termina il ciclo
+            if (calendar.time.after(fineParsed)) {
+                break
+            }
+
+            disponibilitaList.add(Calendario(
+                tutorRef = _tutorRef,
+                data = dataParsed,
+                oraInizio = oraInizioStr,
+                oraFine = oraFineStr,
+                stato_pren = statoPrenVal
+            ))
+        }
+
+        // Inserisce le disponibilità in Firestore
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                disponibilitaCollection.add(nuovaDisponibilita).await()
+                for (disponibilita in disponibilitaList) {
+                    disponibilitaCollection.add(disponibilita).await()
+                }
                 withContext(Dispatchers.Main) {
-                    _message.value = "Disponibilità salvata con successo"
+                    _message.value = "Disponibilità salvate con successo"
                 }
                 loadDisponibilita()  // Aggiorna la lista delle disponibilità
             } catch (e: Exception) {
@@ -140,6 +160,7 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
         }
         return true
     }
+
 
     // Funzione per eliminare una disponibilità da Firestore
     fun eliminaDisponibilita(calendario: Calendario) {
@@ -168,22 +189,22 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
 
     // Funzione per pulire le disponibilità scadute
     private fun cleanUpExpiredDisponibilita() {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val now = Date()
-                val querySnapshot = disponibilitaCollection.whereLessThan("data", now).get().await()
-                for (document in querySnapshot.documents) {
-                    val calendario = document.toObject(Calendario::class.java)
-                    calendario?.let {
-                        val oraFine = SimpleDateFormat("HH:mm", Locale.getDefault()).parse(it.oraFine)
-                        if (it.data.before(now) || (it.data == now && oraFine.before(now))) {
-                            disponibilitaCollection.document(document.id).delete().await()
-                        }
-                    }
-                }
-            } catch (e: Exception) {
-                Log.e("CalendarioViewModel", "Errore durante la pulizia delle disponibilità scadute: ${e.message}")
-            }
-        }
+//        viewModelScope.launch(Dispatchers.IO) {
+//            try {
+//                val now = Date()
+//                val querySnapshot = disponibilitaCollection.whereLessThan("data", now).get().await()
+//                for (document in querySnapshot.documents) {
+//                    val calendario = document.toObject(Calendario::class.java)
+//                    calendario?.let {
+//                        val oraFine = SimpleDateFormat("HH:mm", Locale.getDefault()).parse(it.oraFine)
+//                        if (it.data.before(now) || (it.data == now && oraFine.before(now))) {
+//                            disponibilitaCollection.document(document.id).delete().await()
+//                        }
+//                    }
+//                }
+//            } catch (e: Exception) {
+//                Log.e("CalendarioViewModel", "Errore durante la pulizia delle disponibilità scadute: ${e.message}")
+//            }
+//        }
     }
 }
