@@ -72,6 +72,8 @@ class CalendarioFragment : Fragment() {
             calendarioViewModel.oraFine.value = oraFineSelezionata
             calendarioViewModel.data.value = selectedDate
             if (calendarioViewModel.salvaDisponibilita()) {
+                updateOrariInizioSpinner(selectedDate)
+                updateOrariFineSpinner(selectedDate)
                 Toast.makeText(context, "Disponibilità salvata con successo", Toast.LENGTH_SHORT).show()
             } else {
                 Toast.makeText(context, "Errore: tutti i campi devono essere compilati", Toast.LENGTH_SHORT).show()
