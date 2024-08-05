@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -46,9 +47,20 @@ class CalendarioFragment : Fragment() {
             adapterInizio.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             binding.spinnerOrariInizio.adapter = adapterInizio
 
-            val adapterFine = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, orari)
-            adapterFine.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            binding.spinnerOrariFine.adapter = adapterFine
+            // Aggiungi listener allo Spinner di inizio
+            binding.spinnerOrariInizio.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                    val orarioInizioSelezionato = binding.spinnerOrariInizio.selectedItem as String
+                    val orariFiltrati = orari.filter { it > orarioInizioSelezionato }
+                    val adapterFineAggiornato = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, orariFiltrati)
+                    adapterFineAggiornato.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                    binding.spinnerOrariFine.adapter = adapterFineAggiornato
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>) {
+                    // Non fare nulla
+                }
+            }
 
             // Aggiungi disponibilità
             binding.buttonAggiungiDisponibilita.setOnClickListener {
@@ -85,10 +97,9 @@ class CalendarioFragment : Fragment() {
         calendar.set(Calendar.MINUTE, 0)
 
         val dateFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
-        val numFasce = 48  // Numero totale di fasce da 30 minuti in una giornata
 
         var counter = 0
-        while (counter < numFasce) {
+        while (counter < 48) {
             orari.add(dateFormat.format(calendar.time))
             calendar.add(Calendar.MINUTE, 30)
             counter++
