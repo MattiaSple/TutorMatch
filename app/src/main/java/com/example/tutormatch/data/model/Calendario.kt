@@ -4,9 +4,12 @@ import com.google.firebase.firestore.DocumentReference
 import java.util.Date
 
 data class Calendario(
-    val tutorRef: DocumentReference, // Riferimento al documento utente del tutor
-    val data: Date,
-    val oraInizio: String, // Ora di inizio della fascia oraria
-    val oraFine: String, // Ora di fine della fascia oraria
-    val stato_pren: Boolean = false // Stato della prenotazione
-)
+    val tutorRef: DocumentReference? = null, // Cambiato a nullable
+    val data: Date = Date(),
+    val oraInizio: String = "",
+    val oraFine: String = "",
+    val stato_pren: Boolean = false
+) {
+    // Costruttore senza argomenti richiesto per la deserializzazione di Firestore
+    constructor() : this(null, Date(), "", "", false)
+}

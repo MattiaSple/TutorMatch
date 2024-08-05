@@ -70,6 +70,7 @@ dependencies {
     // Room dependencies
     implementation("androidx.room:room-runtime:2.5.1")
     implementation(libs.firebase.firestore.ktx)
+    implementation(libs.androidx.recyclerview)
     //implementation(libs.play.services.location)
     kapt("androidx.room:room-compiler:2.5.1")
 
