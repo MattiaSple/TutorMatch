@@ -109,7 +109,7 @@ class CalendarioFragment : Fragment() {
         val oggi = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
         if (selectedDate == oggi) {
             val currentTime = Calendar.getInstance()
-            currentTime.add(Calendar.MINUTE, 30 - (currentTime.get(Calendar.MINUTE) % 30))
+            currentTime.add(Calendar.MINUTE, 60 - (currentTime.get(Calendar.MINUTE) % 60))
             calendar.time = currentTime.time
         } else {
             calendar.set(Calendar.HOUR_OF_DAY, 0)
@@ -117,12 +117,12 @@ class CalendarioFragment : Fragment() {
         }
 
         var counter = 0
-        while (counter < 48) {
+        while (counter < 24) {
             val orario = dateFormat.format(calendar.time)
             if (!existingOrari.contains(orario)) {
                 orari.add(orario)
             }
-            calendar.add(Calendar.MINUTE, 30)
+            calendar.add(Calendar.MINUTE, 60)
             counter++
         }
 
