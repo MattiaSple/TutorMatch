@@ -24,7 +24,7 @@ class CalendarioFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentCalendarioTutorBinding.inflate(inflater, container, false)
 
         calendarioViewModel = ViewModelProvider(this).get(CalendarioViewModel::class.java)
@@ -36,21 +36,26 @@ class CalendarioFragment : Fragment() {
             calendarioViewModel.setTutorReference(tutorRef)
 
             // Configura il calendario
-            var selectedDate: String? = null
+            val today = Calendar.getInstance().time
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            val todayString = dateFormat.format(today)
+
+            binding.calendarView.minDate = today.time
+            var selectedDate = todayString
+
             binding.calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
                 selectedDate = String.format(Locale.getDefault(), "%04d-%02d-%02d", year, month + 1, dayOfMonth)
+                updateOrariInizioSpinner(selectedDate)
             }
 
             // Configura il menu a tendina degli orari
-            val orari = generateOrari()
-            val adapterInizio = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, orari)
-            adapterInizio.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            binding.spinnerOrariInizio.adapter = adapterInizio
+            updateOrariInizioSpinner(todayString)
 
             // Aggiungi listener allo Spinner di inizio
             binding.spinnerOrariInizio.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                     val orarioInizioSelezionato = binding.spinnerOrariInizio.selectedItem as String
+                    val orari = generateOrari(selectedDate)
                     val orariFiltrati = orari.filter { it > orarioInizioSelezionato }
                     val adapterFineAggiornato = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, orariFiltrati)
                     adapterFineAggiornato.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
@@ -73,8 +78,9 @@ class CalendarioFragment : Fragment() {
 
             // Osserva le disponibilità
             calendarioViewModel.lista_disponibilita.observe(viewLifecycleOwner) { listaDisponibilita ->
-                val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                val disponibilitaString = listaDisponibilita.map { "${dateFormat.format(it.data)} - ${it.oraInizio} alle ${it.oraFine} - ${if (it.stato_pren) "Prenotato" else "Disponibile"}" }
+                val disponibilitaString = listaDisponibilita.map {
+                    "${dateFormat.format(it.data)} - ${it.oraInizio} alle ${it.oraFine} - ${if (it.stato_pren) "Prenotato" else "Disponibile"}"
+                }
                 val listAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, disponibilitaString)
                 binding.listViewDisponibilita.adapter = listAdapter
             }
@@ -90,13 +96,22 @@ class CalendarioFragment : Fragment() {
         return binding.root
     }
 
-    private fun generateOrari(): List<String> {
+    private fun generateOrari(selectedDate: String? = null): List<String> {
         val orari = mutableListOf<String>()
         val calendar = Calendar.getInstance()
-        calendar.set(Calendar.HOUR_OF_DAY, 0)
-        calendar.set(Calendar.MINUTE, 0)
-
         val dateFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+
+        // Controlla se la data selezionata è oggi
+        val oggi = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+        if (selectedDate == oggi) {
+            // Imposta l'orario iniziale al prossimo intervallo di 30 minuti futuro
+            val currentTime = Calendar.getInstance()
+            currentTime.add(Calendar.MINUTE, 30 - (currentTime.get(Calendar.MINUTE) % 30))
+            calendar.time = currentTime.time
+        } else {
+            calendar.set(Calendar.HOUR_OF_DAY, 0)
+            calendar.set(Calendar.MINUTE, 0)
+        }
 
         var counter = 0
         while (counter < 48) {
@@ -106,5 +121,12 @@ class CalendarioFragment : Fragment() {
         }
 
         return orari
+    }
+
+    private fun updateOrariInizioSpinner(selectedDate: String?) {
+        val orari = generateOrari(selectedDate)
+        val adapterInizio = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, orari)
+        adapterInizio.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.spinnerOrariInizio.adapter = adapterInizio
     }
 }
