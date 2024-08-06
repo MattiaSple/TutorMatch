@@ -5,9 +5,12 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.tutormatch.data.model.Calendario
 import com.example.tutormatch.databinding.ItemOrarioBinding
+import java.text.SimpleDateFormat
+import java.util.*
 
 class CalendarioAdapter(
-    private val onDeleteClick: (Calendario) -> Unit
+    private val onDeleteClick: (Calendario) -> Unit,
+    private val onUpdateOrariInizio: (String?) -> Unit
 ) : RecyclerView.Adapter<CalendarioAdapter.CalendarioViewHolder>() {
 
     private var calendari = listOf<Calendario>()
