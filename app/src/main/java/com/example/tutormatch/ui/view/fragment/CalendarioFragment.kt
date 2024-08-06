@@ -32,6 +32,11 @@ class CalendarioFragment : Fragment() {
 
         calendarioViewModel = ViewModelProvider(this).get(CalendarioViewModel::class.java)
 
+        calendarioViewModel.setUpdateOrariInizioCallback {
+            val selectedDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(binding.calendarView.date)
+            updateOrariInizioSpinner(selectedDate)
+        }
+
         val userId = arguments?.getString("userId")
         userId?.let {
             val firestore = FirebaseFirestore.getInstance()
@@ -73,7 +78,6 @@ class CalendarioFragment : Fragment() {
             calendarioViewModel.data.value = selectedDate
             if (calendarioViewModel.salvaDisponibilita()) {
                 updateOrariInizioSpinner(selectedDate)
-                updateOrariFineSpinner(selectedDate)
             } else {
                 Toast.makeText(context, "Errore: tutti i campi devono essere compilati", Toast.LENGTH_SHORT).show()
             }
@@ -93,9 +97,10 @@ class CalendarioFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        calendarioAdapter = CalendarioAdapter { calendario ->
-            calendarioViewModel.eliminaDisponibilita(calendario)
-        }
+        calendarioAdapter = CalendarioAdapter(
+            { calendario -> calendarioViewModel.eliminaDisponibilita(calendario) },
+            { selectedDate -> updateOrariInizioSpinner(selectedDate) }
+        )
         binding.recyclerViewDisponibilita.layoutManager = LinearLayoutManager(context)
         binding.recyclerViewDisponibilita.adapter = calendarioAdapter
     }
@@ -106,17 +111,22 @@ class CalendarioFragment : Fragment() {
         val dateFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
 
         val oggi = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+        var oreRimanenti = 24 // Default, in caso non sia oggi
+
         if (selectedDate == oggi) {
             val currentTime = Calendar.getInstance()
             currentTime.add(Calendar.MINUTE, 60 - (currentTime.get(Calendar.MINUTE) % 60))
             calendar.time = currentTime.time
+
+            // Calcola le ore rimanenti fino a mezzanotte
+            oreRimanenti = 24 - currentTime.get(Calendar.HOUR_OF_DAY)
         } else {
             calendar.set(Calendar.HOUR_OF_DAY, 0)
             calendar.set(Calendar.MINUTE, 0)
         }
 
         var counter = 0
-        while (counter < 24) {
+        while (counter < oreRimanenti) {
             val orario = dateFormat.format(calendar.time)
             if (!existingOrari.contains(orario)) {
                 orari.add(orario)
@@ -141,7 +151,13 @@ class CalendarioFragment : Fragment() {
         calendarioViewModel.caricaDisponibilitaPerData(selectedDate) { existingOrari ->
             val orarioInizioSelezionato = binding.spinnerOrariInizio.selectedItem as String
             val orari = generateOrari(selectedDate, existingOrari)
-            val orariFiltrati = orari.filter { it > orarioInizioSelezionato }
+            val orariFiltrati = orari.filter { it > orarioInizioSelezionato }.toMutableList()
+
+            // Controlla se orariFiltrati è vuoto e aggiungi "00:00" se necessario
+            if (orariFiltrati.isEmpty()) {
+                orariFiltrati.add("00:00")
+            }
+
             val adapterFineAggiornato = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, orariFiltrati)
             adapterFineAggiornato.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             binding.spinnerOrariFine.adapter = adapterFineAggiornato

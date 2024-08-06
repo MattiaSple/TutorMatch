@@ -37,6 +37,13 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
 
     private lateinit var _tutorRef: DocumentReference
 
+    // Callback per aggiornare gli orari inizio
+    private var updateOrariInizioCallback: (() -> Unit)? = null
+
+    fun setUpdateOrariInizioCallback(callback: () -> Unit) {
+        updateOrariInizioCallback = callback
+    }
+
     // Funzione per impostare il riferimento del tutor
     fun setTutorReference(tutorRef: DocumentReference) {
         _tutorRef = tutorRef
@@ -58,6 +65,7 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
                 }
                 withContext(Dispatchers.Main) {
                     _lista_disponibilita.value = loadedDisponibilita
+                    updateOrariInizioCallback?.invoke()
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
@@ -123,6 +131,15 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
         val disponibilitaList = mutableListOf<Calendario>()
         val calendar = Calendar.getInstance().apply { time = inizioParsed }
 
+        // Se l'ora di fine è prima dell'ora di inizio, aggiungi un giorno all'ora di fine
+        if (fineParsed.before(inizioParsed)) {
+            val calendarFine = Calendar.getInstance().apply {
+                time = fineParsed
+                add(Calendar.DAY_OF_MONTH, 1)
+            }
+            fineParsed.time = calendarFine.timeInMillis
+        }
+
         while (calendar.time.before(fineParsed)) {
             val oraInizioStr = timeFormat.format(calendar.time)
             calendar.add(Calendar.HOUR_OF_DAY, 1)
@@ -142,11 +159,22 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
             ))
         }
 
-        // Inserisce le disponibilità in Firestore
+        // Inserisce le disponibilità in Firestore solo se non esistono duplicati
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 for (disponibilita in disponibilitaList) {
-                    disponibilitaCollection.add(disponibilita).await()
+                    // Verifica l'esistenza di disponibilità con lo stesso OraInizio, Data e TutorRef
+                    val existingSnapshot = disponibilitaCollection
+                        .whereEqualTo("tutorRef", disponibilita.tutorRef)
+                        .whereEqualTo("data", disponibilita.data)
+                        .whereEqualTo("oraInizio", disponibilita.oraInizio)
+                        .get()
+                        .await()
+
+                    if (existingSnapshot.isEmpty) {
+                        // Aggiungi la disponibilità se non esistono duplicati
+                        disponibilitaCollection.add(disponibilita).await()
+                    }
                 }
                 withContext(Dispatchers.Main) {
                     _message.value = "Disponibilità salvate con successo"
