@@ -81,18 +81,50 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Email" />
+                    android:text="Residenza" />
 
                 <EditText
-                    android:id="@+id/email"
+                    android:id="@+id/residenza"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:backgroundTint="#000000"
-                    android:hint="Email"
-                    android:inputType="textEmailAddress"
+                    android:hint="Residenza"
                     android:minHeight="48dp"
                     android:padding="10dp"
-                    android:text="@={viewModel.email}" />
+                    android:text="@={viewModel.residenza}" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Via" />
+
+                <EditText
+                    android:id="@+id/via"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="#000000"
+                    android:hint="Via"
+                    android:minHeight="48dp"
+                    android:padding="10dp"
+                    android:text="@={viewModel.via}" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Civico" />
+
+                <EditText
+                    android:id="@+id/civico"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="#000000"
+                    android:hint="Civico"
+                    android:inputType="number"
+                    android:minHeight="48dp"
+                    android:padding="10dp"
+                    android:text="@={viewModel.civico}" />
+
+
             </LinearLayout>
         </ScrollView>
 
@@ -108,7 +140,7 @@
             app:layout_constraintStart_toStartOf="parent">
 
             <Button
-                android:id="@+id/registrazione"
+                android:id="@+id/salva"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"

@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.tutormatch.databinding.FragmentProfiloBinding
 import com.example.tutormatch.ui.viewmodel.ProfiloViewModel
@@ -32,12 +33,17 @@ class ProfiloFragment : Fragment() {
         }
 
         // Imposta il listener per il pulsante Salva
-        binding.registrazione.setOnClickListener {
+        binding.salva.setOnClickListener {
             userId?.let {
                 profiloViewModel.saveUserProfile(it)
-                Toast.makeText(context, "Profilo salvato con successo", Toast.LENGTH_SHORT).show()
             }
         }
+
+        profiloViewModel.message.observe(viewLifecycleOwner, Observer { text ->
+            text?.let {
+                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            }
+        })
 
         return binding.root
     }
