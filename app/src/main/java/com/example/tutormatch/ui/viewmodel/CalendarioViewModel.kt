@@ -47,7 +47,6 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
     // Funzione per impostare il riferimento del tutor
     fun setTutorReference(tutorRef: DocumentReference) {
         _tutorRef = tutorRef
-        cleanUpExpiredDisponibilita()
         loadDisponibilita() // Carica le disponibilità una volta che il riferimento è stato impostato
     }
 
@@ -213,26 +212,5 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
                 }
             }
         }
-    }
-
-    // Funzione per pulire le disponibilità scadute
-    private fun cleanUpExpiredDisponibilita() {
-//        viewModelScope.launch(Dispatchers.IO) {
-//            try {
-//                val now = Date()
-//                val querySnapshot = disponibilitaCollection.whereLessThan("data", now).get().await()
-//                for (document in querySnapshot.documents) {
-//                    val calendario = document.toObject(Calendario::class.java)
-//                    calendario?.let {
-//                        val oraFine = SimpleDateFormat("HH:mm", Locale.getDefault()).parse(it.oraFine)
-//                        if (it.data.before(now) || (it.data == now && oraFine.before(now))) {
-//                            disponibilitaCollection.document(document.id).delete().await()
-//                        }
-//                    }
-//                }
-//            } catch (e: Exception) {
-//                Log.e("CalendarioViewModel", "Errore durante la pulizia delle disponibilità scadute: ${e.message}")
-//            }
-//        }
     }
 }

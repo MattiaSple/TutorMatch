@@ -25,7 +25,7 @@
                 android:id="@+id/orario_inizio"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text='@{"Inizio: " + calendario.oraInizio}'
+                android:text='@{"Orario di inizio: " + calendario.oraInizio}'
                 android:textColor="@color/colorBackground"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -34,7 +34,14 @@
                 android:id="@+id/orario_fine"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text='@{"Fine: " + calendario.oraFine}'
+                android:text='@{"Orario di fine: " + calendario.oraFine}'
+                android:textColor="@color/colorBackground"
+                android:textSize="16sp" />
+            <TextView
+                android:id="@+id/stato_pren"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text='@{"Stato Prenotazione: " + (calendario.stato_pren ? "Prenotata" : "Non prenotata")}'
                 android:textColor="@color/colorBackground"
                 android:textSize="16sp" />
 
