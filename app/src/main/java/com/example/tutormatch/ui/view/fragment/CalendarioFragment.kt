@@ -25,18 +25,22 @@ class CalendarioFragment : Fragment() {
     private lateinit var calendarioViewModel: CalendarioViewModel
     private lateinit var calendarioAdapter: CalendarioAdapter
 
+    // Metodo chiamato per creare e restituire la vista gerarchica associata al frammento
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentCalendarioTutorBinding.inflate(inflater, container, false)
 
+        // Inizializzazione del ViewModel
         calendarioViewModel = ViewModelProvider(this).get(CalendarioViewModel::class.java)
 
+        // Imposta un callback per aggiornare gli orari di inizio
         calendarioViewModel.setUpdateOrariInizioCallback {
             val selectedDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(binding.calendarView.date)
             updateOrariInizioSpinner(selectedDate)
         }
 
+        // Recupera l'ID utente dagli argomenti passati al frammento
         val userId = arguments?.getString("userId")
         userId?.let {
             val firestore = FirebaseFirestore.getInstance()
@@ -46,20 +50,28 @@ class CalendarioFragment : Fragment() {
 
         setupRecyclerView()
 
+        // Imposta la data di oggi
         val today = Calendar.getInstance().time
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val todayString = dateFormat.format(today)
 
+        // Imposta la data minima del calendarView
         binding.calendarView.minDate = today.time
         var selectedDate = todayString
 
+        // Listener per il cambio di data nel calendarView
         binding.calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
             selectedDate = String.format(Locale.getDefault(), "%04d-%02d-%02d", year, month + 1, dayOfMonth)
             updateOrariInizioSpinner(selectedDate)
+            calendarioViewModel.lista_disponibilita.observe(viewLifecycleOwner) { listaDisponibilita ->
+                val filteredList = listaDisponibilita.filter { dateFormat.format(it.data) == selectedDate }
+                calendarioAdapter.setCalendari(filteredList)
+            }
         }
 
         updateOrariInizioSpinner(todayString)
 
+        // Listener per la selezione degli orari di inizio
         binding.spinnerOrariInizio.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 updateOrariFineSpinner(selectedDate)
@@ -70,6 +82,7 @@ class CalendarioFragment : Fragment() {
             }
         }
 
+        // Listener per il bottone di aggiunta disponibilità
         binding.buttonAggiungiDisponibilita.setOnClickListener {
             val oraInizioSelezionata = binding.spinnerOrariInizio.selectedItem as String
             val oraFineSelezionata = binding.spinnerOrariFine.selectedItem as String
@@ -83,10 +96,13 @@ class CalendarioFragment : Fragment() {
             }
         }
 
+        // Osservatore per la lista delle disponibilità
         calendarioViewModel.lista_disponibilita.observe(viewLifecycleOwner) { listaDisponibilita ->
-            calendarioAdapter.setCalendari(listaDisponibilita)
+            val filteredList = listaDisponibilita.filter { dateFormat.format(it.data) == selectedDate }
+            calendarioAdapter.setCalendari(filteredList)
         }
 
+        // Osservatore per i messaggi
         calendarioViewModel.message.observe(viewLifecycleOwner) { message ->
             message?.let {
                 Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
@@ -96,6 +112,7 @@ class CalendarioFragment : Fragment() {
         return binding.root
     }
 
+    // Configurazione del RecyclerView
     private fun setupRecyclerView() {
         calendarioAdapter = CalendarioAdapter(
             { calendario -> calendarioViewModel.eliminaDisponibilita(calendario) },
@@ -105,6 +122,7 @@ class CalendarioFragment : Fragment() {
         binding.recyclerViewDisponibilita.adapter = calendarioAdapter
     }
 
+    // Generazione degli orari disponibili per la data selezionata
     private fun generateOrari(selectedDate: String?, existingOrari: List<String>): List<String> {
         val orari = mutableListOf<String>()
         val calendar = Calendar.getInstance()
@@ -138,6 +156,7 @@ class CalendarioFragment : Fragment() {
         return orari
     }
 
+    // Aggiornamento degli orari di inizio nello spinner
     private fun updateOrariInizioSpinner(selectedDate: String?) {
         calendarioViewModel.caricaDisponibilitaPerData(selectedDate) { existingOrari ->
             val orari = generateOrari(selectedDate, existingOrari)
@@ -147,6 +166,7 @@ class CalendarioFragment : Fragment() {
         }
     }
 
+    // Aggiornamento degli orari di fine nello spinner
     private fun updateOrariFineSpinner(selectedDate: String?) {
         calendarioViewModel.caricaDisponibilitaPerData(selectedDate) { existingOrari ->
             val orarioInizioSelezionato = binding.spinnerOrariInizio.selectedItem as String
@@ -164,8 +184,10 @@ class CalendarioFragment : Fragment() {
         }
     }
 
+    // Metodo chiamato quando la vista viene distrutta
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
 }
+
