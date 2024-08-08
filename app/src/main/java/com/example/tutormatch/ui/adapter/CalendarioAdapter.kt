@@ -9,8 +9,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class CalendarioAdapter(
-    private val onDeleteClick: (Calendario) -> Unit,
-    private val onUpdateOrariInizio: (String?) -> Unit
+    private val onDeleteClick: (Calendario) -> Unit
 ) : RecyclerView.Adapter<CalendarioAdapter.CalendarioViewHolder>() {
 
     private var calendari = listOf<Calendario>()
