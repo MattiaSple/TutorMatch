@@ -16,6 +16,7 @@ import com.example.tutormatch.ui.viewmodel.CalendarioViewModel
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.Calendar
 
 class CalendarioFragment : Fragment() {
 
@@ -160,7 +161,10 @@ class CalendarioFragment : Fragment() {
     private fun updateOrariInizioSpinner(selectedDate: String?) {
         calendarioViewModel.caricaDisponibilitaPerData(selectedDate) { existingOrari ->
             val orari = generateOrari(selectedDate, existingOrari)
-            val adapterInizio = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, orari)
+            val orariFiltrati = orari.toMutableList()
+
+
+            val adapterInizio = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, orariFiltrati)
             adapterInizio.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             binding.spinnerOrariInizio.adapter = adapterInizio
         }
@@ -169,12 +173,22 @@ class CalendarioFragment : Fragment() {
     // Aggiornamento degli orari di fine nello spinner
     private fun updateOrariFineSpinner(selectedDate: String?) {
         calendarioViewModel.caricaDisponibilitaPerData(selectedDate) { existingOrari ->
+            // Increment each value in existingOrari by 60 minutes
+            val dateFormat = SimpleDateFormat("HH:mm")
+            val incrementedOrari = existingOrari.map {
+                val calendar = Calendar.getInstance().apply {
+                    time = dateFormat.parse(it)!!
+                    add(Calendar.MINUTE, 60)
+                }
+                dateFormat.format(calendar.time)
+            }
+
             val orarioInizioSelezionato = binding.spinnerOrariInizio.selectedItem as String
-            val orari = generateOrari(selectedDate, existingOrari)
+            val orari = generateOrari(selectedDate, incrementedOrari)
             val orariFiltrati = orari.filter { it > orarioInizioSelezionato }.toMutableList()
 
-            // Controlla se orariFiltrati è vuoto e aggiungi "00:00" se necessario
-            if (orariFiltrati.isEmpty()) {
+            // Aggiunge "00:00" solo se è presente in orari e "23:00" non è presente in incrementedOrari
+            if (!existingOrari.contains("23:00")) {
                 orariFiltrati.add("00:00")
             }
 
