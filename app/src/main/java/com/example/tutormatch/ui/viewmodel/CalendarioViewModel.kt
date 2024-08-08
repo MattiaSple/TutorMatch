@@ -21,36 +21,29 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
     private val firestore = FirebaseFirestore.getInstance()
     private val disponibilitaCollection = firestore.collection("calendario")
 
-    // LiveData per le disponibilità
     private val _lista_disponibilita = MutableLiveData<List<Calendario>>()
     val lista_disponibilita: LiveData<List<Calendario>> get() = _lista_disponibilita
 
-    // LiveData per i messaggi di errore o stato
     private val _message = MutableLiveData<String>()
     val message: LiveData<String> get() = _message
 
-    // LiveData per i campi di input
     val data = MutableLiveData<String>()
     val oraInizio = MutableLiveData<String>()
     val oraFine = MutableLiveData<String>()
     val statoPren = MutableLiveData<Boolean>()
 
     private lateinit var _tutorRef: DocumentReference
-
-    // Callback per aggiornare gli orari inizio
     private var updateOrariInizioCallback: (() -> Unit)? = null
 
     fun setUpdateOrariInizioCallback(callback: () -> Unit) {
         updateOrariInizioCallback = callback
     }
 
-    // Funzione per impostare il riferimento del tutor
     fun setTutorReference(tutorRef: DocumentReference) {
         _tutorRef = tutorRef
-        loadDisponibilita() // Carica le disponibilità una volta che il riferimento è stato impostato
+        loadDisponibilita()
     }
 
-    // Funzione per caricare le disponibilità da Firestore
     private fun loadDisponibilita() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -74,7 +67,6 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-    // Funzione per caricare le disponibilità per una data specifica
     fun caricaDisponibilitaPerData(data: String?, callback: (List<String>) -> Unit) {
         data?.let {
             viewModelScope.launch(Dispatchers.IO) {
@@ -106,14 +98,41 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
         } ?: callback(emptyList())
     }
 
-    // Funzione per salvare una nuova disponibilità su Firestore
+    fun generateOrari(selectedDate: String?, existingOrari: List<String>): List<String> {
+        val orari = mutableListOf<String>()
+        val calendar = Calendar.getInstance()
+        val dateFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+        val oggi = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+        var oreRimanenti = 24
+
+        if (selectedDate == oggi) {
+            val currentTime = Calendar.getInstance()
+            currentTime.add(Calendar.MINUTE, 60 - (currentTime.get(Calendar.MINUTE) % 60))
+            calendar.time = currentTime.time
+            oreRimanenti = 24 - currentTime.get(Calendar.HOUR_OF_DAY)
+        } else {
+            calendar.set(Calendar.HOUR_OF_DAY, 0)
+            calendar.set(Calendar.MINUTE, 0)
+        }
+
+        var counter = 0
+        while (counter < oreRimanenti) {
+            val orario = dateFormat.format(calendar.time)
+            if (!existingOrari.contains(orario)) {
+                orari.add(orario)
+            }
+            calendar.add(Calendar.MINUTE, 60)
+            counter++
+        }
+        return orari
+    }
+
     fun salvaDisponibilita(): Boolean {
         val dataVal = data.value?.trim() ?: ""
         val oraInizioVal = oraInizio.value ?: ""
         val oraFineVal = oraFine.value ?: ""
         val statoPrenVal = statoPren.value ?: false
 
-        // Verifica che tutti i campi siano compilati
         if (dataVal.isBlank() || oraInizioVal.isBlank() || oraFineVal.isBlank()) {
             _message.value = "Data, Ora Inizio e Ora Fine sono necessari!"
             return false
@@ -126,11 +145,9 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
         val inizioParsed = timeFormat.parse(oraInizioVal)
         val fineParsed = timeFormat.parse(oraFineVal)
 
-        // Crea un nuovo oggetto Calendario per ogni intervallo di un'ora
         val disponibilitaList = mutableListOf<Calendario>()
         val calendar = Calendar.getInstance().apply { time = inizioParsed }
 
-        // Se l'ora di fine è prima dell'ora di inizio, aggiungi un giorno all'ora di fine
         if (fineParsed.before(inizioParsed)) {
             val calendarFine = Calendar.getInstance().apply {
                 time = fineParsed
@@ -144,7 +161,6 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
             calendar.add(Calendar.HOUR_OF_DAY, 1)
             val oraFineStr = timeFormat.format(calendar.time)
 
-            // Se l'ora di fine supera l'ora fine specificata, termina il ciclo
             if (calendar.time.after(fineParsed)) {
                 break
             }
@@ -158,11 +174,9 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
             ))
         }
 
-        // Inserisce le disponibilità in Firestore solo se non esistono duplicati
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 for (disponibilita in disponibilitaList) {
-                    // Verifica l'esistenza di disponibilità con lo stesso OraInizio, Data e TutorRef
                     val existingSnapshot = disponibilitaCollection
                         .whereEqualTo("tutorRef", disponibilita.tutorRef)
                         .whereEqualTo("data", disponibilita.data)
@@ -171,14 +185,13 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
                         .await()
 
                     if (existingSnapshot.isEmpty) {
-                        // Aggiungi la disponibilità se non esistono duplicati
                         disponibilitaCollection.add(disponibilita).await()
                     }
                 }
                 withContext(Dispatchers.Main) {
                     _message.value = "Disponibilità salvate con successo"
                 }
-                loadDisponibilita()  // Aggiorna la lista delle disponibilità
+                loadDisponibilita()
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     _message.value = "Errore nel salvataggio della disponibilità: ${e.message}"
@@ -188,8 +201,6 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
         return true
     }
 
-
-    // Funzione per eliminare una disponibilità da Firestore
     fun eliminaDisponibilita(calendario: Calendario) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -205,12 +216,16 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
                 withContext(Dispatchers.Main) {
                     _message.value = "Disponibilità eliminata con successo"
                 }
-                loadDisponibilita()  // Aggiorna la lista delle disponibilità
+                loadDisponibilita()
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     _message.value = "Errore nell'eliminazione della disponibilità: ${e.message}"
                 }
             }
         }
+    }
+
+    fun loadDisponibilitaForDate(selectedDate: String?) {
+        loadDisponibilita()
     }
 }
