@@ -1,7 +1,6 @@
 package com.example.tutormatch.ui.view.fragment
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,6 +24,9 @@ class CalendarioFragment : Fragment() {
     private lateinit var calendarioViewModel: CalendarioViewModel
     private lateinit var calendarioAdapter: CalendarioAdapter
 
+    // Property per selectedDate
+    private var selectedDate: String? = null
+
     // Metodo chiamato per creare e restituire la vista gerarchica associata al frammento
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -36,7 +38,6 @@ class CalendarioFragment : Fragment() {
 
         // Imposta un callback per aggiornare gli orari di inizio
         calendarioViewModel.setUpdateOrariInizioCallback {
-            val selectedDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(binding.calendarView.date)
             updateOrariInizioSpinner(selectedDate)
         }
 
@@ -53,11 +54,10 @@ class CalendarioFragment : Fragment() {
         // Imposta la data di oggi
         val today = Calendar.getInstance().time
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        val todayString = dateFormat.format(today)
+        selectedDate = dateFormat.format(today)
 
         // Imposta la data minima del calendarView
         binding.calendarView.minDate = today.time
-        var selectedDate = todayString
 
         // Listener per il cambio di data nel calendarView
         binding.calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
@@ -69,7 +69,7 @@ class CalendarioFragment : Fragment() {
             }
         }
 
-        updateOrariInizioSpinner(todayString)
+        updateOrariInizioSpinner(selectedDate)
 
         // Listener per la selezione degli orari di inizio
         binding.spinnerOrariInizio.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -116,7 +116,7 @@ class CalendarioFragment : Fragment() {
     private fun setupRecyclerView() {
         calendarioAdapter = CalendarioAdapter(
             { calendario -> calendarioViewModel.eliminaDisponibilita(calendario) },
-            { selectedDate -> updateOrariInizioSpinner(selectedDate) }
+            { date -> updateOrariInizioSpinner(date) }
         )
         binding.recyclerViewDisponibilita.layoutManager = LinearLayoutManager(context)
         binding.recyclerViewDisponibilita.adapter = calendarioAdapter
@@ -190,4 +190,3 @@ class CalendarioFragment : Fragment() {
         _binding = null
     }
 }
-
