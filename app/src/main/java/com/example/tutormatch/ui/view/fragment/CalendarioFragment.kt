@@ -19,8 +19,8 @@ import java.util.*
 
 class CalendarioFragment : Fragment() {
 
-    private var _binding: FragmentCalendarioTutorBinding? = null
-    private val binding get() = _binding!!
+    private lateinit var _binding: FragmentCalendarioTutorBinding
+
     private lateinit var calendarioViewModel: CalendarioViewModel
     private lateinit var calendarioAdapter: CalendarioAdapter
 
@@ -50,9 +50,9 @@ class CalendarioFragment : Fragment() {
         val today = Calendar.getInstance().time
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         selectedDate = dateFormat.format(today)
-        binding.calendarView.minDate = today.time
+        _binding.calendarView.minDate = today.time
 
-        binding.calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
+        _binding.calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
             selectedDate = String.format(Locale.getDefault(), "%04d-%02d-%02d", year, month + 1, dayOfMonth)
             updateOrariInizioSpinner(selectedDate)
             calendarioViewModel.loadDisponibilitaForDate(selectedDate)
@@ -60,7 +60,7 @@ class CalendarioFragment : Fragment() {
 
         updateOrariInizioSpinner(selectedDate)
 
-        binding.spinnerOrariInizio.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        _binding.spinnerOrariInizio.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 updateOrariFineSpinner(selectedDate)
             }
@@ -70,12 +70,12 @@ class CalendarioFragment : Fragment() {
             }
         }
 
-        binding.buttonAggiungiDisponibilita.setOnClickListener {
-            if (binding.spinnerOrariInizio.adapter.isEmpty || binding.spinnerOrariFine.adapter.isEmpty) {
+        _binding.buttonAggiungiDisponibilita.setOnClickListener {
+            if (_binding.spinnerOrariInizio.adapter.isEmpty || _binding.spinnerOrariFine.adapter.isEmpty) {
                 Toast.makeText(context, "Orari Terminati", Toast.LENGTH_SHORT).show()
             } else {
-                val oraInizioSelezionata = binding.spinnerOrariInizio.selectedItem as String
-                val oraFineSelezionata = binding.spinnerOrariFine.selectedItem as String
+                val oraInizioSelezionata = _binding.spinnerOrariInizio.selectedItem as String
+                val oraFineSelezionata = _binding.spinnerOrariFine.selectedItem as String
                 calendarioViewModel.oraInizio.value = oraInizioSelezionata
                 calendarioViewModel.oraFine.value = oraFineSelezionata
                 calendarioViewModel.data.value = selectedDate
@@ -98,15 +98,15 @@ class CalendarioFragment : Fragment() {
             }
         }
 
-        return binding.root
+        return _binding.root
     }
 
     private fun setupRecyclerView() {
         calendarioAdapter = CalendarioAdapter(
             { calendario -> calendarioViewModel.eliminaDisponibilita(calendario) }
         )
-        binding.recyclerViewDisponibilita.layoutManager = LinearLayoutManager(context)
-        binding.recyclerViewDisponibilita.adapter = calendarioAdapter
+        _binding.recyclerViewDisponibilita.layoutManager = LinearLayoutManager(context)
+        _binding.recyclerViewDisponibilita.adapter = calendarioAdapter
     }
 
     private fun updateOrariInizioSpinner(selectedDate: String?) {
@@ -114,7 +114,7 @@ class CalendarioFragment : Fragment() {
             val orari = calendarioViewModel.generateOrari(selectedDate, existingOrari)
             val adapterInizio = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, orari)
             adapterInizio.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            binding.spinnerOrariInizio.adapter = adapterInizio
+            _binding.spinnerOrariInizio.adapter = adapterInizio
         }
     }
 
@@ -128,7 +128,7 @@ class CalendarioFragment : Fragment() {
                 }
                 dateFormat.format(calendar.time)
             }
-            val orarioInizioSelezionato = binding.spinnerOrariInizio.selectedItem as? String
+            val orarioInizioSelezionato = _binding.spinnerOrariInizio.selectedItem as? String
 
             if (orarioInizioSelezionato != null) {
                 val orari = calendarioViewModel.generateOrari(selectedDate, incrementedOrari)
@@ -139,19 +139,13 @@ class CalendarioFragment : Fragment() {
                 }
                 val adapterFineAggiornato = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, orariFiltrati)
                 adapterFineAggiornato.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                binding.spinnerOrariFine.adapter = adapterFineAggiornato
+                _binding.spinnerOrariFine.adapter = adapterFineAggiornato
             }
             else{
                 val emptyAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_spinner_item, mutableListOf())
                 emptyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                binding.spinnerOrariFine.adapter = emptyAdapter
+                _binding.spinnerOrariFine.adapter = emptyAdapter
             }
         }
-    }
-
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 }

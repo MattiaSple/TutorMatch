@@ -11,7 +11,7 @@ import com.example.tutormatch.ui.viewmodel.PrenotazioniViewModel
 
 class PrenotazioniFragment : Fragment() {
 
-    private var _binding: FragmentPrenotazioniStudenteBinding? = null
+    private lateinit var _binding: FragmentPrenotazioniStudenteBinding
     private val binding get() = _binding!!
 
     private val prenotazioniViewModel: PrenotazioniViewModel by viewModels()
@@ -41,8 +41,4 @@ class PrenotazioniFragment : Fragment() {
 //        })
 //    }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
 }

@@ -29,9 +29,4 @@ class HomeFragmentStudente : Fragment() {
 
         return root
     }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        // Non impostare _binding a null qui, lascia che il garbage collector gestisca il binding
-    }
 }

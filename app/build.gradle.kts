@@ -67,16 +67,17 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.auth)
 
-    // Room dependencies
-    implementation("androidx.room:room-runtime:2.5.1")
+
     implementation(libs.firebase.firestore.ktx)
     implementation(libs.androidx.recyclerview)
-    //implementation(libs.play.services.location)
-    kapt("androidx.room:room-compiler:2.5.1")
 
     //Fragments dependencies
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
+
+    //implementation(libs.osmdroid.android)
+    //implementation(libs.osmbonuspack)
+    //implementation(libs.androidx.preference.ktx)
 
     // Testing dependencies
     testImplementation(libs.junit)

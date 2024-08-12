@@ -15,8 +15,8 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 class HomeFragmentTutor : Fragment() {
 
-    private var _binding: FragmentHomeTutorBinding? = null
-    private val binding get() = _binding!!
+    private lateinit var _binding: FragmentHomeTutorBinding
+    private val binding get() = _binding
     private lateinit var annunciViewModel: AnnunciViewModel
     private lateinit var annuncioAdapter: AnnuncioAdapter
 
@@ -75,10 +75,5 @@ class HomeFragmentTutor : Fragment() {
         }
         binding.recyclerViewAnnunci.layoutManager = LinearLayoutManager(context)
         binding.recyclerViewAnnunci.adapter = annuncioAdapter
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 }
