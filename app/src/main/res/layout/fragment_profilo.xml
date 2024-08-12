@@ -143,10 +143,18 @@
                 android:id="@+id/salva"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
                 android:backgroundTint="#4D7881"
                 android:text="Salva"
                 android:textColor="#FFFFFF" />
+
+            <Button
+                android:id="@+id/eliminaAccount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:backgroundTint="@color/statusBarColor"
+                android:text="Elimina Account" />
+
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
