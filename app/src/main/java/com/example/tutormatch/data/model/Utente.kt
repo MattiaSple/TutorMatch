@@ -7,7 +7,7 @@ data class Utente(
     val cognome: String,
     val residenza: String,
     val via: String,
-    val civico: String,
+    val cap: String,
     val ruolo: Boolean = false // true se tutor, false se studente
 )
 {

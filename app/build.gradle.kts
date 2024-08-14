@@ -75,6 +75,11 @@ dependencies {
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
 
+    //PER LA MAPPA
+    implementation (libs.retrofit)
+    implementation (libs.converter.gson)
+
+
     //implementation(libs.osmdroid.android)
     //implementation(libs.osmbonuspack)
     //implementation(libs.androidx.preference.ktx)

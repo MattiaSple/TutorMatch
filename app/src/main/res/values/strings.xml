@@ -21,8 +21,8 @@
     <string name="editTextResidenza">Ancona</string>
     <string name="textVia">Via</string>
     <string name="editTextVia">Mario torresi</string>
-    <string name="textCivico">Civico</string>
-    <string name="editTextCivico">33</string>
+    <string name="textCap">CAP</string>
+    <string name="editTextCivico">60128</string>
     <string name="tornaHome">Torna alla home</string>
 
     <!-- tag della pagina Homefragment "studente" (fragment_home_studente) -->

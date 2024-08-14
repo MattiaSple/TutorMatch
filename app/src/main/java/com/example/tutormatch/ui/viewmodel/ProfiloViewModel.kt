@@ -20,7 +20,7 @@ class ProfiloViewModel(application: Application) : AndroidViewModel(application)
     val cognome = MutableLiveData<String>()
     val residenza = MutableLiveData<String>()
     val via = MutableLiveData<String>()
-    val civico = MutableLiveData<String>()
+    val cap = MutableLiveData<String>()
     val message = MutableLiveData<String>()
 
     private var ruolo: Boolean = false // Variabile per preservare il ruolo
@@ -36,7 +36,7 @@ class ProfiloViewModel(application: Application) : AndroidViewModel(application)
                     cognome.postValue(it.cognome)
                     residenza.postValue(it.residenza)
                     via.postValue(it.via)
-                    civico.postValue(it.civico)
+                    cap.postValue(it.cap)
                     ruolo = it.ruolo // Preserva il ruolo
                 }
             } catch (e: Exception) {
@@ -51,7 +51,7 @@ class ProfiloViewModel(application: Application) : AndroidViewModel(application)
                 cognome.value!!.isNotEmpty() &&
                 residenza.value!!.isNotEmpty() &&
                 via.value!!.isNotEmpty() &&
-                civico.value!!.isNotEmpty()
+                cap.value!!.isNotEmpty()
     }
 
     fun saveUserProfile(userId: String) {
@@ -65,7 +65,7 @@ class ProfiloViewModel(application: Application) : AndroidViewModel(application)
                     cognome.value?.let { updates["cognome"] = it }
                     residenza.value?.let { updates["residenza"] = it }
                     via.value?.let { updates["via"] = it }
-                    civico.value?.let { updates["civico"] = it }
+                    cap.value?.let { updates["cap"] = it }
 
                     // Esegui l'aggiornamento del documento
                     val utentiCollection = FirebaseFirestore.getInstance().collection("utenti")

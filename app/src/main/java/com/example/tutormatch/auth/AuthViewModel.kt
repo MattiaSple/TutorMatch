@@ -18,7 +18,7 @@ class AuthViewModel : ViewModel() {
     val cognome = MutableLiveData<String>()
     val residenza = MutableLiveData<String>()
     val via = MutableLiveData<String>()
-    val civico = MutableLiveData<String>()
+    val cap = MutableLiveData<String>()
     private val _ruolo = MutableLiveData<Boolean>()
 
     // LiveData per mostrare messaggi all'utente
@@ -57,7 +57,7 @@ class AuthViewModel : ViewModel() {
                         cognome = cognome.value ?: "",
                         residenza = residenza.value ?: "",
                         via = via.value ?: "",
-                        civico = civico.value ?: "",
+                        cap = cap.value ?: "",
                         ruolo = _ruolo.value ?: false
                     )
                     user?.let {
