@@ -94,25 +94,30 @@ class ProfiloViewModel(application: Application) : AndroidViewModel(application)
                     val userDocRef = db.collection("utenti").document(userId)
                     batch.delete(userDocRef)
 
-                    // Elimina tutti gli annunci associati all'utente
-                    val annunci = db.collection("annunci")
-                        .whereEqualTo("tutor", db.document("utenti/$userId")).get().await()
-                    for (annuncio in annunci.documents) {
-                        batch.delete(annuncio.reference)
-                    }
+                    if(ruolo)
+                    {
+                        // Elimina tutti gli annunci associati all'utente
+                        val annunci = db.collection("annunci")
+                            .whereEqualTo("tutor", db.document("utenti/$userId")).get().await()
+                        for (annuncio in annunci.documents) {
+                            batch.delete(annuncio.reference)
+                        }
 
-                    // Elimina tutte le prenotazioni associate all'utente
-                    val prenotazioni = db.collection("prenotazioni")
-                        .whereEqualTo("tutor", db.document("utenti/$userId")).get().await()
-                    for (prenotazione in prenotazioni.documents) {
-                        batch.delete(prenotazione.reference)
-                    }
+                        // Elimina tutte le prenotazioni associate all'utente
+                        val prenotazioni = db.collection("prenotazioni")
+                            .whereEqualTo("tutor", db.document("utenti/$userId")).get().await()
+                        for (prenotazione in prenotazioni.documents) {
+                            batch.delete(prenotazione.reference)
+                        }
 
-                    // Elimina tutte le date del calendario associate all'utente
-                    val calendario = db.collection("calendario")
-                        .whereEqualTo("tutorRef", db.document("utenti/$userId")).get().await()
-                    for (fascia in calendario.documents) {
-                        batch.delete(fascia.reference)
+                        // Elimina tutte le date del calendario associate all'utente
+                        val calendario = db.collection("calendario")
+                            .whereEqualTo("tutorRef", db.document("utenti/$userId")).get().await()
+                        for (fascia in calendario.documents) {
+                            batch.delete(fascia.reference)
+                        }
+                    } else{
+                        message.postValue("ANCORA DA IMPLEMENTARE")
                     }
 
                     // Commit del batch
@@ -121,13 +126,11 @@ class ProfiloViewModel(application: Application) : AndroidViewModel(application)
                     // Elimina l'account utente dalla Firebase Authentication
                     user.delete().await()
 
-                    withContext(Dispatchers.Main) {
-                        message.postValue("Account e dati associati eliminati con successo.")
-                    }
+                    message.postValue("Account e dati associati eliminati con successo.")
+
                 } catch (e: Exception) {
-                    withContext(Dispatchers.Main) {
-                        message.postValue("Errore durante l'eliminazione dell'account: ${e.message}")
-                    }
+
+                    message.postValue("Errore durante l'eliminazione dell'account: ${e.message}")
                 }
             }
         }

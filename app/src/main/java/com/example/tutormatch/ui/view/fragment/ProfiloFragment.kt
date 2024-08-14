@@ -38,7 +38,6 @@ class ProfiloFragment : Fragment() {
         // Imposta il listener per il pulsante Salva
         binding.salva.setOnClickListener {
             userId?.let {
-
                 profiloViewModel.saveUserProfile(it)
             }
         }
