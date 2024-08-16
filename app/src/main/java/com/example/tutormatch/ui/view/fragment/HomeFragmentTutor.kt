@@ -46,9 +46,7 @@ class HomeFragmentTutor : Fragment() {
         binding.buttonSalva.setOnClickListener {
             val materiaSpinner = binding.spinnerMateria.selectedItem as? String
             annunciViewModel.materia.value = materiaSpinner
-            if (annunciViewModel.salvaAnnuncio(userId.toString())) {
-                Toast.makeText(context, "Annuncio salvato con successo", Toast.LENGTH_SHORT).show()
-            } else {
+            if (!annunciViewModel.salvaAnnuncio(userId.toString())) {
                 Toast.makeText(context, "Errore: tutti i campi devono essere compilati", Toast.LENGTH_SHORT).show()
             }
         }

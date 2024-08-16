@@ -15,6 +15,7 @@ import com.google.firebase.firestore.GeoPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -33,11 +34,6 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
     // LiveData per i messaggi di errore o stato
     private val _message = MutableLiveData<String>()
     val message: LiveData<String> get() = _message
-
-    //Per la geolocalizzazione
-    val residenza = MutableLiveData<String>()
-    val cap = MutableLiveData<String>()
-    val via = MutableLiveData<String>()
 
     // LiveData per i campi di input
     val descrizione = MutableLiveData<String>()
@@ -78,62 +74,99 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
 
     // Funzione per salvare un nuovo annuncio su Firestore
     fun salvaAnnuncio(userId: String): Boolean {
-        // Pulizia della descrizione rimuovendo spazi bianchi e accapo non necessari
-        val descrizioneVal = descrizione.value?.trim()?.replace("\\s+".toRegex(), " ") ?: ""
-        val materiaVal = materia.value ?: ""
-        val onlineVal = online.value ?: false
-        val presenzaVal = presenza.value ?: false
-        val prezzoVal = prezzo.value ?: ""
-
 
         // Verifica che tutti i campi siano compilati
-        if (materiaVal.isBlank() || prezzoVal.isBlank()) {
-            _message.value = "Materia e Prezzo sono necessari!"
+        if (materia.value!!.isBlank() || prezzo.value!!.isBlank()) {
             return false
         }
+
         // Recupera i dati dell'utente e salva l'annuncio
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val documentSnapshot = utentiCollection.document(userId).get().await()
                 val utente = documentSnapshot.toObject(Utente::class.java)
                 utente?.let {
-                    val indirizzo = "${it.via}, ${it.cap}, ${it.residenza}"
+                    val indirizzoCompleto = "${it.via}, ${it.cap}, ${it.residenza}"
+                    val indirizzoSenzaVia = "${it.cap}, ${it.residenza}"
 
-                    // Ottieni il GeoPoint per l'indirizzo
-                    getGeoPoint(indirizzo) { geoPoint ->
+                    // Primo tentativo: Ottieni il GeoPoint per l'indirizzo completo
+                    getGeoPoint(indirizzoCompleto) { geoPoint ->
                         if (geoPoint != null) {
-                            val nuovoAnnuncio = Annuncio(
-                                descrizione = descrizioneVal,
-                                materia = materiaVal,
-                                mod_on = onlineVal,
-                                mod_pres = presenzaVal,
-                                posizione = geoPoint,
-                                prezzo = prezzoVal,
-                                tutor = _tutorRef
-                            )
-
-                            viewModelScope.launch(Dispatchers.IO) {
-                                try {
-                                    annunciCollection.add(nuovoAnnuncio).await()
-                                    loadAnnunci()  // Aggiorna la lista degli annunci
-                                    _message.postValue("Annuncio salvato con successo")
-                                } catch (e: Exception) {
-                                    _message.postValue("Errore nel salvataggio dell'annuncio: ${e.message}")
+                            salvaAnnuncioConGeoPoint(geoPoint)
+                        } else {
+                            // Secondo tentativo: Ottieni il GeoPoint senza la via
+                            getGeoPoint(indirizzoSenzaVia) { geoPointSenzaVia ->
+                                if (geoPointSenzaVia != null) {
+                                    salvaAnnuncioConGeoPoint(geoPointSenzaVia)
+                                } else {
+                                    // Entrambi i tentativi falliti
+                                    _message.postValue("Errore nella geocodifica dell'indirizzo")
                                 }
                             }
-                        } else {
-                            _message.postValue("Errore nella geocodifica dell'indirizzo")
                         }
                     }
                 } ?: run {
                     _message.postValue("Errore nel caricamento dei dati dell'utente")
                 }
-
             } catch (e: Exception) {
-                _message.postValue("Errore nel caricamento dei dati dell'utente")
+                _message.postValue("Errore nel caricamento dei dati dell'utente: ${e.message}")
             }
         }
         return true
+    }
+
+    // Funzione di supporto per salvare l'annuncio con il GeoPoint ottenuto
+    private fun salvaAnnuncioConGeoPoint(geoPoint: GeoPoint) {
+
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val nuovoAnnuncio = Annuncio(
+                    descrizione = descrizione.value?.trim()?.replace("\\s+".toRegex(), " ") ?: "",
+                    materia = materia.value!!,
+                    mod_on = online.value ?: false,
+                    mod_pres = presenza.value ?: false,
+                    posizione = geoPoint,
+                    prezzo = prezzo.value!!,
+                    tutor = _tutorRef
+                )
+
+                annunciCollection.add(nuovoAnnuncio).await()
+                loadAnnunci()  // Aggiorna la lista degli annunci
+                _message.postValue("Annuncio salvato con successo")
+            } catch (e: Exception) {
+                _message.postValue("Errore nel salvataggio dell'annuncio: ${e.message}")
+            }
+        }
+    }
+
+    private fun getGeoPoint(address: String, callback: (GeoPoint?) -> Unit) {
+        // La chiamata è già asincrona, quindi non dovrebbe bloccare il thread principale.
+        val call = RetrofitInstance.api.getLocation(address)
+        call.enqueue(object : Callback<List<LocationResponse>> {
+            override fun onResponse(
+                call: Call<List<LocationResponse>>,
+                response: Response<List<LocationResponse>>
+            ) {
+                viewModelScope.launch(Dispatchers.IO) {
+                    if (response.isSuccessful && response.body()?.isNotEmpty() == true) {
+                        val location = response.body()!![0]
+                        val geoPoint = GeoPoint(location.lat.toDouble(), location.lon.toDouble())
+
+                        // Torna al thread principale per il callback
+                        withContext(Dispatchers.Main) {
+                            callback(geoPoint)
+                        }
+                    } else {
+                        withContext(Dispatchers.Main) {
+                            callback(null)
+                        }
+                    }
+                }
+            }
+            override fun onFailure(call: Call<List<LocationResponse>>, t: Throwable) {
+                callback(null)
+            }
+        })
     }
 
 
@@ -159,28 +192,5 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
                 _message.postValue("Errore nell'eliminazione dell'annuncio: ${e.message}")
             }
         }
-    }
-
-    // Funzione per ottenere il GeoPoint da un indirizzo
-    private fun getGeoPoint(address: String, callback: (GeoPoint?) -> Unit) {
-        val call = RetrofitInstance.api.getLocation(address)
-        call.enqueue(object : Callback<List<LocationResponse>> {
-            override fun onResponse(
-                call: Call<List<LocationResponse>>,
-                response: Response<List<LocationResponse>>
-            ) {
-                if (response.isSuccessful && response.body()?.isNotEmpty() == true) {
-                    val location = response.body()!![0]
-                    val geoPoint = GeoPoint(location.lat.toDouble(), location.lon.toDouble())
-                    callback(geoPoint)
-                } else {
-                    callback(null)
-                }
-            }
-
-            override fun onFailure(call: Call<List<LocationResponse>>, t: Throwable) {
-                callback(null)
-            }
-        })
     }
 }

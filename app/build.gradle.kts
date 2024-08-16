@@ -79,7 +79,12 @@ dependencies {
     implementation (libs.retrofit)
     implementation (libs.converter.gson)
 
+    // Dipendenza per OkHttp Logging Interceptor
+    implementation ("com.squareup.okhttp3:logging-interceptor:4.9.3")
 
+    // OSMDroid core library
+    implementation ("org.osmdroid:osmdroid-android:6.1.11")
+    implementation(libs.androidx.preference.ktx)
     //implementation(libs.osmdroid.android)
     //implementation(libs.osmbonuspack)
     //implementation(libs.androidx.preference.ktx)

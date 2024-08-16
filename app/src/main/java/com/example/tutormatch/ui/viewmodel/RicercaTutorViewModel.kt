@@ -25,8 +25,8 @@ class RicercaTutorViewModel(application: Application) : AndroidViewModel(applica
                 }
                 _annunci.value = annuncioList
             }
-            .addOnFailureListener { exception ->
-                // Handle the failure
+            .addOnFailureListener {
+                // Gestisci l'errore
             }
     }
 
@@ -45,8 +45,8 @@ class RicercaTutorViewModel(application: Application) : AndroidViewModel(applica
                 }
                 _annunci.value = annuncioList
             }
-            .addOnFailureListener { exception ->
-                // Handle the failure
+            .addOnFailureListener {
+                // Gestisci l'errore
             }
     }
 }
