@@ -14,5 +14,9 @@ interface NominatimApi {
 
 data class LocationResponse(
     val lat: String,
-    val lon: String
+    val lon: String,
+    val display_name: String, // Descrizione completa dell'indirizzo
+    val classType: String, // Nota: "class" è una parola chiave in Kotlin, quindi usiamo "classType"
+    val type: String,
+    val name: String
 )

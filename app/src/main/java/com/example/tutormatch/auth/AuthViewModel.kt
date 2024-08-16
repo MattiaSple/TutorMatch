@@ -1,15 +1,22 @@
 package com.example.tutormatch.auth
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.tutormatch.data.model.Utente
+import com.example.tutormatch.network.RetrofitInstance
 import com.example.tutormatch.util.FirebaseUtil
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.GeoPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-// ViewModel per gestire l'autenticazione e le operazioni relative agli utenti
-class AuthViewModel : ViewModel() {
-    private val auth: FirebaseAuth = FirebaseAuth.getInstance()  // Istanza di FirebaseAuth
+class AuthViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
 
     // LiveData per i campi di input
     val email = MutableLiveData<String>()
@@ -21,21 +28,19 @@ class AuthViewModel : ViewModel() {
     val cap = MutableLiveData<String>()
     private val _ruolo = MutableLiveData<Boolean>()
 
+    private val _passwordResetMessage = MutableLiveData<String?>()
+    val passwordResetMessage: LiveData<String?> = _passwordResetMessage
+
     // LiveData per mostrare messaggi all'utente
     private val _showMessage = MutableLiveData<String?>()
     val showMessage: LiveData<String?> = _showMessage
 
-    private val _passwordResetMessage = MutableLiveData<String?>()
-    val passwordResetMessage: LiveData<String?> = _passwordResetMessage
-
-    // LiveData per gestire la navigazione
     private val _navigateBack = MutableLiveData<Boolean>()
     val navigateBack: LiveData<Boolean> = _navigateBack
 
     // LiveData per l'utente corrente
     val utente = MutableLiveData<Utente>()
 
-    // Metodo per impostare il ruolo dell'utente
     fun setRuolo(ruolo: Boolean) {
         _ruolo.value = ruolo
     }
@@ -45,23 +50,75 @@ class AuthViewModel : ViewModel() {
         val emailValue = email.value ?: return
         val passwordValue = password.value ?: return
 
-        // Creazione di un nuovo utente con email e password
+        // Controlla che tutti i campi richiesti siano presenti e non vuoti
+        if (emailValue.isEmpty() || passwordValue.isEmpty() ||
+            nome.value.isNullOrEmpty() || cognome.value.isNullOrEmpty() ||
+            via.value.isNullOrEmpty() || cap.value.isNullOrEmpty() ||
+            residenza.value.isNullOrEmpty()) {
+
+            _showMessage.value = "Tutti i campi devono essere compilati"
+            return
+        }
+
+        // Prima di registrare l'utente, controlla la validità dell'indirizzo
+        val indirizzoSenzaVia = "${cap.value}, ${residenza.value}"
+
+        viewModelScope.launch {
+            val flag = verificaIndirizzo(indirizzoSenzaVia)
+            if (flag) {
+                registraUtente(emailValue, passwordValue)
+            } else {
+                _showMessage.value = "Indirizzo non valido. Si prega di verificare."
+            }
+        }
+    }
+
+    private suspend fun verificaIndirizzo(indirizzo: String): Boolean {
+        return withContext(Dispatchers.IO) {
+            val call = RetrofitInstance.api.getLocation(indirizzo)
+            try {
+                val response = call.execute()
+                if (response.isSuccessful && response.body()?.isNotEmpty() == true) {
+                    val location = response.body()!![0]
+
+                    // Ottieni il CAP e la città dal display_name o dall'address (se disponibile)
+                    val displayName = location.display_name.lowercase()
+
+                    // Converti le stringhe in minuscolo per fare il confronto
+                    val capValido = displayName.contains(cap.value!!)
+                    val residenzaValida = displayName.contains(residenza.value!!.lowercase())
+
+                    // Se il CAP e la città corrispondono, restituisci true
+                    if (capValido && residenzaValida) {
+                        return@withContext true
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            return@withContext false
+        }
+    }
+
+
+
+    // Funzione per registrare l'utente su Firebase
+    private fun registraUtente(emailValue: String, passwordValue: String) {
         auth.createUserWithEmailAndPassword(emailValue, passwordValue)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     val user = auth.currentUser
                     val newUser = Utente(
-                        userId = user?.uid ?: "", // Imposta l'ID utente come l'UID di FirebaseAuth
+                        userId = user!!.uid,
                         email = emailValue,
-                        nome = nome.value ?: "",
-                        cognome = cognome.value ?: "",
-                        residenza = residenza.value ?: "",
-                        via = via.value ?: "",
-                        cap = cap.value ?: "",
+                        nome = nome.value!!,
+                        cognome = cognome.value!!,
+                        residenza = residenza.value!!,
+                        via = via.value!!,
+                        cap = cap.value!!,
                         ruolo = _ruolo.value ?: false
                     )
-                    user?.let {
-                        // Aggiunge il nuovo utente a Firestore
+                    user.let {
                         FirebaseUtil.addUserToFirestore(newUser)
                         _showMessage.value = "Registrazione riuscita!"
                         _navigateBack.value = true
@@ -77,13 +134,11 @@ class AuthViewModel : ViewModel() {
         val emailValue = email.value ?: return
         val passwordValue = password.value ?: return
 
-        // Login con email e password
         auth.signInWithEmailAndPassword(emailValue, passwordValue)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     val user = auth.currentUser
                     user?.let {
-                        // Recupera i dati dell'utente da Firestore
                         FirebaseUtil.getUserFromFirestore(it.uid) { utente ->
                             this.utente.value = utente
                             _showMessage.value = "Login riuscito!"
@@ -99,16 +154,16 @@ class AuthViewModel : ViewModel() {
         val emailValue = email.value
 
         if (emailValue.isNullOrEmpty()) {
-            _passwordResetMessage.value = "Per favore, inserisci un'email."
+            _showMessage.value = "Per favore, inserisci un'email."
             return
         }
 
         auth.sendPasswordResetEmail(emailValue)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    _passwordResetMessage.value = "Email di recupero password inviata!"
+                    _showMessage.value = "Email di recupero password inviata!"
                 } else {
-                    _passwordResetMessage.value = task.exception?.message ?: "Invio email fallito"
+                    _showMessage.value = task.exception?.message ?: "Invio email fallito"
                 }
             }
     }
@@ -117,14 +172,11 @@ class AuthViewModel : ViewModel() {
         _passwordResetMessage.value = null
     }
 
-    // Metodo chiamato quando l'utente preme il pulsante per tornare indietro
     fun onBackClick() {
         _navigateBack.value = true
     }
 
-    // Resetta il flag di navigazione
     fun onNavigatedBack() {
         _navigateBack.value = false
     }
 }
-

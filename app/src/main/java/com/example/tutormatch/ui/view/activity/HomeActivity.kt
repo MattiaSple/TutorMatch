@@ -25,7 +25,7 @@ class HomeActivity : AppCompatActivity() {
         homeViewModel = ViewModelProvider(
             this,
             ViewModelProvider.AndroidViewModelFactory.getInstance(application)
-        ).get(HomeViewModel::class.java)
+        )[HomeViewModel::class.java]
 
         val ruolo = intent.getBooleanExtra("ruolo", false)
         val userId = intent.getStringExtra("userId")!!
