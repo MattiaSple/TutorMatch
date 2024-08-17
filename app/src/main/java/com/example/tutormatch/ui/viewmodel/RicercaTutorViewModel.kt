@@ -14,7 +14,22 @@ class RicercaTutorViewModel(application: Application) : AndroidViewModel(applica
 
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
 
-    fun loadAnnunci() {
+    // Cache in memoria per gli annunci
+    private var cachedAnnunci: List<Annuncio>? = null
+
+    // Funzione per caricare gli annunci (con cache)
+    fun loadAnnunci(forceRefresh: Boolean = false) {
+        if (cachedAnnunci != null && !forceRefresh) {
+            // Usa i dati dalla cache se esistono e non è richiesto un aggiornamento
+            _annunci.value = cachedAnnunci!!
+        } else {
+            // Altrimenti carica gli annunci da Firestore
+            fetchAnnunciFromFirestore()
+        }
+    }
+
+    // Funzione per ottenere gli annunci da Firestore
+    private fun fetchAnnunciFromFirestore() {
         db.collection("annunci")
             .get()
             .addOnSuccessListener { documents ->
@@ -23,6 +38,7 @@ class RicercaTutorViewModel(application: Application) : AndroidViewModel(applica
                     val annuncio = document.toObject(Annuncio::class.java)
                     annuncioList.add(annuncio)
                 }
+                cachedAnnunci = annuncioList
                 _annunci.value = annuncioList
             }
             .addOnFailureListener {
@@ -30,6 +46,29 @@ class RicercaTutorViewModel(application: Application) : AndroidViewModel(applica
             }
     }
 
+    // Metodo per verificare la presenza di nuovi annunci
+    fun checkForNewAnnunci() {
+        db.collection("annunci")
+            .get()
+            .addOnSuccessListener { documents ->
+                val annuncioList = mutableListOf<Annuncio>()
+                for (document in documents) {
+                    val annuncio = document.toObject(Annuncio::class.java)
+                    annuncioList.add(annuncio)
+                }
+
+                // Controlla se ci sono nuovi annunci rispetto alla cache
+                if (annuncioList != cachedAnnunci) {
+                    cachedAnnunci = annuncioList
+                    _annunci.value = annuncioList
+                }
+            }
+            .addOnFailureListener {
+                // Gestisci l'errore
+            }
+    }
+
+    // Funzione per applicare i filtri
     fun applyFilters(materia: String, budget: Double, modalita: String) {
         db.collection("annunci")
             .whereEqualTo("materia", materia)
@@ -50,3 +89,4 @@ class RicercaTutorViewModel(application: Application) : AndroidViewModel(applica
             }
     }
 }
+

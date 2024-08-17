@@ -78,6 +78,8 @@ dependencies {
     //PER LA MAPPA
     implementation (libs.retrofit)
     implementation (libs.converter.gson)
+    //per la localizzazione dello studente
+    implementation ("com.google.android.gms:play-services-location:21.0.1")
 
     // Dipendenza per OkHttp Logging Interceptor
     implementation ("com.squareup.okhttp3:logging-interceptor:4.9.3")

@@ -9,14 +9,13 @@ import com.example.tutormatch.data.model.Utente
 import com.example.tutormatch.network.RetrofitInstance
 import com.example.tutormatch.util.FirebaseUtil
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.GeoPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+    private val _firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
 
     // LiveData per i campi di input
     val email = MutableLiveData<String>()
@@ -47,11 +46,9 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
     // Metodo chiamato quando l'utente preme il pulsante di registrazione
     fun onRegisterClick() {
-        val emailValue = email.value ?: return
-        val passwordValue = password.value ?: return
 
         // Controlla che tutti i campi richiesti siano presenti e non vuoti
-        if (emailValue.isEmpty() || passwordValue.isEmpty() ||
+        if (email.value.isNullOrEmpty() || password.value.isNullOrEmpty() ||
             nome.value.isNullOrEmpty() || cognome.value.isNullOrEmpty() ||
             via.value.isNullOrEmpty() || cap.value.isNullOrEmpty() ||
             residenza.value.isNullOrEmpty()) {
@@ -66,9 +63,9 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             val flag = verificaIndirizzo(indirizzoSenzaVia)
             if (flag) {
-                registraUtente(emailValue, passwordValue)
+                registraUtente(email.value!!, password.value!!)
             } else {
-                _showMessage.value = "Indirizzo non valido. Si prega di verificare."
+                _showMessage.value = "Verifica che residenza e CAP siano corretti."
             }
         }
     }
@@ -99,24 +96,27 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             return@withContext false
         }
     }
+    //return@withContext true serve a specificare che true è il valore di ritorno del blocco withContext,
+    // il che è particolarmente utile quando lavori con funzioni di ordine superiore
+    // o in contesti di coroutine dove vuoi gestire esplicitamente il flusso di ritorno all'interno di un lambda.
 
 
 
     // Funzione per registrare l'utente su Firebase
-    private fun registraUtente(emailValue: String, passwordValue: String) {
-        auth.createUserWithEmailAndPassword(emailValue, passwordValue)
+    private fun registraUtente(email: String, password: String) {
+        _firebaseAuth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    val user = auth.currentUser
+                    val user = _firebaseAuth.currentUser
                     val newUser = Utente(
                         userId = user!!.uid,
-                        email = emailValue,
+                        email = email,
                         nome = nome.value!!,
                         cognome = cognome.value!!,
                         residenza = residenza.value!!,
                         via = via.value!!,
                         cap = cap.value!!,
-                        ruolo = _ruolo.value ?: false
+                        ruolo = _ruolo.value!!
                     )
                     user.let {
                         FirebaseUtil.addUserToFirestore(newUser)
@@ -131,13 +131,17 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
     // Metodo chiamato quando l'utente preme il pulsante di login
     fun onLoginClick() {
-        val emailValue = email.value ?: return
-        val passwordValue = password.value ?: return
 
-        auth.signInWithEmailAndPassword(emailValue, passwordValue)
+        // Controllo dei campi obbligatori
+        if (email.value.isNullOrEmpty() || password.value.isNullOrEmpty()) {
+            _showMessage.value = "Tutti i campi devono essere compilati"
+            return
+        }
+
+        _firebaseAuth.signInWithEmailAndPassword(email.value!!, password.value!!)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    val user = auth.currentUser
+                    val user = _firebaseAuth.currentUser
                     user?.let {
                         FirebaseUtil.getUserFromFirestore(it.uid) { utente ->
                             this.utente.value = utente
@@ -158,7 +162,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             return
         }
 
-        auth.sendPasswordResetEmail(emailValue)
+        _firebaseAuth.sendPasswordResetEmail(emailValue)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     _showMessage.value = "Email di recupero password inviata!"

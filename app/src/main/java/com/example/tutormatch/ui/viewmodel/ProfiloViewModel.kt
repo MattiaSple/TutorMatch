@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.tutormatch.data.model.Utente
+import com.example.tutormatch.network.RetrofitInstance
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.Dispatchers
@@ -47,11 +48,11 @@ class ProfiloViewModel(application: Application) : AndroidViewModel(application)
 
     // Controlla che tutti i campi non siano vuoti
     private fun areFieldsValid(): Boolean {
-        return nome.value!!.isNotEmpty() &&
-                cognome.value!!.isNotEmpty() &&
-                residenza.value!!.isNotEmpty() &&
-                via.value!!.isNotEmpty() &&
-                cap.value!!.isNotEmpty()
+        return !nome.value.isNullOrEmpty() &&
+                !cognome.value.isNullOrEmpty() &&
+                !residenza.value.isNullOrEmpty() &&
+                !via.value.isNullOrEmpty() &&
+                !cap.value.isNullOrEmpty()
     }
 
     fun saveUserProfile(userId: String) {
@@ -63,9 +64,21 @@ class ProfiloViewModel(application: Application) : AndroidViewModel(application)
                     // Aggiungi i campi che desideri aggiornare
                     nome.value?.let { updates["nome"] = it }
                     cognome.value?.let { updates["cognome"] = it }
-                    residenza.value?.let { updates["residenza"] = it }
                     via.value?.let { updates["via"] = it }
-                    cap.value?.let { updates["cap"] = it }
+
+                    // Prima di modificare l'utente, controlla la validità dell'indirizzo
+
+                    val indirizzoSenzaVia = "${cap.value}, ${residenza.value}"
+                    if(verificaIndirizzo(indirizzoSenzaVia))
+                    {
+                        residenza.value?.let { updates["residenza"] = it }
+                        cap.value?.let { updates["cap"] = it }
+                    }else{
+                        // Se l'indirizzo non è valido, invia un messaggio di errore
+                        message.postValue("Residenza o CAP non validi.")
+                        return@launch
+                    }
+
 
                     // Esegui l'aggiornamento del documento
                     val utentiCollection = FirebaseFirestore.getInstance().collection("utenti")
@@ -133,6 +146,33 @@ class ProfiloViewModel(application: Application) : AndroidViewModel(application)
                     message.postValue("Errore durante l'eliminazione dell'account: ${e.message}")
                 }
             }
+        }
+    }
+
+    private suspend fun verificaIndirizzo(indirizzo: String): Boolean {
+        return withContext(Dispatchers.IO) {
+            val call = RetrofitInstance.api.getLocation(indirizzo)
+            try {
+                val response = call.execute()
+                if (response.isSuccessful && response.body()?.isNotEmpty() == true) {
+                    val location = response.body()!![0]
+
+                    // Ottieni il CAP e la città dal display_name o dall'address (se disponibile)
+                    val displayName = location.display_name.lowercase()
+
+                    // Converti le stringhe in minuscolo per fare il confronto
+                    val capValido = displayName.contains(cap.value!!)
+                    val residenzaValida = displayName.contains(residenza.value!!.lowercase())
+
+                    // Se il CAP e la città corrispondono, restituisci true
+                    if (capValido && residenzaValida) {
+                        return@withContext true
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            return@withContext false
         }
     }
 }
