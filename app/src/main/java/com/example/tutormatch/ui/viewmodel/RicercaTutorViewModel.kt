@@ -1,92 +1,92 @@
 package com.example.tutormatch.ui.viewmodel
 
+import android.annotation.SuppressLint
 import android.app.Application
+import android.location.Location
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.example.tutormatch.data.model.Annuncio
-import com.google.firebase.firestore.FirebaseFirestore
+import androidx.lifecycle.viewModelScope
+import com.google.android.gms.common.api.ResolvableApiException
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.LocationSettingsRequest
+import com.google.android.gms.location.Priority
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import org.osmdroid.util.GeoPoint
 
 class RicercaTutorViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val _annunci = MutableLiveData<List<Annuncio>>()
-    val annunci: LiveData<List<Annuncio>> get() = _annunci
+    private val fusedLocationClient = LocationServices.getFusedLocationProviderClient(application)
 
-    private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
+    private val _posizioneStudente = MutableLiveData<GeoPoint>()
+    val posizioneStudente: LiveData<GeoPoint> get() = _posizioneStudente
 
-    // Cache in memoria per gli annunci
-    private var cachedAnnunci: List<Annuncio>? = null
+    private val _richiestaServiziLocalizzazione = MutableLiveData<ResolvableApiException?>()
+    val richiestaServiziLocalizzazione: LiveData<ResolvableApiException?> get() = _richiestaServiziLocalizzazione
 
-    // Funzione per caricare gli annunci (con cache)
-    fun loadAnnunci(forceRefresh: Boolean = false) {
-        if (cachedAnnunci != null && !forceRefresh) {
-            // Usa i dati dalla cache se esistono e non è richiesto un aggiornamento
-            _annunci.value = cachedAnnunci!!
-        } else {
-            // Altrimenti carica gli annunci da Firestore
-            fetchAnnunciFromFirestore()
+
+    @SuppressLint("MissingPermission")
+    fun getPosizioneStudente() {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                // Ottieni la posizione corrente utilizzando getCurrentLocation con alta precisione
+                val location: Location? = fusedLocationClient.getCurrentLocation(
+                    Priority.PRIORITY_HIGH_ACCURACY,
+                    null
+                ).await()
+
+                // Verifica se 'location' è null
+                val posizione = if (location != null) {
+                    GeoPoint(location.latitude, location.longitude)
+                } else {
+                    // Se la posizione non è disponibile, usa una posizione statica
+                    GeoPoint(41.9028, 12.4964)  // Coordinate di Roma
+                }
+
+                // Posta la posizione nel LiveData
+                _posizioneStudente.postValue(posizione)
+            } catch (e: Exception) {
+                // Gestisci eventuali errori impostando una posizione statica
+                _posizioneStudente.postValue(GeoPoint(41.9028, 12.4964))  // Coordinate di Roma
+            }
         }
     }
 
-    // Funzione per ottenere gli annunci da Firestore
-    private fun fetchAnnunciFromFirestore() {
-        db.collection("annunci")
-            .get()
-            .addOnSuccessListener { documents ->
-                val annuncioList = mutableListOf<Annuncio>()
-                for (document in documents) {
-                    val annuncio = document.toObject(Annuncio::class.java)
-                    annuncioList.add(annuncio)
-                }
-                cachedAnnunci = annuncioList
-                _annunci.value = annuncioList
-            }
-            .addOnFailureListener {
-                // Gestisci l'errore
-            }
-    }
 
-    // Metodo per verificare la presenza di nuovi annunci
-    fun checkForNewAnnunci() {
-        db.collection("annunci")
-            .get()
-            .addOnSuccessListener { documents ->
-                val annuncioList = mutableListOf<Annuncio>()
-                for (document in documents) {
-                    val annuncio = document.toObject(Annuncio::class.java)
-                    annuncioList.add(annuncio)
-                }
+//    @SuppressLint("MissingPermission")
+//    fun checkAndRequestLocation() {
+//        viewModelScope.launch(Dispatchers.IO) {
+//            try {
+//                val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 10000L)
+//                    .setWaitForAccurateLocation(true)
+//                    .setMinUpdateIntervalMillis(5000L)
+//                    .setMaxUpdateDelayMillis(20000L)
+//                    .build()
+//
+//                val builder = LocationSettingsRequest.Builder()
+//                    .addLocationRequest(locationRequest)
+//
+//
+//                val settingsClient = LocationServices.getSettingsClient(getApplication<Application>())
+//                val task = settingsClient.checkLocationSettings(builder.build())
+//
+//                try {
+//                    val response = task.await()
+//                    // Se i servizi di localizzazione sono abilitati, ottieni la posizione
+//                    getPosizioneStudente()
+//                } catch (exception: ResolvableApiException) {
+//                    // I servizi di localizzazione non sono abilitati, richiedi l'attivazione
+//                    _richiestaServiziLocalizzazione.postValue(exception)
+//                }
+//            } catch (e: Exception) {
+//                _posizioneStudente.postValue(GeoPoint(41.9028, 12.4964))  // Coordinate di Roma
+//            }
+//        }
+//    }
 
-                // Controlla se ci sono nuovi annunci rispetto alla cache
-                if (annuncioList != cachedAnnunci) {
-                    cachedAnnunci = annuncioList
-                    _annunci.value = annuncioList
-                }
-            }
-            .addOnFailureListener {
-                // Gestisci l'errore
-            }
-    }
 
-    // Funzione per applicare i filtri
-    fun applyFilters(materia: String, budget: Double, modalita: String) {
-        db.collection("annunci")
-            .whereEqualTo("materia", materia)
-            .whereLessThanOrEqualTo("prezzo", budget.toString())
-            .get()
-            .addOnSuccessListener { documents ->
-                val annuncioList = mutableListOf<Annuncio>()
-                for (document in documents) {
-                    val annuncio = document.toObject(Annuncio::class.java)
-                    if ((modalita == "Online" && annuncio.mod_on) || (modalita == "In presenza" && annuncio.mod_pres)) {
-                        annuncioList.add(annuncio)
-                    }
-                }
-                _annunci.value = annuncioList
-            }
-            .addOnFailureListener {
-                // Gestisci l'errore
-            }
-    }
+
 }
-

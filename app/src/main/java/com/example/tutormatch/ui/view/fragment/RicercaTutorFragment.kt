@@ -1,10 +1,9 @@
 package com.example.tutormatch.ui.view.fragment
 
 import android.Manifest
+import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,59 +14,75 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.activity.result.contract.ActivityResultContracts
 import com.example.tutormatch.R
 import com.example.tutormatch.databinding.FragmentRicercaTutorBinding
+import com.example.tutormatch.ui.viewmodel.AnnunciViewModel
 import com.example.tutormatch.ui.viewmodel.RicercaTutorViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
 import org.osmdroid.config.Configuration
+import org.osmdroid.library.BuildConfig
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 
 class RicercaTutorFragment : Fragment() {
 
-    private lateinit var _binding: FragmentRicercaTutorBinding
-    private val binding get() = _binding
-    private lateinit var viewModel: RicercaTutorViewModel
+    private var _binding: FragmentRicercaTutorBinding? = null
+    private val binding get() = _binding!!
+    private lateinit var ricercaTutorViewModel: RicercaTutorViewModel
+    private lateinit var annunciViewModel: AnnunciViewModel
     private lateinit var mapView: MapView
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private var userMarker: Marker? = null
 
-    companion object {
-        private const val LOCATION_PERMISSION_REQUEST_CODE = 1000
-    }
 
-    // Utilizza ActivityResultLauncher per gestire i permessi
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
         if (isGranted) {
-            // Permesso concesso
-            getUserLocation()
+            ricercaTutorViewModel.getPosizioneStudente()
         } else {
-            // Permesso negato, imposta una posizione statica (ad es. Roma)
-            setStaticLocation()
+            // Gestisci il caso in cui il permesso non viene concesso
+            setPosizioneStatica()
         }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        // Configura il User-Agent per osmdroid
+        Configuration.getInstance().userAgentValue = BuildConfig.APPLICATION_ID
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentRicercaTutorBinding.inflate(inflater, container, false)
-        viewModel = ViewModelProvider(this)[RicercaTutorViewModel::class.java]
 
-        // Configura la mappa OSMDroid
+        // Inizializza i ViewModel
+        ricercaTutorViewModel = ViewModelProvider(this)[RicercaTutorViewModel::class.java]
+        annunciViewModel = ViewModelProvider(this)[AnnunciViewModel::class.java]
+
+        // Configura la mappa
         mapView = binding.mapView
-        Configuration.getInstance().load(
-            context,
-            context?.let { androidx.preference.PreferenceManager.getDefaultSharedPreferences(it) }
-        )
         mapView.setMultiTouchControls(true)
 
-        // Inizializza il client per ottenere la posizione
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+        // Osserva i cambiamenti nella posizione dello studente
+        ricercaTutorViewModel.posizioneStudente.observe(viewLifecycleOwner, Observer { posizione ->
+            posizione?.let {
+                mapView.controller.setCenter(it)
+                mapView.controller.setZoom(15.0)
 
-        // Carica i dati iniziali degli annunci
-        viewModel.loadAnnunci()
+                val studentMarker = Marker(mapView).apply {
+                    position = it
+                    setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                    title = "Sei qui"
+                    icon = resources.getDrawable(R.drawable.marker_stud, null)
+                }
+                mapView.overlays.add(studentMarker)
+                mapView.invalidate()
+            }
+        })
+
+
+
 
         return binding.root
     }
@@ -75,38 +90,31 @@ class RicercaTutorFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Ora che la vista è stata creata, possiamo interagire con la mappa
-        viewModel.annunci.observe(viewLifecycleOwner, Observer { annunci ->
-            mapView.overlays.clear()  // Rimuovi tutti gli overlay esistenti
-            for (annuncio in annunci) {
-                val position = GeoPoint(annuncio.posizione.latitude, annuncio.posizione.longitude)
-                val marker = Marker(mapView)
-                marker.position = position
-                marker.title = annuncio.descrizione
-                mapView.overlays.add(marker)
-            }
+//        // Osserva la richiesta di attivazione dei servizi di localizzazione
+//        ricercaTutorViewModel.richiestaServiziLocalizzazione.observe(viewLifecycleOwner, Observer { resolvable ->
+//            resolvable?.let {
+//                try {
+//                    it.startResolutionForResult(requireActivity(), REQUEST_CHECK_SETTINGS)
+//                } catch (sendEx: IntentSender.SendIntentException) {
+//                    setPosizioneStatica()
+//                }
+//            }
+//        })
 
-            // Aggiungi il marker dell'utente se esiste
-            userMarker?.let {
-                if (it.position != null) {
-                    mapView.overlays.add(it)
-                }
-            }
-
-            mapView.invalidate()  // Aggiorna la mappa
-        })
-
-        // Controlla periodicamente per nuovi annunci
-        checkForNewAnnouncementsPeriodically()
-
-        // Avvia il processo di ottenimento della posizione
+        // Controlla i permessi e ottieni la posizione
         if (checkLocationPermission()) {
-            getUserLocation()
+            ricercaTutorViewModel.getPosizioneStudente()
         } else {
             requestLocationPermission()
         }
     }
 
+
+    private fun requestLocationPermission() {
+        requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+    }
+
+    // Metodo per controllare se i permessi di localizzazione sono stati concessi
     private fun checkLocationPermission(): Boolean {
         return ActivityCompat.checkSelfPermission(
             requireContext(),
@@ -114,85 +122,24 @@ class RicercaTutorFragment : Fragment() {
         ) == PackageManager.PERMISSION_GRANTED
     }
 
-    private fun requestLocationPermission() {
-        requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-    }
 
-    private fun getUserLocation() {
-        if (checkLocationPermission()) {
-            // Ottieni l'ultima posizione conosciuta del dispositivo
-            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-                location?.let {
-                    val userLocation = GeoPoint(it.latitude, it.longitude)
-                    mapView.controller.setCenter(userLocation)
-                    mapView.controller.setZoom(15.0)
-
-                    userMarker = Marker(mapView).apply {
-                        position = userLocation
-                        setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                        title = "La tua posizione"
-                        icon = resources.getDrawable(R.drawable.marker_stud, null)
-                    }
-                    mapView.overlays.add(userMarker)
-                    mapView.invalidate()
-                } ?: run {
-                    // Se la posizione non è disponibile, usa la posizione statica
-                    setStaticLocation()
-                }
-            }.addOnFailureListener {
-                // Se il recupero della posizione fallisce, usa la posizione statica
-                setStaticLocation()
-            }
-        } else {
-            // Se non ci sono i permessi, richiedili
-            requestLocationPermission()
-        }
-    }
-
-    private fun setStaticLocation() {
-        val romeLocation = GeoPoint(41.9028, 12.4964) // Roma, Italia
+    // Metodo per centrare la mappa su una posizione statica se non è possibile ottenere la posizione dell'utente
+    private fun setPosizioneStatica() {
+        val romeLocation = GeoPoint(41.9028, 12.4964)  // Coordinate di Roma
         mapView.controller.setCenter(romeLocation)
         mapView.controller.setZoom(10.0)
-
-        userMarker = Marker(mapView).apply {
-            position = romeLocation
-            setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-            title = "Posizione predefinita (Roma)"
-            icon = resources.getDrawable(R.drawable.marker_stud, null)
-        }
-        mapView.overlays.add(userMarker)
-        mapView.invalidate()
     }
 
-    private fun checkForNewAnnouncementsPeriodically() {
-        val handler = Handler(Looper.getMainLooper())
-        val runnable = object : Runnable {
-            override fun run() {
-                viewModel.checkForNewAnnunci()
-                handler.postDelayed(this, 60000) // Controlla ogni minuto
-            }
-        }
-        handler.post(runnable)
+
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        // Resetta il binding a null per evitare memory leaks
+        _binding = null
     }
 
-    override fun onResume() {
-        super.onResume()
-        mapView.onResume()
-        // Verifica se i permessi sono stati concessi e ottieni la posizione dell'utente
-        if (checkLocationPermission()) {
-            getUserLocation()
-        } else {
-            setStaticLocation() // Se i permessi non sono stati concessi, usa la posizione statica
-        }
-    }
 
-    override fun onPause() {
-        super.onPause()
-        mapView.onPause()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        mapView.onDetach()
-    }
 }
+
+
+
