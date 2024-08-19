@@ -27,7 +27,6 @@ class RicercaTutorViewModel(application: Application) : AndroidViewModel(applica
     private val _richiestaServiziLocalizzazione = MutableLiveData<ResolvableApiException?>()
     val richiestaServiziLocalizzazione: LiveData<ResolvableApiException?> get() = _richiestaServiziLocalizzazione
 
-
     @SuppressLint("MissingPermission")
     fun getPosizioneStudente() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -45,7 +44,6 @@ class RicercaTutorViewModel(application: Application) : AndroidViewModel(applica
                     // Se la posizione non è disponibile, usa una posizione statica
                     GeoPoint(41.9028, 12.4964)  // Coordinate di Roma
                 }
-
                 // Posta la posizione nel LiveData
                 _posizioneStudente.postValue(posizione)
             } catch (e: Exception) {
@@ -56,36 +54,37 @@ class RicercaTutorViewModel(application: Application) : AndroidViewModel(applica
     }
 
 
-//    @SuppressLint("MissingPermission")
-//    fun checkAndRequestLocation() {
-//        viewModelScope.launch(Dispatchers.IO) {
-//            try {
-//                val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 10000L)
-//                    .setWaitForAccurateLocation(true)
-//                    .setMinUpdateIntervalMillis(5000L)
-//                    .setMaxUpdateDelayMillis(20000L)
-//                    .build()
-//
-//                val builder = LocationSettingsRequest.Builder()
-//                    .addLocationRequest(locationRequest)
-//
-//
-//                val settingsClient = LocationServices.getSettingsClient(getApplication<Application>())
-//                val task = settingsClient.checkLocationSettings(builder.build())
-//
-//                try {
-//                    val response = task.await()
-//                    // Se i servizi di localizzazione sono abilitati, ottieni la posizione
-//                    getPosizioneStudente()
-//                } catch (exception: ResolvableApiException) {
-//                    // I servizi di localizzazione non sono abilitati, richiedi l'attivazione
-//                    _richiestaServiziLocalizzazione.postValue(exception)
-//                }
-//            } catch (e: Exception) {
-//                _posizioneStudente.postValue(GeoPoint(41.9028, 12.4964))  // Coordinate di Roma
-//            }
-//        }
-//    }
+    @SuppressLint("MissingPermission")
+    fun checkAndRequestLocation() {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 10000L)
+                    .setWaitForAccurateLocation(true)
+                    .setMinUpdateIntervalMillis(5000L)
+                    .setMaxUpdateDelayMillis(20000L)
+                    .build()
+
+                val builder = LocationSettingsRequest.Builder()
+                    .addLocationRequest(locationRequest)
+
+
+                val settingsClient = LocationServices.getSettingsClient(getApplication<Application>())
+                val task = settingsClient.checkLocationSettings(builder.build())
+
+                try {
+                    // Il codice si sospende qui fino al completamento della Task
+                    val response = task.await()
+                    // Se arriva a questo punto, significa che le impostazioni sono ok
+                    getPosizioneStudente()
+                } catch (exception: ResolvableApiException) {
+                    // I servizi di localizzazione non sono abilitati, richiedi l'attivazione
+                    _richiestaServiziLocalizzazione.postValue(exception)
+                }
+            } catch (e: Exception) {
+                _posizioneStudente.postValue(GeoPoint(41.9028, 12.4964))  // Coordinate di Roma
+            }
+        }
+    }
 
 
 

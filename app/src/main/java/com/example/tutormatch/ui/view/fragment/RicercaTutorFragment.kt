@@ -1,12 +1,16 @@
 package com.example.tutormatch.ui.view.fragment
 
 import android.Manifest
+import android.app.Activity
 import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.IntentSenderRequest
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -30,7 +34,7 @@ class RicercaTutorFragment : Fragment() {
     private lateinit var ricercaTutorViewModel: RicercaTutorViewModel
     private lateinit var annunciViewModel: AnnunciViewModel
     private lateinit var mapView: MapView
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var locationSettingsLauncher: ActivityResultLauncher<IntentSenderRequest>
 
 
     private val requestPermissionLauncher = registerForActivityResult(
@@ -46,6 +50,19 @@ class RicercaTutorFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d("RicercaTutorFragment", "onCreate")
+        // Inizializza il launcher per gestire il risultato delle impostazioni di localizzazione
+        locationSettingsLauncher = registerForActivityResult(
+            ActivityResultContracts.StartIntentSenderForResult()
+        ) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                // L'utente ha attivato i servizi di localizzazione, procedi
+                ricercaTutorViewModel.getPosizioneStudente()
+            } else {
+                // L'utente ha rifiutato di attivare i servizi di localizzazione
+                setPosizioneStatica()
+            }
+        }
 
         // Configura il User-Agent per osmdroid
         Configuration.getInstance().userAgentValue = BuildConfig.APPLICATION_ID
@@ -55,55 +72,55 @@ class RicercaTutorFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentRicercaTutorBinding.inflate(inflater, container, false)
-
+        Log.d("RicercaTutorFragment", "oncreateview")
         // Inizializza i ViewModel
         ricercaTutorViewModel = ViewModelProvider(this)[RicercaTutorViewModel::class.java]
         annunciViewModel = ViewModelProvider(this)[AnnunciViewModel::class.java]
 
         // Configura la mappa
         mapView = binding.mapView
+        mapView.controller.setZoom(5.0)
         mapView.setMultiTouchControls(true)
 
         // Osserva i cambiamenti nella posizione dello studente
         ricercaTutorViewModel.posizioneStudente.observe(viewLifecycleOwner, Observer { posizione ->
             posizione?.let {
-                mapView.controller.setCenter(it)
-                mapView.controller.setZoom(15.0)
 
                 val studentMarker = Marker(mapView).apply {
                     position = it
                     setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                    title = "Sei qui"
+                    title = "Io"
                     icon = resources.getDrawable(R.drawable.marker_stud, null)
                 }
                 mapView.overlays.add(studentMarker)
-                mapView.invalidate()
+                // Centra la mappa sulla posizione del marker
+                mapView.controller.animateTo(it)
+                mapView.controller.setZoom(15.0)
+                mapView.invalidate()  // Aggiorna la mappa
             }
         })
-
-
-
 
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-//        // Osserva la richiesta di attivazione dei servizi di localizzazione
-//        ricercaTutorViewModel.richiestaServiziLocalizzazione.observe(viewLifecycleOwner, Observer { resolvable ->
-//            resolvable?.let {
-//                try {
-//                    it.startResolutionForResult(requireActivity(), REQUEST_CHECK_SETTINGS)
-//                } catch (sendEx: IntentSender.SendIntentException) {
-//                    setPosizioneStatica()
-//                }
-//            }
-//        })
+        Log.d("RicercaTutorFragment", "onviewcreate")
+        // Osserva la richiesta di attivazione dei servizi di localizzazione
+        ricercaTutorViewModel.richiestaServiziLocalizzazione.observe(viewLifecycleOwner, Observer { resolvable ->
+            resolvable?.let {
+                try {
+                    val intentSenderRequest = IntentSenderRequest.Builder(it.resolution).build()
+                    locationSettingsLauncher.launch(intentSenderRequest)
+                } catch (sendEx: IntentSender.SendIntentException) {
+                    setPosizioneStatica()
+                }
+            }
+        })
 
         // Controlla i permessi e ottieni la posizione
         if (checkLocationPermission()) {
-            ricercaTutorViewModel.getPosizioneStudente()
+            ricercaTutorViewModel.checkAndRequestLocation()
         } else {
             requestLocationPermission()
         }
@@ -134,11 +151,20 @@ class RicercaTutorFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        // Resetta il binding a null per evitare memory leaks
+        //Log.d("RicercaTutorFragment", "destroy")
+        mapView.onDetach() //per rilasciare tutte le risorse legate alla mappa e prevenire potenziali memory leaks.
         _binding = null
     }
 
+    override fun onPause() {
+        super.onPause()
+        mapView.onPause()
+    }
 
+    override fun onResume() {
+        super.onResume()
+        mapView.onResume()
+    }
 }
 
 
