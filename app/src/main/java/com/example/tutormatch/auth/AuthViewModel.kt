@@ -58,10 +58,10 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         }
 
         // Prima di registrare l'utente, controlla la validità dell'indirizzo
-        val indirizzoSenzaVia = "${cap.value}, ${residenza.value}"
+        val indirizzo = "${cap.value}, ${residenza.value}, ${via.value}"
 
         viewModelScope.launch {
-            val flag = verificaIndirizzo(indirizzoSenzaVia)
+            val flag = verificaIndirizzo(indirizzo)
             if (flag) {
                 registraUtente(email.value!!, password.value!!)
             } else {

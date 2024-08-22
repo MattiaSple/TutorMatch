@@ -27,9 +27,17 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
     private val utentiCollection = firestore.collection("utenti")
 
 
-    // LiveData per gli annunci
-    private val _lista_annunci = MutableLiveData<List<Annuncio>>()
-    val lista_annunci: LiveData<List<Annuncio>> get() = _lista_annunci
+    // LiveData per gli annunci del singolo tutor
+    private val _listaAnnunciTutor = MutableLiveData<List<Annuncio>>()
+    val listaAnnunciTutor: LiveData<List<Annuncio>> get() = _listaAnnunciTutor
+
+    // LiveData per tutti gli annunci
+    private val _listaAnnunci = MutableLiveData<List<Annuncio>>()
+    val listaAnnunci: LiveData<List<Annuncio>>
+        get() {
+            getAllAnnunci()
+            return _listaAnnunci
+        }
 
     // LiveData per i messaggi di errore o stato
     private val _message = MutableLiveData<String>()
@@ -50,23 +58,40 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
         loadAnnunci() // Carica gli annunci una volta che il riferimento è stato impostato
     }
 
-    // Funzione per caricare gli annunci da Firestore
+    // Funzione per caricare gli annunci da Firestore del tutor
     private fun loadAnnunci() {
         _tutorRef.let { tutorRef ->
             viewModelScope.launch(Dispatchers.IO) {
                 try {
                     val querySnapshot = annunciCollection.whereEqualTo("tutor", tutorRef).get().await()
-                    val loadedAnnunci = querySnapshot.documents.mapNotNull { document ->
-                        try {
+                    val lista = querySnapshot.documents.mapNotNull { document ->
                             document.toObject(Annuncio::class.java)
-                        } catch (e: Exception) {
-                            null
-                        }
                     }
-                    _lista_annunci.postValue(loadedAnnunci)
+                    _listaAnnunciTutor.postValue(lista)
                 } catch (e: Exception) {
-                    _message.postValue("Errore nel caricamento degli annunci: ${e.message}")
+                    _message.postValue("Errore nel caricamento dei tuoi annunci: ${e.message}")
                 }
+            }
+        }
+    }
+
+    private fun getAllAnnunci()
+    {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                // Ottieni tutti i documenti dalla collezione "annunciCollection"
+                val querySnapshot = annunciCollection.get().await()
+
+                // Estrai i dati dai documenti ottenuti
+                val lista = querySnapshot.documents.mapNotNull { documentSnapshot ->
+                    documentSnapshot.toObject(Annuncio::class.java)
+                }
+                withContext(Dispatchers.Main) {
+                    _listaAnnunci.value = lista
+                }
+
+            }catch (e: Exception){
+                _message.postValue("Errore nel caricamento degli annunci: ${e.message}")
             }
         }
     }
@@ -130,7 +155,18 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
                     tutor = _tutorRef
                 )
 
-                annunciCollection.add(nuovoAnnuncio).await()
+                // Aggiungi l'annuncio alla collezione "annunci" e ottieni il riferimento al documento appena creato
+                val documentReference = annunciCollection.add(nuovoAnnuncio).await()
+
+                // Ottieni l'ID del documento generato automaticamente da Firebase
+                val documentId = documentReference.id
+
+                // Aggiorna l'oggetto Annuncio locale con l'ID del documento
+                nuovoAnnuncio.id = documentId
+
+                // (Opzionale) Aggiorna l'ID del documento anche su Firestore
+                documentReference.update("id", documentId).await()
+
                 loadAnnunci()  // Aggiorna la lista degli annunci
                 _message.postValue("Annuncio salvato con successo")
             } catch (e: Exception) {

@@ -52,7 +52,7 @@ class HomeFragmentTutor : Fragment() {
         }
 
         // Osserva i cambiamenti nei dati degli annunci
-        annunciViewModel.lista_annunci.observe(viewLifecycleOwner) { listaAnnunci ->
+        annunciViewModel.listaAnnunciTutor.observe(viewLifecycleOwner) { listaAnnunci ->
             annuncioAdapter.setAnnunci(listaAnnunci)
             annuncioAdapter.notifyDataSetChanged()
         }

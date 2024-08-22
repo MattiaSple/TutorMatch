@@ -20,7 +20,6 @@ import com.example.tutormatch.R
 import com.example.tutormatch.databinding.FragmentRicercaTutorBinding
 import com.example.tutormatch.ui.viewmodel.AnnunciViewModel
 import com.example.tutormatch.ui.viewmodel.RicercaTutorViewModel
-import com.google.android.gms.location.FusedLocationProviderClient
 import org.osmdroid.config.Configuration
 import org.osmdroid.library.BuildConfig
 import org.osmdroid.util.GeoPoint
@@ -35,6 +34,9 @@ class RicercaTutorFragment : Fragment() {
     private lateinit var annunciViewModel: AnnunciViewModel
     private lateinit var mapView: MapView
     private lateinit var locationSettingsLauncher: ActivityResultLauncher<IntentSenderRequest>
+
+    // Set per tracciare gli ID degli annunci già visualizzati sulla mappa
+    private val annunciVisualizzati = mutableSetOf<String>()
 
 
     private val requestPermissionLauncher = registerForActivityResult(
@@ -124,6 +126,44 @@ class RicercaTutorFragment : Fragment() {
         } else {
             requestLocationPermission()
         }
+
+        visualizzaAnnunciSullaMappa()
+
+        annunciViewModel.listaAnnunci.observe(viewLifecycleOwner, Observer { lista ->
+            lista?.let {
+                try {
+                    for (annuncio in it) {
+                        // Supponiamo che Annuncio abbia un campo id univoco
+                        if (!annunciVisualizzati.contains(annuncio.id)) {
+
+                            // Converti il GeoPoint di Firebase in un GeoPoint di OSMDroid
+                            val osmdroidGeoPoint = GeoPoint(annuncio.posizione.latitude, annuncio.posizione.longitude)
+
+
+                            val marker = Marker(mapView).apply {
+                                position = osmdroidGeoPoint
+                                setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                                title = annuncio.materia
+                                snippet = annuncio.descrizione
+                                icon = resources.getDrawable(R.drawable.marker_annuncio, null)
+                            }
+
+                            mapView.overlays.add(marker)
+
+                            // Aggiungi l'ID dell'annuncio al set di annunci visualizzati
+                            annunciVisualizzati.add(annuncio.id)
+                        }
+                    }
+
+                    // Aggiorna la mappa
+                    mapView.invalidate()
+
+                } catch (e: Exception) {
+                    Log.e("RicercaTutorFragment", "Errore durante il caricamento degli annunci sulla mappa", e)
+                }
+            }
+        })
+
     }
 
 
@@ -147,7 +187,30 @@ class RicercaTutorFragment : Fragment() {
         mapView.controller.setZoom(10.0)
     }
 
+    private fun visualizzaAnnunciSullaMappa() {
+        // Ottieni la lista degli annunci dal ViewModel
+        val listaAnnunci = annunciViewModel.listaAnnunci.value
 
+        // Verifica se la lista non è vuota
+        if (listaAnnunci != null) {
+            for (annuncio in listaAnnunci) {
+                // Crea un marker per ogni annuncio e aggiungilo alla mappa
+                val geoPoint = annuncio.posizione
+                val marker = Marker(mapView).apply {
+                    position = geoPoint as GeoPoint
+                    setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                    title = annuncio.materia
+                    snippet = annuncio.descrizione
+                    icon = resources.getDrawable(R.drawable.marker_annuncio, null) // Icona personalizzata
+                }
+
+                mapView.overlays.add(marker)
+            }
+
+            // Aggiorna la mappa per visualizzare i marker aggiunti
+            mapView.invalidate()
+        }
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()

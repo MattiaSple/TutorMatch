@@ -85,7 +85,4 @@ class RicercaTutorViewModel(application: Application) : AndroidViewModel(applica
             }
         }
     }
-
-
-
 }

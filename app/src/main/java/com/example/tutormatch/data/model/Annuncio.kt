@@ -4,6 +4,7 @@ import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.GeoPoint
 
 data class Annuncio(
+    var id: String = "",
     val descrizione: String = "",
     val materia: String = "",
     val mod_on: Boolean = false,
@@ -13,7 +14,7 @@ data class Annuncio(
     val tutor: DocumentReference? = null // Cambiato a nullable
 ) {
     // Costruttore senza argomenti richiesto per la deserializzazione di Firestore
-    constructor() : this("", "", false, false, GeoPoint(0.0, 0.0), "", null)
+    constructor() : this("","", "", false, false, GeoPoint(0.0, 0.0), "", null)
 
     // Funzione per calcolare la modalità da mostrare
     fun getModalita(): String {
