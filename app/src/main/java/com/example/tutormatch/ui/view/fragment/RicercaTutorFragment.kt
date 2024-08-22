@@ -17,6 +17,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.activity.result.contract.ActivityResultContracts
 import com.example.tutormatch.R
+import com.example.tutormatch.data.model.Annuncio
 import com.example.tutormatch.databinding.FragmentRicercaTutorBinding
 import com.example.tutormatch.ui.viewmodel.AnnunciViewModel
 import com.example.tutormatch.ui.viewmodel.RicercaTutorViewModel
@@ -35,9 +36,8 @@ class RicercaTutorFragment : Fragment() {
     private lateinit var mapView: MapView
     private lateinit var locationSettingsLauncher: ActivityResultLauncher<IntentSenderRequest>
 
-    // Set per tracciare gli ID degli annunci già visualizzati sulla mappa
-    private val annunciVisualizzati = mutableSetOf<String>()
-
+    // Mappa per tenere traccia dei marker sulla mappa
+    private val markerMap = mutableMapOf<String, Marker>()
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -74,7 +74,7 @@ class RicercaTutorFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentRicercaTutorBinding.inflate(inflater, container, false)
-        Log.d("RicercaTutorFragment", "oncreateview")
+        Log.d("RicercaTutorFragment", "onCreateView")
         // Inizializza i ViewModel
         ricercaTutorViewModel = ViewModelProvider(this)[RicercaTutorViewModel::class.java]
         annunciViewModel = ViewModelProvider(this)[AnnunciViewModel::class.java]
@@ -87,7 +87,6 @@ class RicercaTutorFragment : Fragment() {
         // Osserva i cambiamenti nella posizione dello studente
         ricercaTutorViewModel.posizioneStudente.observe(viewLifecycleOwner, Observer { posizione ->
             posizione?.let {
-
                 val studentMarker = Marker(mapView).apply {
                     position = it
                     setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
@@ -107,7 +106,8 @@ class RicercaTutorFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.d("RicercaTutorFragment", "onviewcreate")
+        Log.d("RicercaTutorFragment", "onViewCreated")
+
         // Osserva la richiesta di attivazione dei servizi di localizzazione
         ricercaTutorViewModel.richiestaServiziLocalizzazione.observe(viewLifecycleOwner, Observer { resolvable ->
             resolvable?.let {
@@ -127,45 +127,61 @@ class RicercaTutorFragment : Fragment() {
             requestLocationPermission()
         }
 
-        visualizzaAnnunciSullaMappa()
+        // Attiva l'osservazione in tempo reale
+        annunciViewModel.observeAnnunciInTempoReale()
 
+
+        // Osserva la lista degli annunci e aggiorna la mappa
         annunciViewModel.listaAnnunci.observe(viewLifecycleOwner, Observer { lista ->
-            lista?.let {
-                try {
-                    for (annuncio in it) {
-                        // Supponiamo che Annuncio abbia un campo id univoco
-                        if (!annunciVisualizzati.contains(annuncio.id)) {
-
-                            // Converti il GeoPoint di Firebase in un GeoPoint di OSMDroid
-                            val osmdroidGeoPoint = GeoPoint(annuncio.posizione.latitude, annuncio.posizione.longitude)
-
-
-                            val marker = Marker(mapView).apply {
-                                position = osmdroidGeoPoint
-                                setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                                title = annuncio.materia
-                                snippet = annuncio.descrizione
-                                icon = resources.getDrawable(R.drawable.marker_annuncio, null)
-                            }
-
-                            mapView.overlays.add(marker)
-
-                            // Aggiungi l'ID dell'annuncio al set di annunci visualizzati
-                            annunciVisualizzati.add(annuncio.id)
-                        }
-                    }
-
-                    // Aggiorna la mappa
-                    mapView.invalidate()
-
-                } catch (e: Exception) {
-                    Log.e("RicercaTutorFragment", "Errore durante il caricamento degli annunci sulla mappa", e)
-                }
-            }
+            aggiornaMappa(lista)
         })
 
+        // Aggiorna immediatamente la mappa se ci sono già annunci caricati
+        annunciViewModel.listaAnnunci.value?.let { lista ->
+            aggiornaMappa(lista)
+        }
     }
 
+    private fun aggiornaMappa(listaAnnunci: List<Annuncio>) {
+        try {
+            // Rimuovi i marker che non sono più presenti nella lista
+            val annunciId = listaAnnunci.map { annuncio -> annuncio.id }.toSet()
+            val markerIdsToRemove = markerMap.keys - annunciId
+            for (id in markerIdsToRemove) {
+                markerMap[id]?.let { marker ->
+                    mapView.overlays.remove(marker)  // Rimuovi il marker dalla mappa
+                }
+                markerMap.remove(id)  // Rimuovi il marker dalla mappa dei marker
+            }
+
+            // Aggiungi nuovi marker e aggiorna quelli esistenti
+            for (annuncio in listaAnnunci) {
+                if (!markerMap.containsKey(annuncio.id)) {
+                    // Aggiungi un nuovo marker se non esiste già
+                    val osmdroidGeoPoint = GeoPoint(annuncio.posizione.latitude, annuncio.posizione.longitude)
+                    val marker = Marker(mapView).apply {
+                        position = osmdroidGeoPoint
+                        setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                        title = annuncio.materia
+                        snippet = annuncio.descrizione
+                        icon = resources.getDrawable(R.drawable.marker_annuncio, null)
+                    }
+                    mapView.overlays.add(marker)
+                    markerMap[annuncio.id] = marker  // Aggiungi il marker alla mappa dei marker
+                } else {
+                    // Aggiorna la posizione del marker esistente se necessario
+                    val marker = markerMap[annuncio.id]
+                    marker?.position = GeoPoint(annuncio.posizione.latitude, annuncio.posizione.longitude)
+                }
+            }
+
+            // Aggiorna la mappa per visualizzare le modifiche
+            mapView.invalidate()
+
+        } catch (e: Exception) {
+            Log.e("RicercaTutorFragment", "Errore durante l'aggiornamento degli annunci sulla mappa", e)
+        }
+    }
 
     private fun requestLocationPermission() {
         requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
@@ -179,7 +195,6 @@ class RicercaTutorFragment : Fragment() {
         ) == PackageManager.PERMISSION_GRANTED
     }
 
-
     // Metodo per centrare la mappa su una posizione statica se non è possibile ottenere la posizione dell'utente
     private fun setPosizioneStatica() {
         val romeLocation = GeoPoint(41.9028, 12.4964)  // Coordinate di Roma
@@ -187,35 +202,9 @@ class RicercaTutorFragment : Fragment() {
         mapView.controller.setZoom(10.0)
     }
 
-    private fun visualizzaAnnunciSullaMappa() {
-        // Ottieni la lista degli annunci dal ViewModel
-        val listaAnnunci = annunciViewModel.listaAnnunci.value
-
-        // Verifica se la lista non è vuota
-        if (listaAnnunci != null) {
-            for (annuncio in listaAnnunci) {
-                // Crea un marker per ogni annuncio e aggiungilo alla mappa
-                val geoPoint = annuncio.posizione
-                val marker = Marker(mapView).apply {
-                    position = geoPoint as GeoPoint
-                    setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                    title = annuncio.materia
-                    snippet = annuncio.descrizione
-                    icon = resources.getDrawable(R.drawable.marker_annuncio, null) // Icona personalizzata
-                }
-
-                mapView.overlays.add(marker)
-            }
-
-            // Aggiorna la mappa per visualizzare i marker aggiunti
-            mapView.invalidate()
-        }
-    }
-
     override fun onDestroyView() {
         super.onDestroyView()
-        //Log.d("RicercaTutorFragment", "destroy")
-        mapView.onDetach() //per rilasciare tutte le risorse legate alla mappa e prevenire potenziali memory leaks.
+        mapView.onDetach() // per rilasciare tutte le risorse legate alla mappa e prevenire potenziali memory leaks.
         _binding = null
     }
 
@@ -229,6 +218,3 @@ class RicercaTutorFragment : Fragment() {
         mapView.onResume()
     }
 }
-
-
-

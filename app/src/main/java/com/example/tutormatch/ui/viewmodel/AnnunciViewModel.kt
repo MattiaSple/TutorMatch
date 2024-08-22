@@ -75,6 +75,33 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
+    fun observeAnnunciInTempoReale() {
+        // Aggiunge un listener in tempo reale alla collezione "annunciCollection" di Firestore
+        annunciCollection.addSnapshotListener { querySnapshot, e ->
+
+            // Verifica se c'è stato un errore nel tentativo di ascolto
+            if (e != null) {
+                // In caso di errore, pubblica un messaggio di errore tramite LiveData
+                _message.postValue("Errore nell'ascolto in tempo reale degli annunci: ${e.message}")
+                return@addSnapshotListener
+            }
+
+            // Se non c'è errore, esamina i risultati della query
+            querySnapshot?.let {
+                // Mappa i documenti restituiti nella query a oggetti Annuncio
+                val lista = it.documents.mapNotNull { document ->
+                    // Converte ogni documento in un oggetto Annuncio
+                    document.toObject(Annuncio::class.java)?.apply {
+                        // Imposta l'ID del documento come ID dell'annuncio
+                        id = document.id
+                    }
+                }
+                // Aggiorna il LiveData "_listaAnnunci" con la nuova lista di annunci
+                _listaAnnunci.postValue(lista)
+            }
+        }
+    }
+
     private fun getAllAnnunci()
     {
         viewModelScope.launch(Dispatchers.IO) {
