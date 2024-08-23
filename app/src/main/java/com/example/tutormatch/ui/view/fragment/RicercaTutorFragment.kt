@@ -9,6 +9,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.core.app.ActivityCompat
@@ -142,6 +143,37 @@ class RicercaTutorFragment : Fragment() {
         }
     }
 
+    private fun showMarkerDetails(marker: Marker, annuncio: Annuncio) {
+        // Supponendo che il nome e cognome siano sempre presenti
+        annuncio.tutor?.get()?.addOnSuccessListener { documentSnapshot ->
+            val nomeTutor = documentSnapshot.getString("nome")!!
+            val cognomeTutor = documentSnapshot.getString("cognome")!!
+
+            // Imposta i dati nei TextView
+            binding.tvMateria.text = "$nomeTutor $cognomeTutor"
+            binding.tvNomeCognome.text = annuncio.materia
+            binding.tvDescription.text = annuncio.descrizione
+            //binding.tvModalita.text = annuncio.getModalita()
+
+            // Mostra il layout
+            binding.markerDetailLayout.visibility = View.VISIBLE
+
+            // Gestione del bottone per chattare
+            binding.btnChat.setOnClickListener {
+                // Logica per avviare la chat
+                Toast.makeText(context, "Avvia chat con il tutor: $nomeTutor $cognomeTutor", Toast.LENGTH_SHORT).show()
+            }
+
+            // Gestione del bottone per chiudere
+            binding.btnClose.setOnClickListener {
+                binding.markerDetailLayout.visibility = View.GONE
+            }
+        }?.addOnFailureListener {
+            Toast.makeText(context, "Impossibile ottenere i dettagli del tutor", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+
     private fun aggiornaMappa(listaAnnunci: List<Annuncio>) {
         try {
             // Rimuovi i marker che non sono più presenti nella lista
@@ -165,6 +197,10 @@ class RicercaTutorFragment : Fragment() {
                         title = annuncio.materia
                         snippet = annuncio.descrizione
                         icon = resources.getDrawable(R.drawable.marker_annuncio, null)
+                        setOnMarkerClickListener { clickedMarker, _ ->
+                            showMarkerDetails(clickedMarker, annuncio)
+                            true
+                        }
                     }
                     mapView.overlays.add(marker)
                     markerMap[annuncio.id] = marker  // Aggiungi il marker alla mappa dei marker
