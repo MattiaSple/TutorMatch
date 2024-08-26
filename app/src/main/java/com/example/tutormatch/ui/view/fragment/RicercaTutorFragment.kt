@@ -156,7 +156,7 @@ class RicercaTutorFragment : Fragment() {
             //binding.tvModalita.text = annuncio.getModalita()
 
             // Mostra il layout
-            binding.markerDetailLayout.visibility = View.VISIBLE
+            binding.markerDetailCard.visibility = View.VISIBLE
 
             // Gestione del bottone per chattare
             binding.btnChat.setOnClickListener {
@@ -166,7 +166,7 @@ class RicercaTutorFragment : Fragment() {
 
             // Gestione del bottone per chiudere
             binding.btnClose.setOnClickListener {
-                binding.markerDetailLayout.visibility = View.GONE
+                binding.markerDetailCard.visibility = View.GONE
             }
         }?.addOnFailureListener {
             Toast.makeText(context, "Impossibile ottenere i dettagli del tutor", Toast.LENGTH_SHORT).show()

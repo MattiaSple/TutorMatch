@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -187,59 +186,77 @@
     </LinearLayout>
 
     <!-- Layout per i dettagli del marker -->
-    <LinearLayout
-        android:id="@+id/markerDetailLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="@drawable/rectangle_green_white"
-        android:padding="16dp"
-        android:visibility="gone"
-        android:elevation="8dp"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/markerDetailCard"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:layout_margin="16dp"
-        app:layout_constraintBottom_toBottomOf="parent">
+        android:elevation="8dp"
+        android:visibility="gone"
+        app:cardBackgroundColor="@color/markerBackgroundColor"
+        app:cardCornerRadius="12dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/searchParamsLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-        <TextView
-            android:id="@+id/tv_materia"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Materia"
-            android:textStyle="bold"
-            android:textSize="18sp" />
+        <!-- ScrollView per il contenuto della CardView -->
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-        <TextView
-            android:id="@+id/tv_description"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Descrizione"
-            android:layout_marginTop="8dp"
-            android:textSize="14sp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
 
-        <TextView
-            android:id="@+id/tv_nome_cognome"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Nome Cognome"
-            android:layout_marginTop="8dp"
-            android:textSize="14sp"
-            android:textStyle="italic"
-            android:textColor="@android:color/darker_gray" />
+                <TextView
+                    android:id="@+id/tv_materia"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Materia"
+                    android:textColor="@android:color/black"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
 
-        <Button
-            android:id="@+id/btn_chat"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Chatta con il tutor"
-            android:backgroundTint="@color/statusBarColor"
-            android:textColor="@android:color/white"
-            android:layout_marginTop="12dp"/>
+                <TextView
+                    android:id="@+id/tv_description"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Descrizione"
+                    android:textColor="@android:color/black"
+                    android:textSize="14sp" />
 
-        <Button
-            android:id="@+id/btn_close"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Chiudi"
-            android:layout_marginTop="8dp"/>
-    </LinearLayout>
+                <TextView
+                    android:id="@+id/tv_nome_cognome"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Nome Cognome"
+                    android:textColor="@android:color/darker_gray"
+                    android:textSize="14sp"
+                    android:textStyle="italic" />
+
+                <Button
+                    android:id="@+id/btn_chat"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:backgroundTint="@color/statusBarColor"
+                    android:text="Chatta con il tutor"
+                    android:textColor="@android:color/white" />
+
+                <Button
+                    android:id="@+id/btn_close"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Chiudi" />
+
+            </LinearLayout>
+        </ScrollView>
+    </androidx.cardview.widget.CardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

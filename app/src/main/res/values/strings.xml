@@ -26,7 +26,13 @@
     <string name="tornaHome">Torna alla home</string>
 
     <!-- tag della pagina Homefragment "studente" (fragment_home_studente) -->
-    <string name="tutorial">Benvenuto! Segui questi semplici passaggi per iniziare a utilizzare al meglio Tutormatch E FACCIAMO CALCIOBenvenuto! Segui questi semplici passaggi per iniziare a utilizzare al meglio Tutormatch E FACCIAMO CALCIOBenvenuto! Segui questi semplici passaggi per iniziare a utilizzare al meglio Tutormatch E FACCIAMO CALCIOBenvenuto! Segui questi semplici passaggi per iniziare a utilizzare al meglio Tutormatch E FACCIAMO CALCIOBenvenuto! Segui questi semplici passaggi per iniziare a utilizzare al meglio Tutormatch E FACCIAMO CALCIO</string>
+    <string name="tutorial">
+    Benvenuto su TutorMatch, la tua soluzione ideale per trovare il tutor perfetto!
+    Comunicazione facile e diretta: organizza le tue lezioni con un semplice messaggio. La chat integrata ti permette di rimanere sempre in contatto con il tuo tutor e gestire ogni dettaglio della tua esperienza di apprendimento.
+    Valuta e fai crescere la community: dopo ogni lezione, condividi la tua esperienza valutando il tutor, aiutando così altri studenti a fare la scelta giusta.
+    Prenotazioni rapide e sicure: scegli l’orario che preferisci direttamente dal calendario del tutor e conferma la tua lezione in pochi tocchi.
+    Vuoi insegnare? Diventa un tutor su TutorMatch! Registra il tuo profilo, aggiungi le materie che desideri insegnare e indica la tua disponibilità. Unisciti alla nostra community di insegnanti appassionati e aiuta gli studenti a raggiungere i loro obiettivi.
+    </string>
     <string-array name="materie_array">
         <item>Matematica</item>
         <item>Fisica</item>
