@@ -4,8 +4,8 @@
 
     <data>
         <variable
-            name="chat"
-            type="com.example.tutormatch.data.model.Chat" />
+            name="message"
+            type="com.example.tutormatch.data.model.Message" />
     </data>
 
     <LinearLayout
@@ -14,26 +14,26 @@
         android:orientation="vertical"
         android:padding="8dp">
 
-        <!-- Visualizza i partecipanti -->
+        <!-- Visualizza il testo del messaggio -->
         <TextView
-            android:id="@+id/textViewParticipants"
+            android:id="@+id/textViewMessage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:participants="@{chat.participants}"
-            android:textSize="14sp"
-            android:textColor="@android:color/black"
-            android:ellipsize="end"
-            android:maxLines="1"/>
-
-        <!-- Visualizza l'ultimo messaggio -->
-        <TextView
-            android:id="@+id/textViewLastMessage"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text='@{chat.lastMessage != null ? chat.lastMessage.text : "Nessun messaggio"}'
+            android:text="@{message.text}"
             android:textSize="16sp"
             android:textColor="@android:color/black"
             android:ellipsize="end"
-            android:maxLines="1"/>
+            android:maxLines="2"/>
+
+        <!-- Visualizza il timestamp formattato -->
+        <TextView
+            android:id="@+id/textViewTimestamp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{message.formattedTimestamp}"
+            android:textSize="12sp"
+            android:textColor="@android:color/darker_gray"
+            android:layout_marginTop="4dp"/>
+
     </LinearLayout>
 </layout>

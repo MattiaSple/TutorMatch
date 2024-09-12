@@ -1,6 +1,7 @@
 package com.example.tutormatch.ui.view.activity
 
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
@@ -12,6 +13,7 @@ import com.example.tutormatch.databinding.ActivityHomeTutorBinding
 import com.example.tutormatch.ui.view.fragment.*
 import com.example.tutormatch.ui.viewmodel.HomeViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.firebase.database.FirebaseDatabase
 
 class HomeActivity : AppCompatActivity() {
 
@@ -28,86 +30,86 @@ class HomeActivity : AppCompatActivity() {
         )[HomeViewModel::class.java]
 
         val ruolo = intent.getBooleanExtra("ruolo", false)
-        val userId = intent.getStringExtra("userId")!!
-        val nome = intent.getStringExtra("nome")!!
-        val cognome = intent.getStringExtra("cognome")!!
-
+        val email = intent.getStringExtra("email") ?: "default_email@example.com" // Fornisci un default o gestisci null
+        val nome = intent.getStringExtra("nome") ?: "Nome non disponibile"
+        val cognome = intent.getStringExtra("cognome") ?: "Cognome non disponibile"
+        // Configura la vista in base al ruolo
         if (ruolo) {
             bindingTutor = ActivityHomeTutorBinding.inflate(layoutInflater)
             setContentView(bindingTutor.root)
-            setupBottomNavigationTutor(bindingTutor.navView, userId, nome, cognome, ruolo)
+            setupBottomNavigationTutor(bindingTutor.navView, email, nome, cognome, ruolo)
         } else {
             bindingStudente = ActivityHomeStudenteBinding.inflate(layoutInflater)
             setContentView(bindingStudente.root)
-            setupBottomNavigationStudente(bindingStudente.navView, userId, nome, cognome, ruolo)
+            setupBottomNavigationStudente(bindingStudente.navView, email, nome, cognome, ruolo)
         }
     }
 
-    private fun setupBottomNavigationTutor(navView: BottomNavigationView, userId: String, nome: String, cognome: String, ruolo: Boolean) {
+    private fun setupBottomNavigationTutor(navView: BottomNavigationView, email: String, nome: String, cognome: String, ruolo: Boolean) {
         navView.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.navigation_home -> {
-                    replaceFragment(HomeFragmentTutor(), userId, nome, cognome, ruolo)
+                    replaceFragment(HomeFragmentTutor(), email, nome, cognome, ruolo)
                     true
                 }
                 R.id.navigation_prenotazione_tutor -> {
-                    replaceFragment(PrenotazioniFragment(), userId, nome, cognome, ruolo)
+                    replaceFragment(PrenotazioniFragment(), email, nome, cognome, ruolo)
                     true
                 }
                 R.id.navigation_calendario_tutor -> {
-                    replaceFragment(CalendarioFragment(), userId, nome, cognome, ruolo)
+                    replaceFragment(CalendarioFragment(), email, nome, cognome, ruolo)
                     true
                 }
                 R.id.navigation_chat_tutor -> {
-                    replaceFragment(ChatFragment(), userId, nome, cognome, ruolo)
+                    replaceFragment(ChatFragment(), email, nome, cognome, ruolo)
                     true
                 }
                 R.id.navigation_profilo_tutor -> {
-                    replaceFragment(ProfiloFragment(), userId, nome, cognome, ruolo)
+                    replaceFragment(ProfiloFragment(), email, nome, cognome, ruolo)
                     true
                 }
                 else -> false
             }
         }
         // Imposta il fragment iniziale
-        replaceFragment(HomeFragmentTutor(), userId, nome, cognome, ruolo)
+        replaceFragment(HomeFragmentTutor(), email, nome, cognome, ruolo)
         navView.selectedItemId = R.id.navigation_home
     }
 
-    private fun setupBottomNavigationStudente(navView: BottomNavigationView, userId: String, nome: String, cognome: String, ruolo: Boolean) {
+    private fun setupBottomNavigationStudente(navView: BottomNavigationView, email: String, nome: String, cognome: String, ruolo: Boolean) {
         navView.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.navigation_home -> {
-                    replaceFragment(HomeFragmentStudente(), userId, nome, cognome, ruolo)
+                    replaceFragment(HomeFragmentStudente(), email, nome, cognome, ruolo)
                     true
                 }
                 R.id.navigation_ricerca_tutor -> {
-                    replaceFragment(RicercaTutorFragment(), userId, nome, cognome, ruolo)
+                    replaceFragment(RicercaTutorFragment(), email, nome, cognome, ruolo)
                     true
                 }
                 R.id.navigation_studente -> {
-                    replaceFragment(PrenotazioniFragment(), userId, nome, cognome, ruolo)
+                    replaceFragment(PrenotazioniFragment(), email, nome, cognome, ruolo)
                     true
                 }
                 R.id.navigation_chat -> {
-                    replaceFragment(ChatFragment(), userId, nome, cognome, ruolo)
+                    replaceFragment(ChatFragment(), email, nome, cognome, ruolo)
                     true
                 }
                 R.id.navigation_profilo -> {
-                    replaceFragment(ProfiloFragment(), userId, nome, cognome, ruolo)
+                    replaceFragment(ProfiloFragment(), email, nome, cognome, ruolo)
                     true
                 }
                 else -> false
             }
         }
         // Imposta il fragment iniziale
-        replaceFragment(HomeFragmentStudente(), userId, nome, cognome, ruolo)
+        replaceFragment(HomeFragmentStudente(), email, nome, cognome, ruolo)
         navView.selectedItemId = R.id.navigation_home
     }
 
-    private fun replaceFragment(fragment: Fragment, userId: String, nome: String, cognome: String, ruolo: Boolean) {
+    fun replaceFragment(fragment: Fragment, email: String, nome: String, cognome: String, ruolo: Boolean) {
         val bundle = Bundle().apply {
-            putString("userId", userId)
+            putString("email", email)
             putString("nome", nome)
             putString("cognome", cognome)
             putBoolean("ruolo", ruolo)

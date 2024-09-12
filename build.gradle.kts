@@ -12,6 +12,9 @@ buildscript {
         classpath(libs.androidx.navigation.safe.args.gradle.plugin)
         // Aggiungi questa linea per il plugin Google Services
         classpath(libs.google.services)
+        /////////////////////////////////////////////////////
+        classpath (libs.google.services.v4310)
+        /////////////////////////////////////////////////////
 
     }
 }
