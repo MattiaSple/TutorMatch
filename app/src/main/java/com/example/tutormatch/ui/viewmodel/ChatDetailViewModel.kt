@@ -29,9 +29,7 @@ class ChatDetailViewModel : ViewModel() {
     }
 
     private fun loadMessages() {
-        Log.d("ChatDetailViewModel", "Inizio caricamento messaggi...")
-
-        // Utilizza ValueEventListener per caricare tutti i messaggi esistenti sotto il nodo corretto
+        // Use ValueEventListener to load all existing messages under the correct node
         messagesRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val messagesList = mutableListOf<Message>()
@@ -41,19 +39,21 @@ class ChatDetailViewModel : ViewModel() {
                         messagesList.add(it)
                     }
                 }
+                // Sort the list of messages by the timestamp in ascending order (oldest first)
+                messagesList.sortBy { it.timestamp }
+
+                // Update the LiveData with the sorted list of messages
                 _messages.value = messagesList
-                Log.d("ChatDetailViewModel", "Caricati ${messagesList.size} messaggi")
             }
 
             override fun onCancelled(error: DatabaseError) {
-                Log.e("ChatDetailViewModel", "Errore durante il caricamento dei messaggi: ${error.message}", error.toException())
             }
         })
     }
 
+
     fun sendMessage() {
         if (!::chatId.isInitialized || !::messagesRef.isInitialized) {
-            Log.e("ChatDetailViewModel", "chatId or messagesRef not initialized")
             return
         }
 
@@ -69,13 +69,10 @@ class ChatDetailViewModel : ViewModel() {
             text = messageText,
             timestamp = timestamp
         )
-        Log.d("ChatDetailViewModel", "Invio del messaggio: $messageText")
 
         // Salva il messaggio sotto il nodo "messages" della chat specifica
         messagesRef.child(newMessageId).setValue(message).addOnSuccessListener {
-            Log.d("ChatDetailViewModel", "Messaggio inviato con successo: $messageText")
         }.addOnFailureListener {
-            Log.e("ChatDetailViewModel", "Errore durante l'invio del messaggio", it)
         }
         newMessage.value = ""  // Resetta il campo di testo dopo l'invio
     }
