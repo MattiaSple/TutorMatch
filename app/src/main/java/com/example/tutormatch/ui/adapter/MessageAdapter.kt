@@ -5,10 +5,13 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.tutormatch.data.model.Message
 import com.example.tutormatch.databinding.ItemMessageBinding
+import com.google.firebase.auth.FirebaseAuth
 
 class MessageAdapter(
     private var messages: List<Message>
 ) : RecyclerView.Adapter<MessageAdapter.MessageViewHolder>() {
+
+    private val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
 
     fun updateData(newMessages: List<Message>) {
         messages = newMessages
@@ -29,7 +32,9 @@ class MessageAdapter(
 
     inner class MessageViewHolder(private val binding: ItemMessageBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(message: Message) {
+            val isMine = message.senderId == currentUserEmail
             binding.message = message
+            binding.isMine = isMine
             binding.executePendingBindings()
         }
     }

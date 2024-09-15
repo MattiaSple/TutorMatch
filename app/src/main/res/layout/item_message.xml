@@ -1,18 +1,24 @@
-<?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
+        <!-- Importa la classe Gravity -->
+        <import type="android.view.Gravity" />
+
         <variable
             name="message"
             type="com.example.tutormatch.data.model.Message" />
+        <variable
+            name="isMine"
+            type="boolean" />
     </data>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="8dp">
+        android:padding="8dp"
+        android:gravity="@{isMine ? Gravity.END : Gravity.START}">
 
         <!-- Visualizza il testo del messaggio -->
         <TextView
@@ -21,7 +27,9 @@
             android:layout_height="wrap_content"
             android:text="@{message.text}"
             android:textSize="16sp"
-            android:textColor="@android:color/black"
+            android:textColor="@{isMine ? @android:color/holo_red_dark : @android:color/holo_blue_dark}"
+            android:background="@{isMine ? @android:color/holo_red_light : @android:color/holo_blue_light}"
+            android:padding="8dp"
             android:ellipsize="end"
             android:maxLines="2"/>
 
