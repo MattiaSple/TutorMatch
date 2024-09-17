@@ -72,7 +72,7 @@ dependencies {
     implementation(platform(libs.firebase.bom.v3102))
     implementation (libs.com.google.firebase.firebase.database.ktx)
     implementation (libs.firebase.messaging)
-////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////
     implementation(libs.firebase.firestore.ktx)
     implementation(libs.androidx.recyclerview)
 

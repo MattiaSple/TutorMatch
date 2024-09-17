@@ -104,16 +104,18 @@ class ChatDetailViewModel : ViewModel() {
 
     // Funzione per recuperare l'email del destinatario (escluso l'utente corrente)
     fun getRecipientUserId(): String? {
-        val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
-        if (currentUserEmail == null) {
-            Log.e("ChatDetailViewModel", "L'utente corrente non ha un'email associata.")
+        // Ottieni l'UID dell'utente corrente
+        val currentUserUid = FirebaseAuth.getInstance().currentUser?.uid
+        if (currentUserUid == null) {
+            Log.e("ChatDetailViewModel", "L'utente corrente non ha un UID associato.")
             return null
         }
 
         // Recupera i partecipanti dalla chat corrente
         val participants = _chat.value?.participants
 
-        // Filtra i partecipanti e restituisci l'email che non corrisponde all'utente corrente
-        return participants?.firstOrNull { it != currentUserEmail }
+        // Filtra i partecipanti e restituisci l'UID che non corrisponde all'UID dell'utente corrente
+        return participants?.firstOrNull { it != currentUserUid }
     }
+
 }
