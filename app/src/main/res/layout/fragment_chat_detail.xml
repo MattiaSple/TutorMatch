@@ -37,6 +37,13 @@
                 android:inputType="text"
                 android:text="@={viewModel.newMessage}" />
 
+            <Button
+                android:id="@+id/buttonSend"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Invia"
+                android:onClick="@{() -> viewModel.sendMessage()}" />
+
         </LinearLayout>
     </LinearLayout>
 </layout>
