@@ -39,18 +39,21 @@ class ChatFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Recupero nome completo dell'utente corrente
+        val currentUserFullName = "${arguments?.getString("nome")} ${arguments?.getString("cognome")}"
+
         // Imposta il LayoutManager
         binding.recyclerViewChat.layoutManager = LinearLayoutManager(context)
 
-        val adapter = ChatAdapter(emptyList()) { chat ->
+        val adapter = ChatAdapter(emptyList(), currentUserFullName) { chat ->
             Log.d("ChatFragment", "Chat ID: ${chat.id}")
             if (chat.id.isNullOrEmpty()) {
                 Log.e("ChatFragment", "Chat ID is null or empty")
             } else {
-                sharedViewModel.setChatId(chat.id)  // Set the chatId in SharedViewModel
+                sharedViewModel.setChatId(chat.id)
                 (activity as? HomeActivity)?.replaceFragment(
                     ChatDetailFragment(),
-                    email = arguments?.getString("email") ?: "",
+                    userId = arguments?.getString("userId") ?: "", // Qui passiamo l'ID dell'utente
                     nome = arguments?.getString("nome") ?: "",
                     cognome = arguments?.getString("cognome") ?: "",
                     ruolo = arguments?.getBoolean("ruolo") ?: false
@@ -64,6 +67,7 @@ class ChatFragment : Fragment() {
             adapter.updateData(chats)
         })
     }
+
 
     override fun onDestroyView() {
         super.onDestroyView()

@@ -12,16 +12,19 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
-import androidx.activity.result.contract.ActivityResultContracts
 import com.example.tutormatch.R
 import com.example.tutormatch.data.model.Annuncio
 import com.example.tutormatch.databinding.FragmentRicercaTutorBinding
+import com.example.tutormatch.ui.view.activity.HomeActivity
 import com.example.tutormatch.ui.viewmodel.AnnunciViewModel
+import com.example.tutormatch.ui.viewmodel.ChatViewModel
 import com.example.tutormatch.ui.viewmodel.RicercaTutorViewModel
+import com.example.tutormatch.ui.viewmodel.SharedViewModel
 import org.osmdroid.config.Configuration
 import org.osmdroid.library.BuildConfig
 import org.osmdroid.util.GeoPoint
@@ -32,14 +35,20 @@ class RicercaTutorFragment : Fragment() {
 
     private var _binding: FragmentRicercaTutorBinding? = null
     private val binding get() = _binding!!
-    private lateinit var ricercaTutorViewModel: RicercaTutorViewModel
-    private lateinit var annunciViewModel: AnnunciViewModel
+
+    // Inizializziamo i ViewModel usando il delegate di Kotlin
+    private val ricercaTutorViewModel: RicercaTutorViewModel by viewModels()
+    private val annunciViewModel: AnnunciViewModel by viewModels()
+    private val chatViewModel: ChatViewModel by viewModels()
+    private val sharedViewModel: SharedViewModel by viewModels()
+
     private lateinit var mapView: MapView
     private lateinit var locationSettingsLauncher: ActivityResultLauncher<IntentSenderRequest>
 
     // Mappa per tenere traccia dei marker sulla mappa
     private val markerMap = mutableMapOf<String, Marker>()
 
+    // Gestione delle richieste dei permessi di localizzazione
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
@@ -76,9 +85,6 @@ class RicercaTutorFragment : Fragment() {
     ): View {
         _binding = FragmentRicercaTutorBinding.inflate(inflater, container, false)
         Log.d("RicercaTutorFragment", "onCreateView")
-        // Inizializza i ViewModel
-        ricercaTutorViewModel = ViewModelProvider(this)[RicercaTutorViewModel::class.java]
-        annunciViewModel = ViewModelProvider(this)[AnnunciViewModel::class.java]
 
         // Configura la mappa
         mapView = binding.mapView
@@ -128,9 +134,8 @@ class RicercaTutorFragment : Fragment() {
             requestLocationPermission()
         }
 
-        // Attiva l'osservazione in tempo reale
+        // Attiva l'osservazione in tempo reale degli annunci
         annunciViewModel.observeAnnunciInTempoReale()
-
 
         // Osserva la lista degli annunci e aggiorna la mappa
         annunciViewModel.listaAnnunci.observe(viewLifecycleOwner, Observer { lista ->
@@ -144,24 +149,45 @@ class RicercaTutorFragment : Fragment() {
     }
 
     private fun showMarkerDetails(marker: Marker, annuncio: Annuncio) {
-        // Supponendo che il nome e cognome siano sempre presenti
         annuncio.tutor?.get()?.addOnSuccessListener { documentSnapshot ->
             val nomeTutor = documentSnapshot.getString("nome")!!
             val cognomeTutor = documentSnapshot.getString("cognome")!!
+            val tutorEmail = documentSnapshot.getString("email")!!
 
             // Imposta i dati nei TextView
             binding.tvMateria.text = "$nomeTutor $cognomeTutor"
             binding.tvNomeCognome.text = annuncio.materia
             binding.tvDescription.text = annuncio.descrizione
-            //binding.tvModalita.text = annuncio.getModalita()
 
             // Mostra il layout
             binding.markerDetailCard.visibility = View.VISIBLE
 
             // Gestione del bottone per chattare
             binding.btnChat.setOnClickListener {
-                // Logica per avviare la chat
-                Toast.makeText(context, "Avvia chat con il tutor: $nomeTutor $cognomeTutor", Toast.LENGTH_SHORT).show()
+
+                // Ora puoi creare la chat passando i dati dell'utente e del tutor
+                chatViewModel.creaChatConTutor(
+                    tutorEmail = tutorEmail,
+                    tutorName = nomeTutor,
+                    tutorSurname = cognomeTutor,
+                    userName = arguments?.getString("nome") ?: "",
+                    userSurname = arguments?.getString("cognome") ?: "",
+                    materia = annuncio.materia,
+                    onSuccess = { chatId ->
+                        // Passa alla schermata della chat
+                        sharedViewModel.setChatId(chatId)
+                        (activity as? HomeActivity)?.replaceFragment(
+                            ChatDetailFragment(),
+                            userId = arguments?.getString("userId") ?: "",
+                            nome = arguments?.getString("nome") ?: "",
+                            cognome = arguments?.getString("cognome") ?: "",
+                            ruolo = arguments?.getBoolean("ruolo") ?: false
+                        )
+                    },
+                    onFailure = { errorMessage ->
+                        Toast.makeText(context, "Errore: $errorMessage", Toast.LENGTH_SHORT).show()
+                    }
+                )
             }
 
             // Gestione del bottone per chiudere
@@ -172,7 +198,6 @@ class RicercaTutorFragment : Fragment() {
             Toast.makeText(context, "Impossibile ottenere i dettagli del tutor", Toast.LENGTH_SHORT).show()
         }
     }
-
 
     private fun aggiornaMappa(listaAnnunci: List<Annuncio>) {
         try {

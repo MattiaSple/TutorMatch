@@ -5,12 +5,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.tutormatch.data.model.Message
+import com.example.tutormatch.util.FirebaseUtil // Utilizziamo FirebaseUtil per le operazioni Firestore
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 
 class ChatDetailViewModel : ViewModel() {
 
-    // Specifica l'URL del tuo database Firebase
     private val databaseUrl = "https://tutormatch-a7439-default-rtdb.europe-west1.firebasedatabase.app"
     private val database: FirebaseDatabase = FirebaseDatabase.getInstance(databaseUrl)
 
@@ -29,7 +29,6 @@ class ChatDetailViewModel : ViewModel() {
     }
 
     private fun loadMessages() {
-        // Use ValueEventListener to load all existing messages under the correct node
         messagesRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val messagesList = mutableListOf<Message>()
@@ -39,20 +38,15 @@ class ChatDetailViewModel : ViewModel() {
                         messagesList.add(it)
                     }
                 }
-                // Sort the list of messages by the timestamp in ascending order (oldest first)
                 messagesList.sortBy { it.timestamp }
-
-                // Update the LiveData with the sorted list of messages
                 _messages.value = messagesList
             }
 
-            override fun onCancelled(error: DatabaseError) {
-            }
+            override fun onCancelled(error: DatabaseError) {}
         })
     }
 
-
-    fun sendMessage() {
+    fun sendMessage(recipientUserId: String) {
         if (!::chatId.isInitialized || !::messagesRef.isInitialized) {
             return
         }
@@ -61,19 +55,24 @@ class ChatDetailViewModel : ViewModel() {
         val senderEmail = FirebaseAuth.getInstance().currentUser?.email ?: return
         val timestamp = System.currentTimeMillis()
 
-        // Genera un nuovo ID messaggio usando il timestamp
         val newMessageId = "message_$timestamp"
-
         val message = Message(
             senderId = senderEmail,
             text = messageText,
             timestamp = timestamp
         )
 
-        // Salva il messaggio sotto il nodo "messages" della chat specifica
         messagesRef.child(newMessageId).setValue(message).addOnSuccessListener {
+            val chatRef = database.getReference("chats/$chatId")
+            chatRef.child("lastMessage").setValue(message)
+
+            // Invia notifica all'utente usando FirebaseUtil
+            FirebaseUtil.sendNotificationToUser(recipientUserId, messageText)
         }.addOnFailureListener {
+            Log.e("ChatDetailViewModel", "Failed to send message: ${it.message}")
         }
-        newMessage.value = ""  // Resetta il campo di testo dopo l'invio
+
+        newMessage.value = ""
     }
 }
+

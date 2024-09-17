@@ -9,7 +9,9 @@ class SharedViewModel : ViewModel() {
     private val _chatId = MutableLiveData<String>()
     val chatId: LiveData<String> get() = _chatId
 
+    // Funzione per impostare il chatId
     fun setChatId(id: String) {
         _chatId.value = id
     }
+
 }

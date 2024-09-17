@@ -71,6 +71,7 @@ dependencies {
     implementation (libs.google.firebase.database.ktx)
     implementation(platform(libs.firebase.bom.v3102))
     implementation (libs.com.google.firebase.firebase.database.ktx)
+    implementation (libs.firebase.messaging)
 ////////////////////////////////////////////////////////////////////////////////
     implementation(libs.firebase.firestore.ktx)
     implementation(libs.androidx.recyclerview)
@@ -92,6 +93,7 @@ dependencies {
     implementation ("org.osmdroid:osmdroid-android:6.1.11")
     implementation(libs.androidx.preference.ktx)
     implementation(libs.firebase.database.ktx)
+    implementation(libs.firebase.messaging.ktx)
     //implementation(libs.osmdroid.android)
     //implementation(libs.osmbonuspack)
     //implementation(libs.androidx.preference.ktx)

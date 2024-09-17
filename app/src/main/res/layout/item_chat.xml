@@ -14,16 +14,36 @@
         android:orientation="vertical"
         android:padding="8dp">
 
-        <!-- Visualizza i partecipanti -->
-        <TextView
-            android:id="@+id/textViewParticipants"
-            android:layout_width="wrap_content"
+        <!-- Layout orizzontale per nome partecipante e soggetto -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:participants="@{chat.participants}"
-            android:textSize="14sp"
-            android:textColor="@android:color/black"
-            android:ellipsize="end"
-            android:maxLines="1"/>
+            android:orientation="horizontal">
+
+            <!-- Visualizza il nome del partecipante selezionato -->
+            <TextView
+                android:id="@+id/textViewSelectedParticipant"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@{chat.participantsNames.size() > 0 ? chat.participantsNames[0] : `Partecipante non disponibile`}"
+                android:textSize="14sp"
+                android:textColor="@android:color/black"
+                android:ellipsize="end"
+                android:maxLines="1" />
+
+            <!-- Visualizza il soggetto della chat -->
+            <TextView
+                android:id="@+id/textViewSubject"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text='@{chat.subject}'
+                android:textSize="14sp"
+                android:textColor="@android:color/black"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:layout_gravity="end"/>
+        </LinearLayout>
 
         <!-- Visualizza l'ultimo messaggio -->
         <TextView

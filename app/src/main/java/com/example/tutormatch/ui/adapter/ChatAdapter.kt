@@ -8,6 +8,7 @@ import com.example.tutormatch.databinding.ItemChatBinding
 
 class ChatAdapter(
     private var chats: List<Chat>,
+    private val currentUserName: String,
     private val onClick: (Chat) -> Unit
 ) : RecyclerView.Adapter<ChatAdapter.ChatViewHolder>() {
 
@@ -30,7 +31,18 @@ class ChatAdapter(
 
     inner class ChatViewHolder(private val binding: ItemChatBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(chat: Chat) {
-            binding.chat = chat
+            // Filtriamo i nomi dei partecipanti escludendo l'utente corrente
+            val filteredParticipantsNames = chat.participantsNames.filter { participantName ->
+                participantName != currentUserName
+            }
+
+            // Creiamo una rappresentazione semplificata del Chat con i partecipanti filtrati
+            val filteredChat = chat.copy(participantsNames = filteredParticipantsNames)
+
+            // Passiamo il chat filtrato al layout
+            binding.chat = filteredChat
+
+            // Gestisci il click sulla chat
             binding.root.setOnClickListener {
                 onClick(chat)
             }
@@ -38,3 +50,4 @@ class ChatAdapter(
         }
     }
 }
+

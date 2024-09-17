@@ -11,8 +11,8 @@ data class Utente(
     val via: String,
     val cap: String,
     val ruolo: Boolean = false, // true se tutor, false se studente
-)
-{
+    val fcmToken: String? = null // Aggiungi questo campo per il token FCM
+) {
     // Costruttore senza argomenti richiesto per Firestore
-    constructor() : this("", "", "", "", "", "", "", false)
+    constructor() : this("", "", "", "", "", "", "", false, null)
 }
