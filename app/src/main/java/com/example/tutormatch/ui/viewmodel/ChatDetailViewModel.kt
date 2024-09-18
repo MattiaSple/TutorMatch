@@ -71,6 +71,7 @@ class ChatDetailViewModel : ViewModel() {
 
     fun sendMessage() {
         if (!::chatId.isInitialized || !::messagesRef.isInitialized) {
+            Log.e("ChatDetailViewModel", "Chat o messagesRef non inizializzati")
             return
         }
 
@@ -87,10 +88,18 @@ class ChatDetailViewModel : ViewModel() {
             timestamp = timestamp
         )
 
+        // Invia messaggio e notifica
         messagesRef.child(newMessageId).setValue(message).addOnSuccessListener {
             val chatRef = database.getReference("chats/$chatId")
             chatRef.child("lastMessage").setValue(message)
-            FirebaseUtil.sendNotificationToUser(recipientEmail, messageText)
+
+            // Recupera il token FCM del destinatario
+            FirebaseUtil.getUserFromFirestore(recipientEmail) { recipient ->
+                recipient?.fcmToken?.let { token ->
+                    FirebaseUtil.sendNotificationToUserFCM(token, "Nuovo messaggio", messageText)
+                }
+            }
+
         }.addOnFailureListener {
             Log.e("ChatDetailViewModel", "Errore nell'invio del messaggio: ${it.message}")
         }
@@ -110,3 +119,4 @@ class ChatDetailViewModel : ViewModel() {
         return participants?.firstOrNull { it != currentUserEmail }
     }
 }
+

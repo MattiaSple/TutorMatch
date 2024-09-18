@@ -167,7 +167,8 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                                 if (taskToken.isSuccessful) {
                                     val token = taskToken.result
                                     if (token != null) {
-                                        FirebaseUtil.saveUserFcmToken(email.value!!, token)
+                                        // Usa l'uid dell'utente invece dell'email per aggiornare il token FCM
+                                        FirebaseUtil.saveUserFcmToken(it.uid, token)
                                     }
                                 }
                             }
@@ -180,6 +181,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                 }
             }
     }
+
 
     fun onForgotPasswordClick() {
         val emailValue = email.value

@@ -2,7 +2,6 @@ package com.example.tutormatch.util
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.Service
 import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
@@ -13,7 +12,6 @@ import com.example.tutormatch.R
 import com.google.firebase.auth.FirebaseAuth
 import android.Manifest
 import android.content.pm.PackageManager
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
 class MyFirebaseMessagingService : FirebaseMessagingService() {
@@ -35,9 +33,9 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     }
 
     override fun onNewToken(token: String) {
-        FirebaseAuth.getInstance().currentUser?.email?.let { email ->
+        FirebaseAuth.getInstance().currentUser?.let { user ->
             Log.d(TAG, "Nuovo token FCM: $token")
-            FirebaseUtil.saveUserFcmToken(email, token)
+            FirebaseUtil.saveUserFcmToken(user.uid, token)  // Usa l'uid invece dell'email
         } ?: Log.e(TAG, "Nessun utente autenticato. Non posso salvare il token.")
     }
 
@@ -76,3 +74,4 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         }
     }
 }
+
