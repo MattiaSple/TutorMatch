@@ -16,61 +16,34 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import android.Manifest
 import android.content.pm.PackageManager
+import android.util.Log
 import androidx.core.app.ActivityCompat
 
 class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
-        remoteMessage.notification?.let {
-            sendNotification(it.title, it.body)
-        }
-    }
+        // Qui puoi gestire la notifica quando arriva
+        Log.d("FCM", "Messaggio ricevuto: ${remoteMessage.data}")
 
-    private fun sendNotification(title: String?, messageBody: String?) {
-        // Verifica se il permesso è stato concesso (necessario su Android 13+)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-            ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-            // Non possiamo inviare la notifica se il permesso non è stato concesso
-            return
-        }
-
-        val intent = Intent(this, HomeActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-
-        val pendingIntent = PendingIntent.getActivity(
-            this, 0, intent, PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
-        )
-
-        val channelId = "tutormatch_channel"
-        val notificationBuilder = NotificationCompat.Builder(this, channelId)
-            .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle(title)
-            .setContentText(messageBody)
-            .setAutoCancel(true)
-            .setContentIntent(pendingIntent)
-
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                channelId,
-                "Channel human readable title",
-                NotificationManager.IMPORTANCE_DEFAULT
-            )
-            notificationManager.createNotificationChannel(channel)
-        }
-
-        with(NotificationManagerCompat.from(this)) {
-            notify(0, notificationBuilder.build())
-        }
+        // Mostra la notifica localmente
+        showNotification(remoteMessage.data["title"], remoteMessage.data["body"])
     }
 
     override fun onNewToken(token: String) {
-        super.onNewToken(token)
-        val userEmail = FirebaseAuth.getInstance().currentUser?.email
-        if (userEmail != null) {
-            FirebaseUtil.saveUserFcmToken(userEmail, token)
-        }
+        Log.d("FCM", "Token aggiornato: $token")
+        // Salva il nuovo token per l'utente
+        FirebaseUtil.saveUserFcmToken(FirebaseAuth.getInstance().currentUser?.email ?: "", token)
     }
 
+    private fun showNotification(title: String?, message: String?) {
+        val notificationBuilder = NotificationCompat.Builder(this, "default")
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle(title)
+            .setContentText(message)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.notify(0, notificationBuilder.build())
+    }
 }
+

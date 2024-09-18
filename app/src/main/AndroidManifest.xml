@@ -4,9 +4,9 @@
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-
 
     <application
         android:allowBackup="true"
@@ -18,6 +18,32 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TutorMatch"
         tools:targetApi="31">
+
+        <!-- Aggiunta del servizio FirebaseMessagingService per ricevere i messaggi -->
+        <service
+            android:name="com.example.tutormatch.notifications.MyFirebaseMessagingService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <!-- Servizio per la gestione del FirebaseInstanceId, rigenera i token -->
+        <service android:name="com.google.firebase.components.ComponentDiscoveryService"
+            android:exported="false"
+            tools:node="remove" />
+
+        <!-- Definisci un BroadcastReceiver per la gestione della ricezione dei token -->
+        <receiver
+            android:name="com.google.firebase.iid.FirebaseInstanceIdReceiver"
+            android:exported="true"
+            android:permission="com.google.android.c2dm.permission.SEND">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <category android:name="${applicationId}" />
+            </intent-filter>
+        </receiver>
+
         <activity
             android:name=".ui.view.activity.HomeActivity"
             android:exported="false"
@@ -37,9 +63,7 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </activity>
         <activity
@@ -47,5 +71,4 @@
             android:windowSoftInputMode="adjustResize">
         </activity>
     </application>
-
 </manifest>
