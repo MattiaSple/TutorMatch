@@ -28,6 +28,11 @@ class ChatDetailViewModel : ViewModel() {
 
     // Imposta l'ID della chat e carica i dettagli della chat
     fun setChatId(chatId: String) {
+        if (chatId.isBlank()) {
+            Log.e("ChatDetailViewModel", "ID chat non valido")
+            return
+        }
+
         this.chatId = chatId
         this.messagesRef = database.getReference("chats/$chatId/messages")
         loadChatDetails()
@@ -36,6 +41,11 @@ class ChatDetailViewModel : ViewModel() {
 
     // Carica i dettagli della chat
     private fun loadChatDetails() {
+        if (!::chatId.isInitialized) {
+            Log.e("ChatDetailViewModel", "ID chat non impostato")
+            return
+        }
+
         val chatRef = database.getReference("chats/$chatId")
         chatRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -50,6 +60,11 @@ class ChatDetailViewModel : ViewModel() {
     }
 
     private fun loadMessages() {
+        if (!::messagesRef.isInitialized) {
+            Log.e("ChatDetailViewModel", "Reference messaggi non inizializzata")
+            return
+        }
+
         messagesRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val messagesList = mutableListOf<Message>()
@@ -75,11 +90,24 @@ class ChatDetailViewModel : ViewModel() {
             return
         }
 
-        val messageText = newMessage.value ?: return
-        val senderEmail = FirebaseAuth.getInstance().currentUser?.email ?: return
-        val timestamp = System.currentTimeMillis()
+        val messageText = newMessage.value
+        if (messageText.isNullOrBlank()) {
+            Log.e("ChatDetailViewModel", "Messaggio vuoto, non inviato")
+            return
+        }
 
-        val recipientEmail = getRecipientUserEmail() ?: return
+        val senderEmail = FirebaseAuth.getInstance().currentUser?.email
+        if (senderEmail.isNullOrBlank()) {
+            Log.e("ChatDetailViewModel", "Email mittente vuota, impossibile inviare messaggio")
+            return
+        }
+
+        val timestamp = System.currentTimeMillis()
+        val recipientEmail = getRecipientUserEmail()
+        if (recipientEmail.isNullOrBlank()) {
+            Log.e("ChatDetailViewModel", "Email destinatario vuota, impossibile inviare messaggio")
+            return
+        }
 
         val newMessageId = "message_$timestamp"
         val message = Message(
@@ -94,9 +122,20 @@ class ChatDetailViewModel : ViewModel() {
             chatRef.child("lastMessage").setValue(message)
 
             // Recupera il token FCM del destinatario
-            FirebaseUtil.getUserFromFirestore(recipientEmail) { recipient ->
-                recipient?.fcmToken?.let { token ->
-                    FirebaseUtil.sendNotificationToUserFCM(token, "Nuovo messaggio", messageText)
+            FirebaseUtil.getUserIdByEmail(recipientEmail) { userId ->
+                if (userId.isNullOrBlank()) {
+                    Log.e("ChatDetailViewModel", "UserId non trovato per l'email: $recipientEmail")
+                    return@getUserIdByEmail
+                }
+
+                FirebaseUtil.getUserFromFirestore(userId) { recipient ->
+                    if (recipient == null || recipient.fcmToken.isNullOrBlank()) {
+                        Log.e("ChatDetailViewModel", "Token FCM destinatario non valido, notifica non inviata")
+                        return@getUserFromFirestore
+                    }
+
+                    // Procedi con l'invio della notifica utilizzando il token FCM
+                    FirebaseUtil.sendNotificationToUserFCM(recipient.fcmToken!!, "Nuovo messaggio", messageText)
                 }
             }
 
@@ -119,4 +158,3 @@ class ChatDetailViewModel : ViewModel() {
         return participants?.firstOrNull { it != currentUserEmail }
     }
 }
-

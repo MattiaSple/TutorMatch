@@ -29,14 +29,19 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
         if (title != null && body != null) {
             showNotification(title, body)
+        } else {
+            Log.e(TAG, "Titolo o corpo della notifica mancanti")
         }
     }
 
     override fun onNewToken(token: String) {
-        FirebaseAuth.getInstance().currentUser?.let { user ->
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user != null) {
             Log.d(TAG, "Nuovo token FCM: $token")
-            FirebaseUtil.saveUserFcmToken(user.uid, token)  // Usa l'uid invece dell'email
-        } ?: Log.e(TAG, "Nessun utente autenticato. Non posso salvare il token.")
+            FirebaseUtil.saveUserFcmToken(user.uid, token)
+        } else {
+            Log.e(TAG, "Nessun utente autenticato. Non posso salvare il token.")
+        }
     }
 
     // Funzione per mostrare la notifica
@@ -66,7 +71,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         val notificationBuilder = NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(title ?: "Nuovo messaggio")
-            .setContentText(message)
+            .setContentText(message ?: "Hai ricevuto un nuovo messaggio")
             .setPriority(NotificationCompat.PRIORITY_HIGH)
 
         with(NotificationManagerCompat.from(this)) {
