@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Permessi -->
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
@@ -19,31 +20,27 @@
         android:theme="@style/Theme.TutorMatch"
         tools:targetApi="31">
 
-        <!-- Aggiunta del servizio FirebaseMessagingService per ricevere i messaggi -->
+        <!-- Aggiungi il servizio FirebaseMessagingService per gestire le notifiche -->
         <service
-            android:name="com.example.tutormatch.notifications.MyFirebaseMessagingService"
+            android:name=".util.MyFirebaseMessagingService"
             android:exported="true">
             <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
             </intent-filter>
         </service>
 
-        <!-- Servizio per la gestione del FirebaseInstanceId, rigenera i token -->
-        <service android:name="com.google.firebase.components.ComponentDiscoveryService"
-            android:exported="false"
-            tools:node="remove" />
-
-        <!-- Definisci un BroadcastReceiver per la gestione della ricezione dei token -->
+        <!-- Ricevitore per la gestione della ricezione di nuovi token FCM -->
         <receiver
             android:name="com.google.firebase.iid.FirebaseInstanceIdReceiver"
             android:exported="true"
             android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
-                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-                <category android:name="${applicationId}" />
+                <action android:name="com.google.android.c2dm.intent.RECEIVE"/>
+                <category android:name="${applicationId}"/>
             </intent-filter>
         </receiver>
 
+        <!-- Attività esistenti -->
         <activity
             android:name=".ui.view.activity.HomeActivity"
             android:exported="false"
@@ -62,8 +59,9 @@
             android:screenOrientation="portrait"
             android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.intent.action.MAIN"/>
+
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
         <activity

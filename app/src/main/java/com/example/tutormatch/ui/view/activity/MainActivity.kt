@@ -1,10 +1,12 @@
 package com.example.tutormatch.ui.view.activity
 
 import android.Manifest
+import android.content.ContentValues.TAG
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -72,15 +74,15 @@ class MainActivity : AppCompatActivity() {
     // Gestisci la risposta dell'utente al dialogo del permesso
     override fun onRequestPermissionsResult(
         requestCode: Int,
-        permissions: Array<out String>,
+        permissions: Array<String>,
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == PERMISSION_REQUEST_CODE) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permesso concesso, puoi inviare notifiche
+                Log.d(TAG, "Permesso di inviare notifiche concesso")
             } else {
-                // Permesso negato, gestisci il caso in cui le notifiche non sono permesse
+                Log.d(TAG, "Permesso di inviare notifiche negato")
             }
         }
     }

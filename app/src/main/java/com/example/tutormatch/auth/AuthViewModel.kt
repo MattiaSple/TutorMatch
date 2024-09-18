@@ -9,6 +9,7 @@ import com.example.tutormatch.data.model.Utente
 import com.example.tutormatch.network.RetrofitInstance
 import com.example.tutormatch.util.FirebaseUtil
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -103,6 +104,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
 
     // Funzione per registrare l'utente su Firebase
+    // Funzione per registrare l'utente su Firebase
     private fun registraUtente(email: String, password: String) {
         _firebaseAuth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
@@ -116,10 +118,23 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                         residenza = residenza.value!!,
                         via = via.value!!,
                         cap = cap.value!!,
-                        ruolo = _ruolo.value!!
+                        ruolo = _ruolo.value!!,
+                        fcmToken = null // Token FCM sarà aggiornato successivamente
                     )
                     user.let {
+                        // Aggiungi l'utente a Firestore
                         FirebaseUtil.addUserToFirestore(newUser)
+
+                        // Ora ottieni il token FCM e salvalo su Firestore
+                        FirebaseMessaging.getInstance().token.addOnCompleteListener { taskToken ->
+                            if (taskToken.isSuccessful) {
+                                val token = taskToken.result
+                                if (token != null) {
+                                    FirebaseUtil.saveUserFcmToken(email, token)
+                                }
+                            }
+                        }
+
                         _showMessage.value = "Registrazione riuscita!"
                         _navigateBack.value = true
                     }
@@ -129,9 +144,9 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             }
     }
 
+
     // Metodo chiamato quando l'utente preme il pulsante di login
     fun onLoginClick() {
-
         // Controllo dei campi obbligatori
         if (email.value.isNullOrEmpty() || password.value.isNullOrEmpty()) {
             _showMessage.value = "Tutti i campi devono essere compilati"
@@ -143,8 +158,20 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                 if (task.isSuccessful) {
                     val user = _firebaseAuth.currentUser
                     user?.let {
+                        // Ottieni i dettagli dell'utente da Firestore
                         FirebaseUtil.getUserFromFirestore(it.uid) { utente ->
                             this.utente.value = utente
+
+                            // Una volta effettuato il login, aggiorna il token FCM
+                            FirebaseMessaging.getInstance().token.addOnCompleteListener { taskToken ->
+                                if (taskToken.isSuccessful) {
+                                    val token = taskToken.result
+                                    if (token != null) {
+                                        FirebaseUtil.saveUserFcmToken(email.value!!, token)
+                                    }
+                                }
+                            }
+
                             _showMessage.value = "Login riuscito!"
                         }
                     }
