@@ -6,7 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.tutormatch.data.model.Chat
 import com.example.tutormatch.data.model.Message
-import com.example.tutormatch.util.FirebaseUtil // Utilizziamo FirebaseUtil per le operazioni Firestore
+import com.example.tutormatch.util.FirebaseUtil
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 
@@ -18,7 +18,6 @@ class ChatDetailViewModel : ViewModel() {
     private lateinit var chatId: String
     private lateinit var messagesRef: DatabaseReference
 
-    // Aggiungiamo una variabile per la chat corrente
     private val _chat = MutableLiveData<Chat?>()
     val chat: LiveData<Chat?> get() = _chat
 
@@ -27,17 +26,15 @@ class ChatDetailViewModel : ViewModel() {
 
     val newMessage = MutableLiveData<String>()
 
-    // Funzione per impostare l'ID della chat e caricare i dettagli della chat
+    // Imposta l'ID della chat e carica i dettagli della chat
     fun setChatId(chatId: String) {
         this.chatId = chatId
         this.messagesRef = database.getReference("chats/$chatId/messages")
-
-        // Carica i dettagli della chat
         loadChatDetails()
         loadMessages()
     }
 
-    // Funzione per caricare i dettagli della chat
+    // Carica i dettagli della chat
     private fun loadChatDetails() {
         val chatRef = database.getReference("chats/$chatId")
         chatRef.addListenerForSingleValueEvent(object : ValueEventListener {
@@ -66,7 +63,9 @@ class ChatDetailViewModel : ViewModel() {
                 _messages.value = messagesList
             }
 
-            override fun onCancelled(error: DatabaseError) {}
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("ChatDetailViewModel", "Errore nel caricamento dei messaggi: ${error.message}")
+            }
         })
     }
 
@@ -79,7 +78,6 @@ class ChatDetailViewModel : ViewModel() {
         val senderEmail = FirebaseAuth.getInstance().currentUser?.email ?: return
         val timestamp = System.currentTimeMillis()
 
-        // Ottieni l'email del destinatario usando la funzione getRecipientUserEmail
         val recipientEmail = getRecipientUserEmail() ?: return
 
         val newMessageId = "message_$timestamp"
@@ -92,31 +90,23 @@ class ChatDetailViewModel : ViewModel() {
         messagesRef.child(newMessageId).setValue(message).addOnSuccessListener {
             val chatRef = database.getReference("chats/$chatId")
             chatRef.child("lastMessage").setValue(message)
-
-            // Invia notifica all'utente usando FirebaseUtil con l'email del destinatario
             FirebaseUtil.sendNotificationToUser(recipientEmail, messageText)
         }.addOnFailureListener {
-            Log.e("ChatDetailViewModel", "Failed to send message: ${it.message}")
+            Log.e("ChatDetailViewModel", "Errore nell'invio del messaggio: ${it.message}")
         }
 
         newMessage.value = ""
     }
 
-
-    // Funzione per recuperare l'email del destinatario (escluso l'utente corrente)
+    // Recupera l'email del destinatario
     fun getRecipientUserEmail(): String? {
-        // Ottieni l'email dell'utente corrente
         val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
         if (currentUserEmail == null) {
             Log.e("ChatDetailViewModel", "L'utente corrente non ha un'email associata.")
             return null
         }
 
-        // Recupera i partecipanti dalla chat corrente
         val participants = _chat.value?.participants
-
-        // Trova l'email del destinatario che non corrisponde all'utente corrente
         return participants?.firstOrNull { it != currentUserEmail }
     }
-
 }

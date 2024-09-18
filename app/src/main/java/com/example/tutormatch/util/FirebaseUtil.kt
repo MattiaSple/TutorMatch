@@ -14,10 +14,10 @@ object FirebaseUtil {
     fun addUserToFirestore(utente: Utente) {
         db.collection("utenti").document(utente.userId).set(utente)
             .addOnSuccessListener {
-                // Utente aggiunto con successo
+                Log.d("FirebaseUtil", "Utente aggiunto a Firestore: ${utente.userId}")
             }
             .addOnFailureListener { e ->
-                // Errore nell'aggiunta dell'utente
+                Log.e("FirebaseUtil", "Errore nell'aggiunta dell'utente: ${e.message}")
             }
     }
 
@@ -29,13 +29,13 @@ object FirebaseUtil {
                 callback(utente)
             }
             .addOnFailureListener {
+                Log.e("FirebaseUtil", "Errore nel recupero dell'utente: ${it.message}")
                 callback(null)
             }
     }
 
     // Aggiungi un metodo per salvare il token FCM di un utente
     fun saveUserFcmToken(email: String, token: String) {
-        val db = FirebaseFirestore.getInstance()
         db.collection("utenti").document(email)
             .update("fcmToken", token)
             .addOnSuccessListener {
@@ -54,9 +54,11 @@ object FirebaseUtil {
             .get()
             .addOnSuccessListener { documents ->
                 if (!documents.isEmpty) {
-                    val token = documents.first().getString("fcmToken") // Supponiamo che tu abbia salvato il token FCM sotto 'fcmToken'
+                    val token = documents.first().getString("fcmToken")
                     if (token != null) {
                         sendFCMNotification(token, message)
+                    } else {
+                        Log.e("FirebaseUtil", "Token FCM non trovato per l'email: $email")
                     }
                 }
             }
@@ -71,11 +73,16 @@ object FirebaseUtil {
             "message" to message
         )
 
-        FirebaseMessaging.getInstance().send(
-            RemoteMessage.Builder(token)
-                .setMessageId("message_${System.currentTimeMillis()}")
-                .setData(notificationData)
-                .build()
-        )
+        try {
+            FirebaseMessaging.getInstance().send(
+                RemoteMessage.Builder(token)
+                    .setMessageId("message_${System.currentTimeMillis()}")
+                    .setData(notificationData)
+                    .build()
+            )
+            Log.d("FirebaseUtil", "Notifica inviata al token: $token")
+        } catch (e: Exception) {
+            Log.e("FirebaseUtil", "Errore nell'invio della notifica FCM: ${e.message}")
+        }
     }
 }

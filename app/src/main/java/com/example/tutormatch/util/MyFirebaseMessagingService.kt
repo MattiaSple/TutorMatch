@@ -15,6 +15,7 @@ import android.Manifest
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+
 class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     companion object {
@@ -33,7 +34,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         }
     }
 
-
     override fun onNewToken(token: String) {
         FirebaseAuth.getInstance().currentUser?.email?.let { email ->
             Log.d(TAG, "Nuovo token FCM: $token")
@@ -43,11 +43,9 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     // Funzione per mostrare la notifica
     private fun showNotification(title: String?, message: String?) {
-        // Verifica se l'app ha il permesso di inviare notifiche
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { // Android 13 (API 33)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
                 != PackageManager.PERMISSION_GRANTED) {
-                // Se il permesso non è stato ancora concesso, esci dalla funzione
                 Log.e(TAG, "Permesso di inviare notifiche non concesso")
                 return
             }
@@ -68,15 +66,13 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
         // Costruisci la notifica
         val notificationBuilder = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_notification) // Usa un'icona adeguata
+            .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(title ?: "Nuovo messaggio")
             .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
 
-        // Mostra la notifica
         with(NotificationManagerCompat.from(this)) {
             notify(0, notificationBuilder.build())
         }
     }
-
 }
