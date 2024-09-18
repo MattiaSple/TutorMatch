@@ -14,6 +14,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.tutormatch.R
 import com.example.tutormatch.auth.AuthActivity
+import com.example.tutormatch.util.FirebaseUtil
 
 class MainActivity : AppCompatActivity() {
 
@@ -85,5 +86,13 @@ class MainActivity : AppCompatActivity() {
                 Log.d(TAG, "Permesso di inviare notifiche negato")
             }
         }
+    }
+    fun sendTestNotification() {
+        FirebaseUtil.sendNotificationToUser("s@gmail.com", "Test della notifica")
+        Log.d(TAG, "Test della notifica inviato")
+    }
+    fun sendTestNotification() {
+        FirebaseUtil.sendNotificationToUser("studente@studente.studentee", "Test della notifica")
+        Log.d(TAG, "Test della notifica inviato")
     }
 }
