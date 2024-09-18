@@ -2,6 +2,7 @@ package com.example.tutormatch.ui.view.fragment
 
 import android.Manifest
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -177,7 +178,7 @@ class RicercaTutorFragment : Fragment() {
                         // Passa alla schermata della chat
                         sharedViewModel.setChatId(chatId)
                         (activity as? HomeActivity)?.replaceFragment(
-                            ChatDetailFragment(),
+                            ChatFragment(),
                             userId = arguments?.getString("userId") ?: "",
                             nome = arguments?.getString("nome") ?: "",
                             cognome = arguments?.getString("cognome") ?: "",
@@ -186,6 +187,10 @@ class RicercaTutorFragment : Fragment() {
                     },
                     onFailure = { errorMessage ->
                         Toast.makeText(context, "Errore: $errorMessage", Toast.LENGTH_SHORT).show()
+                    },
+                    onConfirm = { message, onConfirmAction ->
+                        // Mostra un dialogo di conferma all'utente
+                        showConfirmationDialog(message, onConfirmAction)
                     }
                 )
             }
@@ -197,6 +202,17 @@ class RicercaTutorFragment : Fragment() {
         }?.addOnFailureListener {
             Toast.makeText(context, "Impossibile ottenere i dettagli del tutor", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun showConfirmationDialog(message: String, onConfirmAction: () -> Unit) {
+        AlertDialog.Builder(requireContext())
+            .setMessage(message)
+            .setPositiveButton("Sì") { _, _ ->
+                // Se l'utente conferma, esegui l'azione di conferma
+                onConfirmAction()
+            }
+            .setNegativeButton("No", null)
+            .show()
     }
 
     private fun aggiornaMappa(listaAnnunci: List<Annuncio>) {

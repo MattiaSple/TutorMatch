@@ -1,5 +1,6 @@
 package com.example.tutormatch.util
 
+import android.util.Log
 import com.example.tutormatch.data.model.Utente
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessaging
@@ -33,32 +34,48 @@ object FirebaseUtil {
     }
 
     // Aggiungi un metodo per salvare il token FCM di un utente
-    fun saveUserFcmToken(userId: String, token: String) {
-        db.collection("utenti").document(userId).update("fcmToken", token)
+    fun saveUserFcmToken(email: String, token: String) {
+        val db = FirebaseFirestore.getInstance()
+        db.collection("utenti").document(email)
+            .update("fcmToken", token)
             .addOnSuccessListener {
-                // Token aggiornato con successo
+                Log.d("FirebaseUtil", "Token FCM aggiornato per l'utente con email $email")
             }
             .addOnFailureListener { e ->
-                // Errore nell'aggiornamento del token
+                Log.e("FirebaseUtil", "Errore nell'aggiornamento del token FCM: ${e.message}")
             }
     }
 
-    // Metodo per inviare una notifica (puoi chiamarlo nel momento in cui invii un nuovo messaggio)
-    fun sendNotificationToUser(userId: String, message: String) {
-        // Recupera il token dell'utente dal Firestore
-        getUserFromFirestore(userId) { utente ->
-            utente?.let {
-                val fcmToken = it.fcmToken
-                if (fcmToken != null) {
-                    // Usa il token per inviare una notifica tramite FCM
-                    FirebaseMessaging.getInstance().send(
-                        RemoteMessage.Builder(fcmToken)
-                            .setMessageId("message_${System.currentTimeMillis()}")
-                            .addData("message", message)
-                            .build()
-                    )
+    // Aggiungi una funzione per inviare la notifica cercando il token FCM tramite l'email
+    fun sendNotificationToUser(email: String, message: String) {
+        // Cerca il token FCM dell'utente corrispondente all'email
+        db.collection("utenti")
+            .whereEqualTo("email", email)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (!documents.isEmpty) {
+                    val token = documents.first().getString("fcmToken") // Supponiamo che tu abbia salvato il token FCM sotto 'fcmToken'
+                    if (token != null) {
+                        sendFCMNotification(token, message)
+                    }
                 }
             }
-        }
+            .addOnFailureListener { e ->
+                Log.e("FirebaseUtil", "Errore durante il recupero del token FCM: ${e.message}")
+            }
+    }
+
+    // Funzione per inviare la notifica tramite FCM
+    private fun sendFCMNotification(token: String, message: String) {
+        val notificationData = mapOf(
+            "message" to message
+        )
+
+        FirebaseMessaging.getInstance().send(
+            RemoteMessage.Builder(token)
+                .setMessageId("message_${System.currentTimeMillis()}")
+                .setData(notificationData)
+                .build()
+        )
     }
 }

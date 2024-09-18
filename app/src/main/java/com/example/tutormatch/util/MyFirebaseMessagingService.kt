@@ -67,8 +67,10 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
-        // Aggiorna il token nel Firestore tramite FirebaseUtil
-        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        FirebaseUtil.saveUserFcmToken(userId, token)
+        val userEmail = FirebaseAuth.getInstance().currentUser?.email
+        if (userEmail != null) {
+            FirebaseUtil.saveUserFcmToken(userEmail, token)
+        }
     }
+
 }

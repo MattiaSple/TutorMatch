@@ -50,38 +50,40 @@ class ChatViewModel : ViewModel() {
         userSurname: String,
         materia: String,
         onSuccess: (String) -> Unit,
-        onFailure: (String) -> Unit
+        onFailure: (String) -> Unit,
+        onConfirm: (String, () -> Unit) -> Unit  // Aggiungi il callback per conferma
     ) {
         val currentUser = FirebaseAuth.getInstance().currentUser
         val userEmail = currentUser?.email ?: return
 
-        // Controlla se esiste già una chat tra questi utenti
+        // Controlla se esiste già una chat tra questi utenti con la stessa materia
         chatRef.orderByChild("participants")
-            .equalTo(listOf(userEmail, tutorEmail).sorted().joinToString(","))
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    if (!snapshot.exists()) {
-                        // Se la chat non esiste, creala
-                        val chatId = chatRef.push().key ?: return
-                        val chatData = Chat(
-                            id = chatId,
-                            participants = listOf(userEmail, tutorEmail),
-                            participantsNames = listOf("$userName $userSurname", "$tutorName $tutorSurname"),
-                            subject = materia,
-                            lastMessage = null,
-                            messages = emptyMap()
-                        )
-                        chatRef.child(chatId).setValue(chatData)
-                            .addOnSuccessListener {
-                                onSuccess(chatId)  // Callback per segnalare il successo
-                            }
-                            .addOnFailureListener { e ->
-                                onFailure(e.message ?: "Errore durante la creazione della chat")
-                            }
+                    var chatExists = false
+                    var existingChatId: String? = null
+
+                    for (chatSnapshot in snapshot.children) {
+                        val chat = chatSnapshot.getValue(Chat::class.java)
+
+                        // Verifica se i partecipanti e la materia coincidono
+                        if (chat?.participants?.containsAll(listOf(userEmail, tutorEmail)) == true &&
+                            chat.subject == materia) {
+                            chatExists = true
+                            existingChatId = chat.id
+                            break
+                        }
+                    }
+
+                    if (chatExists && existingChatId != null) {
+                        // Esiste già una chat con gli stessi partecipanti e materia
+                        onConfirm("Questa chat per questa materia già esiste. Sei sicuro di volerne creare un'altra?") {
+                            // L'utente ha confermato la creazione di una nuova chat
+                            creaNuovaChat(userEmail, tutorEmail, tutorName, tutorSurname, userName, userSurname, materia, onSuccess, onFailure)
+                        }
                     } else {
-                        // Se la chat esiste già, restituisci il suo id
-                        val existingChatId = snapshot.children.first().key ?: ""
-                        onSuccess(existingChatId)
+                        // Non esiste una chat con questi parametri, creane una nuova
+                        creaNuovaChat(userEmail, tutorEmail, tutorName, tutorSurname, userName, userSurname, materia, onSuccess, onFailure)
                     }
                 }
 
@@ -91,4 +93,33 @@ class ChatViewModel : ViewModel() {
             })
     }
 
+    // Funzione per creare una nuova chat
+    private fun creaNuovaChat(
+        userEmail: String,
+        tutorEmail: String,
+        tutorName: String,
+        tutorSurname: String,
+        userName: String,
+        userSurname: String,
+        materia: String,
+        onSuccess: (String) -> Unit,
+        onFailure: (String) -> Unit
+    ) {
+        val chatId = chatRef.push().key ?: return
+        val chatData = Chat(
+            id = chatId,
+            participants = listOf(userEmail, tutorEmail),
+            participantsNames = listOf("$userName $userSurname", "$tutorName $tutorSurname"),
+            subject = materia,
+            lastMessage = null,
+            messages = emptyMap()
+        )
+        chatRef.child(chatId).setValue(chatData)
+            .addOnSuccessListener {
+                onSuccess(chatId)  // Callback per segnalare il successo
+            }
+            .addOnFailureListener { e ->
+                onFailure(e.message ?: "Errore durante la creazione della chat")
+            }
+    }
 }

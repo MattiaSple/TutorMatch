@@ -79,8 +79,8 @@ class ChatDetailViewModel : ViewModel() {
         val senderEmail = FirebaseAuth.getInstance().currentUser?.email ?: return
         val timestamp = System.currentTimeMillis()
 
-        // Ottieni l'email del destinatario usando getRecipientUserId()
-        val recipientUserId = getRecipientUserId() ?: return  // Se non viene trovato il destinatario, esci
+        // Ottieni l'email del destinatario usando la funzione getRecipientUserEmail
+        val recipientEmail = getRecipientUserEmail() ?: return
 
         val newMessageId = "message_$timestamp"
         val message = Message(
@@ -93,8 +93,8 @@ class ChatDetailViewModel : ViewModel() {
             val chatRef = database.getReference("chats/$chatId")
             chatRef.child("lastMessage").setValue(message)
 
-            // Invia notifica all'utente usando FirebaseUtil e l'email del destinatario
-            FirebaseUtil.sendNotificationToUser(recipientUserId, messageText)
+            // Invia notifica all'utente usando FirebaseUtil con l'email del destinatario
+            FirebaseUtil.sendNotificationToUser(recipientEmail, messageText)
         }.addOnFailureListener {
             Log.e("ChatDetailViewModel", "Failed to send message: ${it.message}")
         }
@@ -102,20 +102,21 @@ class ChatDetailViewModel : ViewModel() {
         newMessage.value = ""
     }
 
+
     // Funzione per recuperare l'email del destinatario (escluso l'utente corrente)
-    fun getRecipientUserId(): String? {
-        // Ottieni l'UID dell'utente corrente
-        val currentUserUid = FirebaseAuth.getInstance().currentUser?.uid
-        if (currentUserUid == null) {
-            Log.e("ChatDetailViewModel", "L'utente corrente non ha un UID associato.")
+    fun getRecipientUserEmail(): String? {
+        // Ottieni l'email dell'utente corrente
+        val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
+        if (currentUserEmail == null) {
+            Log.e("ChatDetailViewModel", "L'utente corrente non ha un'email associata.")
             return null
         }
 
         // Recupera i partecipanti dalla chat corrente
         val participants = _chat.value?.participants
 
-        // Filtra i partecipanti e restituisci l'UID che non corrisponde all'UID dell'utente corrente
-        return participants?.firstOrNull { it != currentUserUid }
+        // Trova l'email del destinatario che non corrisponde all'utente corrente
+        return participants?.firstOrNull { it != currentUserEmail }
     }
 
 }
