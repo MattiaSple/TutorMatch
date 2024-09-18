@@ -56,7 +56,6 @@ class ChatDetailFragment : Fragment() {
 
         // Osserva i messaggi aggiornati e scrolla alla fine
         chatDetailViewModel.messages.observe(viewLifecycleOwner, Observer { messages ->
-            Log.d("ChatDetailFragment", "Messages updated: ${messages.size} items")
             adapter.updateData(messages)
 
             // Scorri automaticamente alla fine dei messaggi, solo se il binding esiste ancora

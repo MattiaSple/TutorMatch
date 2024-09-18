@@ -23,27 +23,22 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
-        // Quando arriva un messaggio da FCM
         Log.d(TAG, "Messaggio ricevuto da: ${remoteMessage.from}")
 
-        // Se il messaggio contiene dati
-        remoteMessage.data.isNotEmpty().let {
-            Log.d(TAG, "Dati del messaggio: ${remoteMessage.data}")
-            // Gestisci i dati del messaggio
-            showNotification(remoteMessage.data["title"], remoteMessage.data["body"])
-        }
+        val title = remoteMessage.notification?.title ?: remoteMessage.data["title"]
+        val body = remoteMessage.notification?.body ?: remoteMessage.data["body"]
 
-        // Se il messaggio contiene una notifica
-        remoteMessage.notification?.let {
-            Log.d(TAG, "Messaggio di notifica: ${it.body}")
-            showNotification(it.title, it.body)
+        if (title != null && body != null) {
+            showNotification(title, body)
         }
     }
 
+
     override fun onNewToken(token: String) {
-        Log.d(TAG, "Nuovo token FCM: $token")
-        // Qui puoi salvare il nuovo token per l'utente nel Firestore o nel backend
-        FirebaseUtil.saveUserFcmToken(FirebaseAuth.getInstance().currentUser?.email ?: "", token)
+        FirebaseAuth.getInstance().currentUser?.email?.let { email ->
+            Log.d(TAG, "Nuovo token FCM: $token")
+            FirebaseUtil.saveUserFcmToken(email, token)
+        } ?: Log.e(TAG, "Nessun utente autenticato. Non posso salvare il token.")
     }
 
     // Funzione per mostrare la notifica
