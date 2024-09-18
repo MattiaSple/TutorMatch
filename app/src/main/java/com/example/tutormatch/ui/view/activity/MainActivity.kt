@@ -28,6 +28,7 @@ class MainActivity : AppCompatActivity() {
 
         // Verifica e richiede il permesso di notifica per Android 13+
         checkNotificationPermission()
+        sendTestNotification()
     }
 
     // Funzione chiamata quando si clicca il pulsante "Tutor"
@@ -89,10 +90,6 @@ class MainActivity : AppCompatActivity() {
     }
     fun sendTestNotification() {
         FirebaseUtil.sendNotificationToUser("s@gmail.com", "Test della notifica")
-        Log.d(TAG, "Test della notifica inviato")
-    }
-    fun sendTestNotification() {
-        FirebaseUtil.sendNotificationToUser("studente@studente.studentee", "Test della notifica")
         Log.d(TAG, "Test della notifica inviato")
     }
 }
