@@ -91,5 +91,5 @@ class MainActivity : AppCompatActivity() {
     fun sendTestNotification() {
         FirebaseUtil.sendNotificationToUser("s@gmail.com", "Test della notifica")
         Log.d(TAG, "Test della notifica inviato")
-    }
+    }ùds
 }
