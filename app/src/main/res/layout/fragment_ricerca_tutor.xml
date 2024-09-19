@@ -77,9 +77,9 @@
                 android:id="@+id/subjectLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="20dp"
                 android:text="Materia:"
-                android:textColor="@android:color/black"
-                android:layout_marginEnd="8dp"/>
+                android:textColor="@android:color/black" />
 
             <Spinner
                 android:id="@+id/subjectSpinner"
@@ -91,7 +91,7 @@
                 android:textSize="16sp" />
         </LinearLayout>
 
-        <!-- EditText for entering budget -->
+        <!-- SeekBar for selecting budget -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -106,19 +106,24 @@
                 android:textColor="@android:color/black"
                 android:layout_marginEnd="8dp"/>
 
-            <EditText
-                android:id="@+id/budgetEditText"
+            <SeekBar
+                android:id="@+id/budgetSeekBar"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:hint="Inserisci budget"
-                android:inputType="numberDecimal"
-                android:padding="8dp"
-                android:textColor="@android:color/black"
-                android:textSize="16sp" />
+                android:max="100"
+                android:progress="0" />
+
+            <TextView
+                android:id="@+id/budgetValueText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="8dp"
+                android:text="0"
+                android:textColor="@android:color/black" />
         </LinearLayout>
 
-        <!-- RadioGroup for selecting mode of communication -->
+        <!-- CheckBox for selecting mode of communication -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -129,33 +134,26 @@
                 android:id="@+id/modeLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="20dp"
                 android:text="Modalità:"
-                android:textColor="@android:color/black"
-                android:layout_marginEnd="8dp"/>
+                android:textColor="@android:color/black" />
 
-            <RadioGroup
-                android:id="@+id/modeRadioGroup"
-                android:layout_width="0dp"
+            <CheckBox
+                android:id="@+id/onlineCheckBox"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="horizontal">
+                android:layout_marginEnd="30dp"
+                android:text="Online"
+                android:textColor="@android:color/black" />
 
-                <RadioButton
-                    android:id="@+id/onlineRadioButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Online"
-                    android:textColor="@android:color/black" />
-
-                <RadioButton
-                    android:id="@+id/inPersonRadioButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="In presenza"
-                    android:textColor="@android:color/black"
-                    android:layout_marginStart="16dp" />
-            </RadioGroup>
+            <CheckBox
+                android:id="@+id/inPersonCheckBox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="In presenza"
+                android:textColor="@android:color/black" />
         </LinearLayout>
+
 
         <LinearLayout
             android:layout_width="match_parent"

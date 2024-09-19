@@ -10,6 +10,7 @@ import com.example.tutormatch.data.model.Utente
 import com.example.tutormatch.network.LocationResponse
 import com.google.firebase.firestore.DocumentReference
 import com.example.tutormatch.network.RetrofitInstance
+import com.example.tutormatch.util.FirebaseUtil
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.GeoPoint
 import kotlinx.coroutines.Dispatchers
@@ -26,6 +27,7 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
     private val annunciCollection = firestore.collection("annunci")
     private val utentiCollection = firestore.collection("utenti")
 
+    var flagFiltro: Boolean = false
 
     // LiveData per gli annunci del singolo tutor
     private val _listaAnnunciTutor = MutableLiveData<List<Annuncio>>()
@@ -33,17 +35,19 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
 
     // LiveData per tutti gli annunci
     private val _listaAnnunci = MutableLiveData<List<Annuncio>>()
-    val listaAnnunci: LiveData<List<Annuncio>>
-        get() {
-            getAllAnnunci()
-            return _listaAnnunci
-        }
+    val listaAnnunci: LiveData<List<Annuncio>> get() = _listaAnnunci
+
+
+    // LiveData per gli annunci filtrati
+    private val _listaAnnunciFiltrati = MutableLiveData<List<Annuncio>>()
+    val listaAnnunciFiltrati: LiveData<List<Annuncio>> get() = _listaAnnunciFiltrati
+
 
     // LiveData per i messaggi di errore o stato
     private val _message = MutableLiveData<String>()
     val message: LiveData<String> get() = _message
 
-    // LiveData per i campi di input
+    // LiveData per i campi di input del tutor
     val descrizione = MutableLiveData<String>()
     val materia = MutableLiveData<String>()
     val online = MutableLiveData<Boolean>()
@@ -65,7 +69,7 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
                 try {
                     val querySnapshot = annunciCollection.whereEqualTo("tutor", tutorRef).get().await()
                     val lista = querySnapshot.documents.mapNotNull { document ->
-                            document.toObject(Annuncio::class.java)
+                        document.toObject(Annuncio::class.java)
                     }
                     _listaAnnunciTutor.postValue(lista)
                 } catch (e: Exception) {
@@ -75,32 +79,21 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    fun observeAnnunciInTempoReale() {
-        // Aggiunge un listener in tempo reale alla collezione "annunciCollection" di Firestore
-        annunciCollection.addSnapshotListener { querySnapshot, e ->
+    fun aggiornaListaAnnunciInTempoReale() {
+        //Carico la lista corrente una sola volta
+        getAllAnnunci()
 
-            // Verifica se c'è stato un errore nel tentativo di ascolto
-            if (e != null) {
-                // In caso di errore, pubblica un messaggio di errore tramite LiveData
-                _message.postValue("Errore nell'ascolto in tempo reale degli annunci: ${e.message}")
-                return@addSnapshotListener
+        FirebaseUtil.osservaModificheAnnunciSuFirestore(
+            onAnnunciUpdated = {
+                getAllAnnunci()
+            },
+            onError = { exception ->
+                // Gestisci eventuali errori
+                _message.postValue("Errore durante l'ascolto degli annunci: ${exception.message}")
             }
-
-            // Se non c'è errore, esamina i risultati della query
-            querySnapshot?.let {
-                // Mappa i documenti restituiti nella query a oggetti Annuncio
-                val lista = it.documents.mapNotNull { document ->
-                    // Converte ogni documento in un oggetto Annuncio
-                    document.toObject(Annuncio::class.java)?.apply {
-                        // Imposta l'ID del documento come ID dell'annuncio
-                        id = document.id
-                    }
-                }
-                // Aggiorna il LiveData "_listaAnnunci" con la nuova lista di annunci
-                _listaAnnunci.postValue(lista)
-            }
-        }
+        )
     }
+
 
     private fun getAllAnnunci()
     {
@@ -233,7 +226,7 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
     }
 
 
-    // Funzione per eliminare un annuncio da Firestore
+    // Funzione per eliminare un annuncio da Firestore e dalla listaAnnunci
     fun eliminaAnnuncio(annuncio: Annuncio) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -255,5 +248,36 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
                 _message.postValue("Errore nell'eliminazione dell'annuncio: ${e.message}")
             }
         }
+    }
+
+    // Filtra gli annunci in base a più parametri
+    fun filtraAnnunciMappa(
+        filtroMateria: String,   // Parametro obbligatorio
+        filtroBudget: Int,    // Budget massimo selezionato dalla SeekBar
+        filtroModOn: Boolean,    // Modalità online selezionata?
+        filtroModPres: Boolean   // Modalità in presenza selezionata?
+    ) {
+        // Controlla che ci siano annunci disponibili
+        val tuttiGliAnnunci = _listaAnnunci.value ?: emptyList()
+
+        // Filtra in base alla materia (sempre presente)
+        var annunciFiltrati = tuttiGliAnnunci.filter { annuncio ->
+            annuncio.materia == filtroMateria
+        }
+
+        // Filtra in base al budget, se specificato
+        if (filtroBudget != 0) {
+            annunciFiltrati = annunciFiltrati.filter { annuncio ->
+                annuncio.prezzo.toInt() <= filtroBudget
+            }
+        }
+
+        // Filtra in base alle modalità (online e/o in presenza)
+        annunciFiltrati = annunciFiltrati.filter { annuncio ->
+            (filtroModOn && annuncio.mod_on) || (filtroModPres && annuncio.mod_pres)
+        }
+
+        // Aggiorna il LiveData con la lista filtrata
+        _listaAnnunciFiltrati.postValue(annunciFiltrati)
     }
 }

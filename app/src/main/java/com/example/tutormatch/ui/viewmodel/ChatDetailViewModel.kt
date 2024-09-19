@@ -6,9 +6,13 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.tutormatch.data.model.Chat
 import com.example.tutormatch.data.model.Message
-import com.example.tutormatch.util.FirebaseUtil
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import com.google.firebase.firestore.FirebaseFirestore
+import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.toRequestBody
+import java.io.IOException
 
 class ChatDetailViewModel : ViewModel() {
 
@@ -103,12 +107,6 @@ class ChatDetailViewModel : ViewModel() {
         }
 
         val timestamp = System.currentTimeMillis()
-        val recipientEmail = getRecipientUserEmail()
-        if (recipientEmail.isNullOrBlank()) {
-            Log.e("ChatDetailViewModel", "Email destinatario vuota, impossibile inviare messaggio")
-            return
-        }
-
         val newMessageId = "message_$timestamp"
         val message = Message(
             senderId = senderEmail,
@@ -116,29 +114,10 @@ class ChatDetailViewModel : ViewModel() {
             timestamp = timestamp
         )
 
-        // Invia messaggio e notifica
+        // Aggiungi il messaggio al database della chat
         messagesRef.child(newMessageId).setValue(message).addOnSuccessListener {
             val chatRef = database.getReference("chats/$chatId")
             chatRef.child("lastMessage").setValue(message)
-
-            // Recupera il token FCM del destinatario
-            FirebaseUtil.getUserIdByEmail(recipientEmail) { userId ->
-                if (userId.isNullOrBlank()) {
-                    Log.e("ChatDetailViewModel", "UserId non trovato per l'email: $recipientEmail")
-                    return@getUserIdByEmail
-                }
-
-                FirebaseUtil.getUserFromFirestore(userId) { recipient ->
-                    if (recipient == null || recipient.fcmToken.isNullOrBlank()) {
-                        Log.e("ChatDetailViewModel", "Token FCM destinatario non valido, notifica non inviata")
-                        return@getUserFromFirestore
-                    }
-
-                    // Procedi con l'invio della notifica utilizzando il token FCM
-                    FirebaseUtil.sendNotificationToUserFCM(recipient.fcmToken!!, "Nuovo messaggio", messageText)
-                }
-            }
-
         }.addOnFailureListener {
             Log.e("ChatDetailViewModel", "Errore nell'invio del messaggio: ${it.message}")
         }
@@ -146,15 +125,4 @@ class ChatDetailViewModel : ViewModel() {
         newMessage.value = ""
     }
 
-    // Recupera l'email del destinatario
-    fun getRecipientUserEmail(): String? {
-        val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
-        if (currentUserEmail == null) {
-            Log.e("ChatDetailViewModel", "L'utente corrente non ha un'email associata.")
-            return null
-        }
-
-        val participants = _chat.value?.participants
-        return participants?.firstOrNull { it != currentUserEmail }
-    }
 }

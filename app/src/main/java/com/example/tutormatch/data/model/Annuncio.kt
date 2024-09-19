@@ -25,8 +25,6 @@ data class Annuncio(
             else -> "Modalità: Non specificata" // Non si verifica mai perchè c'è il controllo.
         }
     }
-
-
 }
 
 

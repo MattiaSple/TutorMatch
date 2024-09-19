@@ -31,6 +31,10 @@ import org.osmdroid.library.BuildConfig
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
+import android.widget.ArrayAdapter
+import android.widget.SeekBar
+
+import androidx.lifecycle.ViewModelProvider
 
 class RicercaTutorFragment : Fragment() {
 
@@ -38,10 +42,10 @@ class RicercaTutorFragment : Fragment() {
     private val binding get() = _binding!!
 
     // Inizializziamo i ViewModel usando il delegate di Kotlin
-    private val ricercaTutorViewModel: RicercaTutorViewModel by viewModels()
-    private val annunciViewModel: AnnunciViewModel by viewModels()
-    private val chatViewModel: ChatViewModel by viewModels()
-    private val sharedViewModel: SharedViewModel by viewModels()
+    private lateinit var ricercaTutorViewModel: RicercaTutorViewModel
+    private lateinit var annunciViewModel: AnnunciViewModel
+    private lateinit var chatViewModel: ChatViewModel
+    private lateinit var sharedViewModel: SharedViewModel
 
     private lateinit var mapView: MapView
     private lateinit var locationSettingsLauncher: ActivityResultLauncher<IntentSenderRequest>
@@ -63,7 +67,10 @@ class RicercaTutorFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d("RicercaTutorFragment", "onCreate")
+        ricercaTutorViewModel = ViewModelProvider(this).get(RicercaTutorViewModel::class.java)
+        annunciViewModel = ViewModelProvider(this).get(AnnunciViewModel::class.java)
+        chatViewModel = ViewModelProvider(this).get(ChatViewModel::class.java)
+        sharedViewModel = ViewModelProvider(requireActivity()).get(SharedViewModel::class.java)
         // Inizializza il launcher per gestire il risultato delle impostazioni di localizzazione
         locationSettingsLauncher = registerForActivityResult(
             ActivityResultContracts.StartIntentSenderForResult()
@@ -85,7 +92,6 @@ class RicercaTutorFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentRicercaTutorBinding.inflate(inflater, container, false)
-        Log.d("RicercaTutorFragment", "onCreateView")
 
         // Configura la mappa
         mapView = binding.mapView
@@ -135,18 +141,83 @@ class RicercaTutorFragment : Fragment() {
             requestLocationPermission()
         }
 
-        // Attiva l'osservazione in tempo reale degli annunci
-        annunciViewModel.observeAnnunciInTempoReale()
+        // Attiva l'osservazione in tempo reale
+        annunciViewModel.aggiornaListaAnnunciInTempoReale()
 
-        // Osserva la lista degli annunci e aggiorna la mappa
-        annunciViewModel.listaAnnunci.observe(viewLifecycleOwner, Observer { lista ->
-            aggiornaMappa(lista)
+        annunciViewModel.listaAnnunciFiltrati.observe(viewLifecycleOwner, Observer { listaFiltrata ->
+            aggiornaMappa(listaFiltrata)  // Mostra solo gli annunci filtrati
         })
 
-        // Aggiorna immediatamente la mappa se ci sono già annunci caricati
-        annunciViewModel.listaAnnunci.value?.let { lista ->
-            aggiornaMappa(lista)
+        binding.applyButton.setOnClickListener {
+            if(binding.inPersonCheckBox.isChecked || binding.onlineCheckBox.isChecked)
+            {
+
+                val materiaSelezionata = binding.subjectSpinner.selectedItem.toString()
+                val budgetSelezionato = binding.budgetSeekBar.progress  // Valore del budget dalla SeekBar
+                val isOnlineChecked = binding.onlineCheckBox.isChecked  // Stato della checkbox "Online"
+                val isInPersonChecked = binding.inPersonCheckBox.isChecked  // Stato della checkbox "In presenza"
+                annunciViewModel.flagFiltro = true
+                // Applica i filtri con i parametri ottenuti dall'utente
+                annunciViewModel.filtraAnnunciMappa(materiaSelezionata, budgetSelezionato, isOnlineChecked, isInPersonChecked)
+            }else{
+                Toast.makeText(context,"Inserire la modalità", Toast.LENGTH_SHORT).show()
+            }
         }
+
+        binding.resetButton.setOnClickListener{
+            if(binding.budgetSeekBar.progress != 0 || binding.onlineCheckBox.isChecked || binding.inPersonCheckBox.isChecked)
+            {
+                binding.budgetSeekBar.progress = 0
+                binding.onlineCheckBox.isChecked = false
+                binding.inPersonCheckBox.isChecked = false
+                annunciViewModel.flagFiltro = false
+            }
+        }
+
+        annunciViewModel.listaAnnunci.observe(viewLifecycleOwner, Observer {
+            if(annunciViewModel.flagFiltro)
+            {
+                annunciViewModel.filtraAnnunciMappa(binding.subjectSpinner.selectedItem.toString(),binding.budgetSeekBar.progress, binding.onlineCheckBox.isChecked, binding.inPersonCheckBox.isChecked )
+            }
+        })
+
+        // Definisci una lista di materie
+        val materie = listOf("Matematica", "Fisica", "Informatica", "Chimica", "Biologia")
+
+        // Crea un ArrayAdapter per lo Spinner
+        val adapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_item,
+            materie
+        )
+
+        // Imposta lo stile per la visualizzazione a tendina
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+
+        // Collega l'adapter allo Spinner
+        binding.subjectSpinner.adapter = adapter
+
+
+        // Trova il riferimento alla SeekBar e al TextView del valore
+        val budgetSeekBar = binding.budgetSeekBar
+        val budgetValueText = binding.budgetValueText
+
+        // Imposta un listener per aggiornare il valore del TextView quando l'utente cambia il valore della SeekBar
+        budgetSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                // Aggiorna il testo del TextView con il valore attuale della SeekBar
+                budgetValueText.text = "$progress"
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                // Non è necessario fare nulla qui
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                // Non è necessario fare nulla qui
+            }
+        })
+
     }
 
     private fun showMarkerDetails(marker: Marker, annuncio: Annuncio) {
@@ -227,13 +298,27 @@ class RicercaTutorFragment : Fragment() {
                 markerMap.remove(id)  // Rimuovi il marker dalla mappa dei marker
             }
 
+            // Mappa per tracciare quante volte una posizione è stata usata
+            val posizioneMap = mutableMapOf<GeoPoint, Int>()
+
             // Aggiungi nuovi marker e aggiorna quelli esistenti
             for (annuncio in listaAnnunci) {
+                val osmdroidGeoPoint = GeoPoint(annuncio.posizione.latitude, annuncio.posizione.longitude)
+
+                // Controlla quante volte la stessa posizione è stata usata
+                val count = posizioneMap.getOrDefault(osmdroidGeoPoint, 0)
+
+                // Se ci sono più marker sulla stessa posizione, applica un piccolo offset
+                val offset = count * 0.0001
+                val adjustedGeoPoint = GeoPoint(
+                    osmdroidGeoPoint.latitude + offset,
+                    osmdroidGeoPoint.longitude + offset
+                )
+
+                // Aggiungi un nuovo marker se non esiste già
                 if (!markerMap.containsKey(annuncio.id)) {
-                    // Aggiungi un nuovo marker se non esiste già
-                    val osmdroidGeoPoint = GeoPoint(annuncio.posizione.latitude, annuncio.posizione.longitude)
                     val marker = Marker(mapView).apply {
-                        position = osmdroidGeoPoint
+                        position = adjustedGeoPoint
                         setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
                         title = annuncio.materia
                         snippet = annuncio.descrizione
@@ -248,8 +333,11 @@ class RicercaTutorFragment : Fragment() {
                 } else {
                     // Aggiorna la posizione del marker esistente se necessario
                     val marker = markerMap[annuncio.id]
-                    marker?.position = GeoPoint(annuncio.posizione.latitude, annuncio.posizione.longitude)
+                    marker?.position = adjustedGeoPoint
                 }
+
+                // Aggiorna il conteggio delle posizioni duplicate
+                posizioneMap[osmdroidGeoPoint] = count + 1
             }
 
             // Aggiorna la mappa per visualizzare le modifiche

@@ -12,7 +12,6 @@ data class Chat(
     val lastMessage: Message? = null,
     val messages: Map<String, Message> = emptyMap() // Messaggi della chat
 )
-
 data class Message(
     val senderId: String = "",
     val text: String = "",

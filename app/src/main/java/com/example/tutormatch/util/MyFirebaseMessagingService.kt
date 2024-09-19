@@ -11,9 +11,11 @@ import com.google.firebase.messaging.RemoteMessage
 import com.example.tutormatch.R
 import com.google.firebase.auth.FirebaseAuth
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat
 
+@SuppressLint("MissingFirebaseInstanceTokenRefresh")
 class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     companion object {
@@ -31,16 +33,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             showNotification(title, body)
         } else {
             Log.e(TAG, "Titolo o corpo della notifica mancanti")
-        }
-    }
-
-    override fun onNewToken(token: String) {
-        val user = FirebaseAuth.getInstance().currentUser
-        if (user != null) {
-            Log.d(TAG, "Nuovo token FCM: $token")
-            FirebaseUtil.saveUserFcmToken(user.uid, token)
-        } else {
-            Log.e(TAG, "Nessun utente autenticato. Non posso salvare il token.")
         }
     }
 
