@@ -16,7 +16,6 @@ import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import com.example.tutormatch.R
 import com.example.tutormatch.data.model.Annuncio
@@ -104,7 +103,7 @@ class RicercaTutorFragment : Fragment() {
                 val studentMarker = Marker(mapView).apply {
                     position = it
                     setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                    title = "Io"
+                    title = "Sono Qui"
                     icon = resources.getDrawable(R.drawable.marker_stud, null)
                 }
                 mapView.overlays.add(studentMarker)
@@ -171,6 +170,7 @@ class RicercaTutorFragment : Fragment() {
                 binding.onlineCheckBox.isChecked = false
                 binding.inPersonCheckBox.isChecked = false
                 annunciViewModel.flagFiltro = false
+                annunciViewModel.svuotaListaAnnunciFiltrati()
             }
         }
 

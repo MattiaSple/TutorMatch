@@ -280,4 +280,9 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
         // Aggiorna il LiveData con la lista filtrata
         _listaAnnunciFiltrati.postValue(annunciFiltrati)
     }
+
+    fun svuotaListaAnnunciFiltrati() {
+        _listaAnnunciFiltrati.postValue(emptyList())
+    }
+
 }
