@@ -210,32 +210,35 @@
                 android:padding="16dp">
 
                 <TextView
+                    android:id="@+id/tv_nome_cognome"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:textColor="@color/black"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
                     android:id="@+id/tv_materia"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Materia"
                     android:textColor="@android:color/black"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:id="@+id/tv_prezzo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/black"
+                    android:textSize="15sp" />
 
                 <TextView
                     android:id="@+id/tv_description"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="Descrizione"
                     android:textColor="@android:color/black"
-                    android:textSize="14sp" />
-
-                <TextView
-                    android:id="@+id/tv_nome_cognome"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="Nome Cognome"
-                    android:textColor="@android:color/darker_gray"
-                    android:textSize="14sp"
-                    android:textStyle="italic" />
+                    android:textSize="15sp" />
 
                 <Button
                     android:id="@+id/btn_chat"
@@ -243,14 +246,25 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     android:backgroundTint="@color/statusBarColor"
-                    android:text="Chatta con il tutor"
+                    android:text="Scrivimi"
                     android:textColor="@android:color/white" />
+
+                <Button
+                    android:id="@+id/btn_prenota"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:backgroundTint="@color/statusBarColor"
+                    android:textColor="@android:color/white"
+                    android:text="Prenota lezione" />
 
                 <Button
                     android:id="@+id/btn_close"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="12dp"
+                    android:backgroundTint="@color/statusBarColor"
+                    android:textColor="@android:color/white"
                     android:text="Chiudi" />
 
             </LinearLayout>

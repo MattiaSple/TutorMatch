@@ -227,9 +227,10 @@ class RicercaTutorFragment : Fragment() {
             val tutorEmail = documentSnapshot.getString("email")!!
 
             // Imposta i dati nei TextView
-            binding.tvMateria.text = "$nomeTutor $cognomeTutor"
-            binding.tvNomeCognome.text = annuncio.materia
-            binding.tvDescription.text = annuncio.descrizione
+            binding.tvNomeCognome.text = "$nomeTutor $cognomeTutor"
+            binding.tvMateria.text = "Materia: "+annuncio.materia
+            binding.tvPrezzo.text = "Prezzo: "+ annuncio.prezzo + "€"
+            binding.tvDescription.text = "Descrizione:\n"+annuncio.descrizione
 
             // Mostra il layout
             binding.markerDetailCard.visibility = View.VISIBLE
@@ -264,6 +265,10 @@ class RicercaTutorFragment : Fragment() {
                         showConfirmationDialog(message, onConfirmAction)
                     }
                 )
+            }
+
+            binding.btnPrenota.setOnClickListener{
+                Toast.makeText(context, "Fai la parte della prenotazione", Toast.LENGTH_SHORT).show()
             }
 
             // Gestione del bottone per chiudere
