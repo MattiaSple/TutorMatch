@@ -181,23 +181,6 @@ class RicercaTutorFragment : Fragment() {
             }
         })
 
-        // Definisci una lista di materie
-        val materie = listOf("Matematica", "Fisica", "Informatica", "Chimica", "Biologia")
-
-        // Crea un ArrayAdapter per lo Spinner
-        val adapter = ArrayAdapter(
-            requireContext(),
-            android.R.layout.simple_spinner_item,
-            materie
-        )
-
-        // Imposta lo stile per la visualizzazione a tendina
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-
-        // Collega l'adapter allo Spinner
-        binding.subjectSpinner.adapter = adapter
-
-
         // Trova il riferimento alla SeekBar e al TextView del valore
         val budgetSeekBar = binding.budgetSeekBar
         val budgetValueText = binding.budgetValueText

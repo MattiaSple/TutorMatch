@@ -88,6 +88,7 @@
                 android:layout_weight="1"
                 android:padding="8dp"
                 android:textColor="@android:color/black"
+                android:entries="@array/materie_array"
                 android:textSize="16sp" />
         </LinearLayout>
 
@@ -246,7 +247,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     android:backgroundTint="@color/statusBarColor"
-                    android:text="Scrivimi"
+                    android:text="Invia un messaggio"
                     android:textColor="@android:color/white" />
 
                 <Button
@@ -256,7 +257,7 @@
                     android:layout_marginTop="12dp"
                     android:backgroundTint="@color/statusBarColor"
                     android:textColor="@android:color/white"
-                    android:text="Prenota lezione" />
+                    android:text="Prenota la tua lezione" />
 
                 <Button
                     android:id="@+id/btn_close"

@@ -34,10 +34,72 @@
     Vuoi insegnare? Diventa un tutor su TutorMatch! Registra il tuo profilo, aggiungi le materie che desideri insegnare e indica la tua disponibilità. Unisciti alla nostra community di insegnanti appassionati e aiuta gli studenti a raggiungere i loro obiettivi.
     </string>
     <string-array name="materie_array">
-        <item>Matematica</item>
-        <item>Fisica</item>
+        <item>Antropologia</item>
+        <item>Architettura</item>
+        <item>Arte</item>
+        <item>Astronomia</item>
+        <item>Biologia</item>
+        <item>Biotecnologie</item>
         <item>Chimica</item>
-        <!-- Aggiungi altri elementi se necessario -->
+        <item>Chimica farmaceutica</item>
+        <item>Cinema e audiovisivo</item>
+        <item>Contabilità</item>
+        <item>Design</item>
+        <item>Diritto</item>
+        <item>Diritto commerciale</item>
+        <item>Diritto internazionale</item>
+        <item>Economia</item>
+        <item>Economia aziendale</item>
+        <item>Elettronica</item>
+        <item>Elettrotecnica</item>
+        <item>Filosofia</item>
+        <item>Fisica</item>
+        <item>Fisica nucleare</item>
+        <item>Fisioterapia</item>
+        <item>Fotografia</item>
+        <item>Francese</item>
+        <item>Geografia</item>
+        <item>Geologia</item>
+        <item>Giurisprudenza</item>
+        <item>Informatica</item>
+        <item>Ingegneria civile</item>
+        <item>Ingegneria elettronica</item>
+        <item>Ingegneria meccanica</item>
+        <item>Inglese</item>
+        <item>Italiano</item>
+        <item>Latino</item>
+        <item>Letteratura italiana</item>
+        <item>Logistica</item>
+        <item>Marketing</item>
+        <item>Matematica</item>
+        <item>Medicina</item>
+        <item>Meccanica</item>
+        <item>Musica</item>
+        <item>Odontoiatria</item>
+        <item>Pedagogia</item>
+        <item>Psicologia</item>
+        <item>Psicologia clinica</item>
+        <item>Relazioni internazionali</item>
+        <item>Restauro</item>
+        <item>Robotica</item>
+        <item>Russo</item>
+        <item>Scenografia</item>
+        <item>Scienze ambientali</item>
+        <item>Scienze della comunicazione</item>
+        <item>Scienze della terra</item>
+        <item>Scienze dell\'educazione</item>
+        <item>Scienze infermieristiche</item>
+        <item>Scienze motorie</item>
+        <item>Sociologia</item>
+        <item>Spagnolo</item>
+        <item>Statistica</item>
+        <item>Storia</item>
+        <item>Storia contemporanea</item>
+        <item>Storia dell\'arte</item>
+        <item>Storia moderna</item>
+        <item>Teatro</item>
+        <item>Tedesco</item>
+        <item>Veterinaria</item>
     </string-array>
 
 </resources>
