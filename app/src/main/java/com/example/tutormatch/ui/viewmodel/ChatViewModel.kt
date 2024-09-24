@@ -1,3 +1,4 @@
+
 package com.example.tutormatch.ui.viewmodel
 
 import android.util.Log
@@ -30,6 +31,8 @@ class ChatViewModel : ViewModel() {
                 for (chatSnapshot in snapshot.children) {
                     val chat = chatSnapshot.getValue(Chat::class.java)
                     if (chat?.participants?.contains(userEmail) == true) {
+                        // Aggiungiamo una proprietà `hasUnreadMessages` se l'utente ha messaggi non letti
+                        chat?.hasUnreadMessages = chat.messages.values.any { it.unreadBy.contains(userEmail) }
                         chatList.add(chat)
                     }
                 }
@@ -112,7 +115,8 @@ class ChatViewModel : ViewModel() {
             participantsNames = listOf("$userName $userSurname", "$tutorName $tutorSurname"),
             subject = materia,
             lastMessage = null,
-            messages = emptyMap()
+            messages = emptyMap(),
+            hasUnreadMessages = false  // Imposta a false di default
         )
         chatRef.child(chatId).setValue(chatData)
             .addOnSuccessListener {

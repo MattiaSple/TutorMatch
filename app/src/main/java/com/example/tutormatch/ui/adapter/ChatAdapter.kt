@@ -1,5 +1,7 @@
+
 package com.example.tutormatch.ui.adapter
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -42,6 +44,13 @@ class ChatAdapter(
             // Passiamo il chat filtrato al layout
             binding.chat = filteredChat
 
+            // Evidenzia la chat se ci sono messaggi non letti
+            if (chat.hasUnreadMessages) {
+                binding.root.setBackgroundColor(Color.YELLOW)  // Cambia colore per evidenziare la chat
+            } else {
+                binding.root.setBackgroundColor(Color.WHITE)  // Colore normale
+            }
+
             // Gestisci il click sulla chat
             binding.root.setOnClickListener {
                 onClick(chat)
@@ -49,5 +58,6 @@ class ChatAdapter(
             binding.executePendingBindings()
         }
     }
-}
 
+
+}

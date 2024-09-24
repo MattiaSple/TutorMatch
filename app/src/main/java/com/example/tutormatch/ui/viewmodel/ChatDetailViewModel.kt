@@ -30,6 +30,8 @@ class ChatDetailViewModel : ViewModel() {
 
     val newMessage = MutableLiveData<String>()
 
+    private var participants: List<String> = emptyList() // Aggiungi questa variabile a livello di classe
+
     // Imposta l'ID della chat e carica i dettagli della chat
     fun setChatId(chatId: String) {
         if (chatId.isBlank()) {
@@ -43,7 +45,6 @@ class ChatDetailViewModel : ViewModel() {
         loadMessages()
     }
 
-    // Carica i dettagli della chat
     private fun loadChatDetails() {
         if (!::chatId.isInitialized) {
             return
@@ -54,6 +55,8 @@ class ChatDetailViewModel : ViewModel() {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val chat = snapshot.getValue(Chat::class.java)
                 _chat.value = chat
+                // Memorizza i partecipanti della chat
+                participants = chat?.participants ?: emptyList()
             }
             override fun onCancelled(error: DatabaseError) {
                 Log.e("ChatDetailViewModel", "Errore nel caricamento dei dettagli della chat: ${error.message}")
@@ -81,6 +84,26 @@ class ChatDetailViewModel : ViewModel() {
 
                 // Aggiorna il LiveData
                 _messages.value = messagesList
+
+                // Aggiorna lo stato di lettura dei messaggi per l'utente corrente
+                val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
+                messagesRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        for (messageSnapshot in snapshot.children) {
+                            val messageId = messageSnapshot.key
+                            val unreadBy = messageSnapshot.child("unreadBy").value as? MutableList<String>
+                            if (unreadBy?.contains(currentUserEmail) == true) {
+                                // Rimuove l'utente corrente dalla lista di `unreadBy`
+                                unreadBy.remove(currentUserEmail)
+                                messagesRef.child(messageId!!).child("unreadBy").setValue(unreadBy)
+                            }
+                        }
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        Log.e("ChatDetailViewModel", "Errore nel caricamento dei messaggi: ${error.message}")
+                    }
+                })
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -88,6 +111,7 @@ class ChatDetailViewModel : ViewModel() {
             }
         })
     }
+
 
     fun sendMessage() {
         if (!::chatId.isInitialized || !::messagesRef.isInitialized) {
@@ -107,11 +131,18 @@ class ChatDetailViewModel : ViewModel() {
             return
         }
 
+        // Verifica se i partecipanti sono stati caricati
+        if (participants.isEmpty()) {
+            Log.e("ChatDetailViewModel", "Partecipanti non disponibili, impossibile inviare il messaggio")
+            return
+        }
+
         val newMessageId = messagesRef.push().key ?: "message_${System.currentTimeMillis()}"
         val message = mapOf(
             "senderId" to senderEmail,
             "text" to messageText,
-            "timestamp" to ServerValue.TIMESTAMP // Utilizzo di ServerValue.TIMESTAMP
+            "timestamp" to ServerValue.TIMESTAMP,
+            "unreadBy" to participants.filter { it != senderEmail }  // Aggiunge tutti i partecipanti tranne il mittente
         )
 
         // Aggiungi il messaggio al database della chat
@@ -124,4 +155,5 @@ class ChatDetailViewModel : ViewModel() {
 
         newMessage.value = ""
     }
+
 }

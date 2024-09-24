@@ -56,14 +56,10 @@ class ChatDetailFragment : Fragment() {
 
         // Osserva i messaggi aggiornati e scrolla alla fine
         chatDetailViewModel.messages.observe(viewLifecycleOwner, Observer { messages ->
-            // Prima di aggiornare l'adapter, ordina i messaggi per timestamp
-            val sortedMessages = messages.sortedBy { it.timestamp }
-
-            // Aggiorna l'adapter con i messaggi ordinati
-            adapter.updateData(sortedMessages)
+            adapter.updateData(messages)
 
             // Scorri automaticamente alla fine dei messaggi, solo se il binding esiste ancora
-            _binding?.recyclerViewMessages?.scrollToPosition(sortedMessages.size - 1)
+            _binding?.recyclerViewMessages?.scrollToPosition(messages.size - 1)
         })
 
         // Listener per il layout (controllo se la tastiera è visibile)
@@ -129,3 +125,4 @@ class ChatDetailFragment : Fragment() {
         _binding = null
     }
 }
+
