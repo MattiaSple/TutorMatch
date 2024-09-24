@@ -8,11 +8,6 @@ import com.example.tutormatch.data.model.Chat
 import com.example.tutormatch.data.model.Message
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
-import com.google.firebase.firestore.FirebaseFirestore
-import okhttp3.*
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.RequestBody.Companion.toRequestBody
-import java.io.IOException
 
 class ChatDetailViewModel : ViewModel() {
 
@@ -21,6 +16,7 @@ class ChatDetailViewModel : ViewModel() {
 
     private lateinit var chatId: String
     private lateinit var messagesRef: DatabaseReference
+    private lateinit var chatRef: DatabaseReference
 
     private val _chat = MutableLiveData<Chat?>()
     val chat: LiveData<Chat?> get() = _chat
@@ -30,7 +26,7 @@ class ChatDetailViewModel : ViewModel() {
 
     val newMessage = MutableLiveData<String>()
 
-    private var participants: List<String> = emptyList() // Aggiungi questa variabile a livello di classe
+    private var participants: List<String> = emptyList() // Partecipanti della chat
 
     // Imposta l'ID della chat e carica i dettagli della chat
     fun setChatId(chatId: String) {
@@ -41,6 +37,8 @@ class ChatDetailViewModel : ViewModel() {
 
         this.chatId = chatId
         this.messagesRef = database.getReference("chats/$chatId/messages")
+        this.chatRef = database.getReference("chats/$chatId")
+
         loadChatDetails()
         loadMessages()
     }
@@ -50,14 +48,25 @@ class ChatDetailViewModel : ViewModel() {
             return
         }
 
-        val chatRef = database.getReference("chats/$chatId")
         chatRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val chat = snapshot.getValue(Chat::class.java)
                 _chat.value = chat
-                // Memorizza i partecipanti della chat
                 participants = chat?.participants ?: emptyList()
+
+                // Aggiorna `lastMessage.unreadBy` se contiene l'utente corrente
+                val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
+                chat?.lastMessage?.let { lastMessage ->
+                    if (currentUserEmail != null && lastMessage.unreadBy.contains(currentUserEmail)) {
+                        val updatedUnreadBy = lastMessage.unreadBy.toMutableList().apply {
+                            remove(currentUserEmail)
+                        }
+                        // Aggiorna `lastMessage.unreadBy` nel database
+                        chatRef.child("lastMessage").child("unreadBy").setValue(updatedUnreadBy)
+                    }
+                }
             }
+
             override fun onCancelled(error: DatabaseError) {
                 Log.e("ChatDetailViewModel", "Errore nel caricamento dei dettagli della chat: ${error.message}")
             }
@@ -86,24 +95,7 @@ class ChatDetailViewModel : ViewModel() {
                 _messages.value = messagesList
 
                 // Aggiorna lo stato di lettura dei messaggi per l'utente corrente
-                val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
-                messagesRef.addListenerForSingleValueEvent(object : ValueEventListener {
-                    override fun onDataChange(snapshot: DataSnapshot) {
-                        for (messageSnapshot in snapshot.children) {
-                            val messageId = messageSnapshot.key
-                            val unreadBy = messageSnapshot.child("unreadBy").value as? MutableList<String>
-                            if (unreadBy?.contains(currentUserEmail) == true) {
-                                // Rimuove l'utente corrente dalla lista di `unreadBy`
-                                unreadBy.remove(currentUserEmail)
-                                messagesRef.child(messageId!!).child("unreadBy").setValue(unreadBy)
-                            }
-                        }
-                    }
-
-                    override fun onCancelled(error: DatabaseError) {
-                        Log.e("ChatDetailViewModel", "Errore nel caricamento dei messaggi: ${error.message}")
-                    }
-                })
+                markMessagesAsRead(messagesList)
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -112,6 +104,18 @@ class ChatDetailViewModel : ViewModel() {
         })
     }
 
+    private fun markMessagesAsRead(messagesList: List<Message>) {
+        val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email ?: return
+        messagesList.forEach { message ->
+            if (message.unreadBy.contains(currentUserEmail)) {
+                // Rimuove l'utente corrente dalla lista di `unreadBy` nei messaggi
+                val updatedUnreadBy = message.unreadBy.toMutableList().apply {
+                    remove(currentUserEmail)
+                }
+                messagesRef.child(message.timestamp.toString()).child("unreadBy").setValue(updatedUnreadBy)
+            }
+        }
+    }
 
     fun sendMessage() {
         if (!::chatId.isInitialized || !::messagesRef.isInitialized) {
@@ -131,7 +135,6 @@ class ChatDetailViewModel : ViewModel() {
             return
         }
 
-        // Verifica se i partecipanti sono stati caricati
         if (participants.isEmpty()) {
             Log.e("ChatDetailViewModel", "Partecipanti non disponibili, impossibile inviare il messaggio")
             return
@@ -147,7 +150,6 @@ class ChatDetailViewModel : ViewModel() {
 
         // Aggiungi il messaggio al database della chat
         messagesRef.child(newMessageId).setValue(message).addOnSuccessListener {
-            val chatRef = database.getReference("chats/$chatId")
             chatRef.child("lastMessage").setValue(message)
         }.addOnFailureListener {
             Log.e("ChatDetailViewModel", "Errore nell'invio del messaggio: ${it.message}")
@@ -155,5 +157,4 @@ class ChatDetailViewModel : ViewModel() {
 
         newMessage.value = ""
     }
-
 }

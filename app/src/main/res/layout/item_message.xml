@@ -27,8 +27,8 @@
             android:layout_height="wrap_content"
             android:text="@{message.text}"
             android:textSize="16sp"
-            android:textColor="@{isMine ? @android:color/holo_red_dark : @android:color/holo_blue_dark}"
-            android:background="@{isMine ? @android:color/holo_red_light : @android:color/holo_blue_light}"
+            android:textColor="@{isMine ? @android:color/white : @android:color/black}"
+            android:background="@{isMine ? @color/statusBarColor : @color/colorBackground}"
             android:padding="8dp"
             android:ellipsize="end"
             android:maxLines="2"/>

@@ -22,29 +22,51 @@ class ChatViewModel : ViewModel() {
         loadUserChats()
     }
 
-    // Funzione per caricare le chat dell'utente corrente
+    // Caricamento e aggiornamento in tempo reale delle chat dell'utente
     private fun loadUserChats() {
         val userEmail = FirebaseAuth.getInstance().currentUser?.email
-        chatRef.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val chatList = mutableListOf<Chat>()
-                for (chatSnapshot in snapshot.children) {
-                    val chat = chatSnapshot.getValue(Chat::class.java)
-                    if (chat?.participants?.contains(userEmail) == true) {
-                        // Aggiungiamo una proprietà `hasUnreadMessages` se l'utente ha messaggi non letti
-                        chat?.hasUnreadMessages = chat.messages.values.any { it.unreadBy.contains(userEmail) }
-                        chatList.add(chat)
+        val chatList = mutableListOf<Chat>()
+
+        chatRef.addChildEventListener(object : ChildEventListener {
+            override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+                val chat = snapshot.getValue(Chat::class.java)
+                if (chat?.participants?.contains(userEmail) == true) {
+                    chatList.add(chat)
+                    _chats.value = chatList.toList()
+                }
+            }
+
+            override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
+                val chat = snapshot.getValue(Chat::class.java)
+                val userEmail = FirebaseAuth.getInstance().currentUser?.email
+                if (chat != null && chat.participants.contains(userEmail)) {
+                    val index = chatList.indexOfFirst { it.id == chat.id }
+                    if (index != -1) {
+                        chatList[index] = chat
+                        _chats.value = chatList.toList()
                     }
                 }
-                _chats.value = chatList
+            }
+
+            override fun onChildRemoved(snapshot: DataSnapshot) {
+                val chat = snapshot.getValue(Chat::class.java)
+                if (chat != null) {
+                    chatList.removeAll { it.id == chat.id }
+                    _chats.value = chatList.toList()
+                }
+            }
+
+            override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
+                // Non necessario per questa implementazione
             }
 
             override fun onCancelled(error: DatabaseError) {
+                Log.e("ChatViewModel", "Error loading chats: ${error.message}")
             }
         })
     }
 
-    // Funzione per creare una chat tra l'utente attuale e il tutor, con nome, cognome e materia
+    // Funzione per creare una chat con un tutor
     fun creaChatConTutor(
         tutorEmail: String,
         tutorName: String,
@@ -54,12 +76,12 @@ class ChatViewModel : ViewModel() {
         materia: String,
         onSuccess: (String) -> Unit,
         onFailure: (String) -> Unit,
-        onConfirm: (String, () -> Unit) -> Unit  // Aggiungi il callback per conferma
+        onConfirm: (String, () -> Unit) -> Unit  // Callback per conferma
     ) {
         val currentUser = FirebaseAuth.getInstance().currentUser
         val userEmail = currentUser?.email ?: return
 
-        // Controlla se esiste già una chat tra questi utenti con la stessa materia
+        // Controlla se esiste già una chat con il tutor per la stessa materia
         chatRef.orderByChild("participants")
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
@@ -69,7 +91,7 @@ class ChatViewModel : ViewModel() {
                     for (chatSnapshot in snapshot.children) {
                         val chat = chatSnapshot.getValue(Chat::class.java)
 
-                        // Verifica se i partecipanti e la materia coincidono
+                        // Controlla se i partecipanti e la materia coincidono
                         if (chat?.participants?.containsAll(listOf(userEmail, tutorEmail)) == true &&
                             chat.subject == materia) {
                             chatExists = true
@@ -79,13 +101,12 @@ class ChatViewModel : ViewModel() {
                     }
 
                     if (chatExists && existingChatId != null) {
-                        // Esiste già una chat con gli stessi partecipanti e materia
+                        // Esiste già una chat, chiedi conferma per crearne una nuova
                         onConfirm("Questa chat per questa materia già esiste. Sei sicuro di volerne creare un'altra?") {
-                            // L'utente ha confermato la creazione di una nuova chat
                             creaNuovaChat(userEmail, tutorEmail, tutorName, tutorSurname, userName, userSurname, materia, onSuccess, onFailure)
                         }
                     } else {
-                        // Non esiste una chat con questi parametri, creane una nuova
+                        // Crea una nuova chat
                         creaNuovaChat(userEmail, tutorEmail, tutorName, tutorSurname, userName, userSurname, materia, onSuccess, onFailure)
                     }
                 }
@@ -114,13 +135,12 @@ class ChatViewModel : ViewModel() {
             participants = listOf(userEmail, tutorEmail),
             participantsNames = listOf("$userName $userSurname", "$tutorName $tutorSurname"),
             subject = materia,
-            lastMessage = null,
-            messages = emptyMap(),
-            hasUnreadMessages = false  // Imposta a false di default
+            lastMessage = null,  // Inizialmente nessun messaggio
+            messages = emptyMap() // Messaggi vuoti all'inizio
         )
         chatRef.child(chatId).setValue(chatData)
             .addOnSuccessListener {
-                onSuccess(chatId)  // Callback per segnalare il successo
+                onSuccess(chatId)  // Callback di successo
             }
             .addOnFailureListener { e ->
                 onFailure(e.message ?: "Errore durante la creazione della chat")

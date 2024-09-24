@@ -1,22 +1,25 @@
 
 package com.example.tutormatch.ui.adapter
-
+import androidx.core.content.ContextCompat
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.tutormatch.R
 import com.example.tutormatch.data.model.Chat
 import com.example.tutormatch.databinding.ItemChatBinding
 
 class ChatAdapter(
     private var chats: List<Chat>,
-    private val currentUserName: String,
+    private val currentUserName: String,  // Aggiungi l'email dell'utente corrente
+    private val currentUserEmail: String,
     private val onClick: (Chat) -> Unit
 ) : RecyclerView.Adapter<ChatAdapter.ChatViewHolder>() {
 
+    // Funzione per aggiornare i dati
     fun updateData(newChats: List<Chat>) {
         chats = newChats
-        notifyDataSetChanged()
+        notifyDataSetChanged()  // Notifica che i dati sono cambiati
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatViewHolder {
@@ -26,38 +29,39 @@ class ChatAdapter(
 
     override fun onBindViewHolder(holder: ChatViewHolder, position: Int) {
         val chat = chats[position]
-        holder.bind(chat)
+        holder.bind(chat, currentUserName, currentUserEmail)  // Passiamo l'email dell'utente corrente
     }
 
     override fun getItemCount(): Int = chats.size
 
     inner class ChatViewHolder(private val binding: ItemChatBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(chat: Chat) {
-            // Filtriamo i nomi dei partecipanti escludendo l'utente corrente
+        fun bind(chat: Chat, userName: String, userEmail: String) {
+            // Filtra i nomi dei partecipanti escludendo l'utente corrente
             val filteredParticipantsNames = chat.participantsNames.filter { participantName ->
-                participantName != currentUserName
+                participantName != userName
             }
 
-            // Creiamo una rappresentazione semplificata del Chat con i partecipanti filtrati
+            // Crea una rappresentazione della chat con i partecipanti filtrati
             val filteredChat = chat.copy(participantsNames = filteredParticipantsNames)
-
-            // Passiamo il chat filtrato al layout
+            val statusBarColor = ContextCompat.getColor(binding.root.context, R.color.statusBarColor)
+            // Passa la chat filtrata al layout
             binding.chat = filteredChat
 
-            // Evidenzia la chat se ci sono messaggi non letti
-            if (chat.hasUnreadMessages) {
-                binding.root.setBackgroundColor(Color.YELLOW)  // Cambia colore per evidenziare la chat
+            // Cambia colore della chat se ci sono messaggi non letti
+            if (chat.hasUnreadMessages(userEmail)) {
+                binding.root.setBackgroundColor(statusBarColor)  // Evidenzia se ci sono messaggi non letti
             } else {
-                binding.root.setBackgroundColor(Color.WHITE)  // Colore normale
+                binding.root.setBackgroundColor(Color.WHITE)  // Colore normale se non ci sono messaggi non letti
             }
 
-            // Gestisci il click sulla chat
+            // Gestisce il click sull'elemento della chat
             binding.root.setOnClickListener {
                 onClick(chat)
             }
+
+            // Applica immediatamente le binding
             binding.executePendingBindings()
         }
     }
-
-
 }
+
