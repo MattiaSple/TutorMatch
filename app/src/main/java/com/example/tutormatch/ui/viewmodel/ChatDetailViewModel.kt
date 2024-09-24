@@ -46,7 +46,6 @@ class ChatDetailViewModel : ViewModel() {
     // Carica i dettagli della chat
     private fun loadChatDetails() {
         if (!::chatId.isInitialized) {
-            Log.e("ChatDetailViewModel", "ID chat non impostato")
             return
         }
 
@@ -56,7 +55,6 @@ class ChatDetailViewModel : ViewModel() {
                 val chat = snapshot.getValue(Chat::class.java)
                 _chat.value = chat
             }
-
             override fun onCancelled(error: DatabaseError) {
                 Log.e("ChatDetailViewModel", "Errore nel caricamento dei dettagli della chat: ${error.message}")
             }
@@ -78,7 +76,10 @@ class ChatDetailViewModel : ViewModel() {
                         messagesList.add(it)
                     }
                 }
+                // Ordina i messaggi per timestamp, dal più vecchio al più recente
                 messagesList.sortBy { it.timestamp }
+
+                // Aggiorna il LiveData
                 _messages.value = messagesList
             }
 
@@ -106,12 +107,11 @@ class ChatDetailViewModel : ViewModel() {
             return
         }
 
-        val timestamp = System.currentTimeMillis()
-        val newMessageId = "message_$timestamp"
-        val message = Message(
-            senderId = senderEmail,
-            text = messageText,
-            timestamp = timestamp
+        val newMessageId = messagesRef.push().key ?: "message_${System.currentTimeMillis()}"
+        val message = mapOf(
+            "senderId" to senderEmail,
+            "text" to messageText,
+            "timestamp" to ServerValue.TIMESTAMP // Utilizzo di ServerValue.TIMESTAMP
         )
 
         // Aggiungi il messaggio al database della chat
@@ -124,5 +124,4 @@ class ChatDetailViewModel : ViewModel() {
 
         newMessage.value = ""
     }
-
 }
