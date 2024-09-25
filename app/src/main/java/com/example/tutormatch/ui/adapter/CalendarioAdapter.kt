@@ -5,8 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.tutormatch.data.model.Calendario
 import com.example.tutormatch.databinding.ItemOrarioBinding
-import java.text.SimpleDateFormat
-import java.util.*
+
 
 class CalendarioAdapter(
     private val onDeleteClick: (Calendario) -> Unit
@@ -30,13 +29,13 @@ class CalendarioAdapter(
         notifyDataSetChanged()
     }
 
-    inner class CalendarioViewHolder(private val binding: ItemOrarioBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class CalendarioViewHolder(private val _binding: ItemOrarioBinding) : RecyclerView.ViewHolder(_binding.root) {
 
         fun bind(calendario: Calendario) {
-            binding.calendario = calendario
-            binding.executePendingBindings()
+            _binding.calendario = calendario
+            _binding.executePendingBindings()
 
-            binding.btnDelete.setOnClickListener {
+            _binding.btnDelete.setOnClickListener {
                 onDeleteClick(calendario)
             }
         }

@@ -7,7 +7,7 @@
     <data>
         <variable
             name="viewModel"
-            type="com.example.tutormatch.ui.viewmodel.PrenotazioniViewModel" />
+            type="com.example.tutormatch.ui.viewmodel.PrenotazioneViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

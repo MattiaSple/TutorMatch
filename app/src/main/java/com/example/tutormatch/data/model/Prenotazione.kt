@@ -3,10 +3,7 @@ package com.example.tutormatch.data.model
 import com.google.firebase.firestore.DocumentReference
 
 data class Prenotazione(
-    val descrizione: String = "",
-    val materia: String = "",
-    val mod_on: Boolean = false,
-    val mod_pres: Boolean = false,
-    val prezzo: Int = 0,
-    val tutor: DocumentReference
+    val annuncioRef: DocumentReference, // Riferimento all'annuncio
+    val id_fascia_calendario: DocumentReference, // Riferimento alla fascia oraria
+    val studenteRef: DocumentReference // Riferimento allo studente che ha prenotato
 )

@@ -31,7 +31,7 @@ class CalendarioFragment : Fragment() {
     ): View {
         _binding = FragmentCalendarioTutorBinding.inflate(inflater, container, false)
 
-        calendarioViewModel = ViewModelProvider(this).get(CalendarioViewModel::class.java)
+        calendarioViewModel = ViewModelProvider(this)[CalendarioViewModel::class.java]
 
         calendarioViewModel.setUpdateOrariInizioCallback {
             updateOrariInizioSpinner(selectedDate)

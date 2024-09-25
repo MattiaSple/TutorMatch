@@ -48,6 +48,9 @@ class RicercaTutorFragment : Fragment() {
 
     private lateinit var mapView: MapView
     private lateinit var locationSettingsLauncher: ActivityResultLauncher<IntentSenderRequest>
+    private lateinit var userIdStudente: String
+    private lateinit var nome: String
+    private lateinit var cognome: String
 
     // Mappa per tenere traccia dei marker sulla mappa
     private val markerMap = mutableMapOf<String, Marker>()
@@ -91,7 +94,6 @@ class RicercaTutorFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentRicercaTutorBinding.inflate(inflater, container, false)
-
         // Configura la mappa
         mapView = binding.mapView
         mapView.controller.setZoom(5.0)
@@ -119,7 +121,10 @@ class RicercaTutorFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.d("RicercaTutorFragment", "onViewCreated")
+
+        userIdStudente = requireArguments().getString("userId").toString()
+        nome = requireArguments().getString("nome").toString()
+        cognome = requireArguments().getString("cognome").toString()
 
         // Osserva la richiesta di attivazione dei servizi di localizzazione
         ricercaTutorViewModel.richiestaServiziLocalizzazione.observe(viewLifecycleOwner, Observer { resolvable ->
@@ -251,7 +256,13 @@ class RicercaTutorFragment : Fragment() {
             }
 
             binding.btnPrenota.setOnClickListener{
-                Toast.makeText(context, "Fai la parte della prenotazione", Toast.LENGTH_SHORT).show()
+                // Passa l'ID dell'annuncio come argomento tramite Bundle
+                val bundle = Bundle().apply {
+                    putString("annuncioId", annuncio.id)
+                }
+                CalendarioPrenotazioneFragment().arguments = bundle
+                // Usa il FragmentManager per la navigazione
+                (activity as? HomeActivity)?.replaceFragment(CalendarioPrenotazioneFragment(), userIdStudente!!, nome!!, cognome!!, false)
             }
 
             // Gestione del bottone per chiudere

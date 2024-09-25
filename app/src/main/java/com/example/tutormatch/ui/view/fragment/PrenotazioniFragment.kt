@@ -7,14 +7,14 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.example.tutormatch.databinding.FragmentPrenotazioniStudenteBinding
-import com.example.tutormatch.ui.viewmodel.PrenotazioniViewModel
+import com.example.tutormatch.ui.viewmodel.PrenotazioneViewModel
 
 class PrenotazioniFragment : Fragment() {
 
     private lateinit var _binding: FragmentPrenotazioniStudenteBinding
     private val binding get() = _binding!!
 
-    private val prenotazioniViewModel: PrenotazioniViewModel by viewModels()
+    private val prenotazioneViewModel: PrenotazioneViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
