@@ -41,13 +41,12 @@ class CalendarioPrenotazioneFragment : Fragment() {
         calendarioViewModel = ViewModelProvider(this)[CalendarioViewModel::class.java]
         prenotazioneViewModel = ViewModelProvider(this)[PrenotazioneViewModel::class.java]
 
-        // Recupera l'annuncio selezionato dagli argomenti
-        annuncioIdSel = requireArguments().getString("annuncioId").toString()
+//        val userId = arguments?.getString("userId")
+//        val nome = arguments?.getString("nome")
+//        val cognome = arguments?.getString("cognome")
+//        val ruolo = arguments?.getBoolean("ruolo")
+        annuncioIdSel = arguments?.getString("annuncioId").toString()  // Recupera annuncioId se presente
 
-        if (annuncioIdSel == null) {
-            Toast.makeText(context, "Errore: annuncio non disponibile", Toast.LENGTH_SHORT).show()
-            return _binding.root
-        }
 
         // Carica i dati del tutor associato all'annuncio
         val firestore = FirebaseFirestore.getInstance()
@@ -103,13 +102,7 @@ class CalendarioPrenotazioneFragment : Fragment() {
 
     // Configura il RecyclerView per mostrare le fasce orarie disponibili
     private fun setupRecyclerView() {
-        selezioneFasceOrarieAdapter = SelezioneFasceOrarieAdapter { fasciaOraria ->
-            if (fasceSelezionate.contains(fasciaOraria)) {
-                fasceSelezionate.remove(fasciaOraria)
-            } else {
-                fasceSelezionate.add(fasciaOraria)
-            }
-        }
+        selezioneFasceOrarieAdapter = SelezioneFasceOrarieAdapter()
         _binding.recyclerViewOrariDisponibili.layoutManager = LinearLayoutManager(context)
         _binding.recyclerViewOrariDisponibili.adapter = selezioneFasceOrarieAdapter
     }

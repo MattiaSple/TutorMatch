@@ -255,15 +255,11 @@ class RicercaTutorFragment : Fragment() {
                 )
             }
 
-            binding.btnPrenota.setOnClickListener{
-                // Passa l'ID dell'annuncio come argomento tramite Bundle
-                val bundle = Bundle().apply {
-                    putString("annuncioId", annuncio.id)
-                }
-                CalendarioPrenotazioneFragment().arguments = bundle
+            binding.btnPrenota.setOnClickListener {
                 // Usa il FragmentManager per la navigazione
-                (activity as? HomeActivity)?.replaceFragment(CalendarioPrenotazioneFragment(), userIdStudente!!, nome!!, cognome!!, false)
+                (activity as? HomeActivity)?.replaceFragment(CalendarioPrenotazioneFragment(), userIdStudente!!, nome!!, cognome!!, false, annuncio.id)
             }
+
 
             // Gestione del bottone per chiudere
             binding.btnClose.setOnClickListener {

@@ -6,11 +6,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.tutormatch.data.model.Calendario
 import com.example.tutormatch.databinding.ItemSelezionaFasciaBinding
 
-class SelezioneFasceOrarieAdapter(
-    private val onItemClick: (Calendario) -> Unit     // Callback per gestire la selezione della fascia oraria
-) : RecyclerView.Adapter<SelezioneFasceOrarieAdapter.CalendarioViewHolder>() {
+class SelezioneFasceOrarieAdapter : RecyclerView.Adapter<SelezioneFasceOrarieAdapter.CalendarioViewHolder>() {
 
-    private var fasceOrarie = listOf<Calendario>()    // Lista di fasce orarie da mostrare
+    private var fasceOrarie = listOf<Calendario>()  // Lista di fasce orarie da mostrare
 
     // Metodo per aggiornare la lista di fasce orarie
     fun setFasceOrarie(newFasceOrarie: List<Calendario>) {
@@ -19,13 +17,21 @@ class SelezioneFasceOrarieAdapter(
     }
 
     // ViewHolder rappresenta una singola riga nel RecyclerView
-    inner class CalendarioViewHolder(private val _binding: ItemSelezionaFasciaBinding) : RecyclerView.ViewHolder(_binding.root) {
+    inner class CalendarioViewHolder(private val binding: ItemSelezionaFasciaBinding) : RecyclerView.ViewHolder(binding.root) {
 
         // Metodo per associare i dati della fascia oraria alla vista
         fun bind(fasciaOraria: Calendario) {
             // Imposta i dati della fascia oraria nel layout
-            _binding.orarioInizio.text = fasciaOraria.oraInizio
-            _binding.orarioFine.text = fasciaOraria.oraFine
+            binding.orarioInizio.text = fasciaOraria.oraInizio
+            binding.orarioFine.text = fasciaOraria.oraFine
+
+            // Imposta lo stato della CheckBox in base alla selezione
+            binding.checkBoxSeleziona.isChecked = false  // Di default la CheckBox non è selezionata
+        }
+
+        // Metodo per verificare se la `CheckBox` è selezionata
+        fun isChecked(): Boolean {
+            return binding.checkBoxSeleziona.isChecked
         }
     }
 
@@ -42,4 +48,7 @@ class SelezioneFasceOrarieAdapter(
 
     // Restituisce il numero totale di elementi da visualizzare
     override fun getItemCount(): Int = fasceOrarie.size
+
+
+
 }

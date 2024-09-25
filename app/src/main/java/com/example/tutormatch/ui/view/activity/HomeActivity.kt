@@ -105,12 +105,15 @@ class HomeActivity : AppCompatActivity() {
         navView.selectedItemId = R.id.navigation_home
     }
 
-    fun replaceFragment(fragment: Fragment, userId: String, nome: String, cognome: String, ruolo: Boolean) {
+    fun replaceFragment(fragment: Fragment, userId: String, nome: String, cognome: String, ruolo: Boolean, annuncioId: String? = null) {
         val bundle = Bundle().apply {
             putString("userId", userId)
             putString("nome", nome)
             putString("cognome", cognome)
             putBoolean("ruolo", ruolo)
+            annuncioId?.let {
+                putString("annuncioId", it)  // Aggiungi annuncioId solo se non è null
+            }
         }
         fragment.arguments = bundle
 
@@ -119,6 +122,7 @@ class HomeActivity : AppCompatActivity() {
             addToBackStack(null)
         }
     }
+
 
     override fun onSupportNavigateUp(): Boolean {
         return findNavController(R.id.nav_host_fragment_activity_main).navigateUp() || super.onSupportNavigateUp()
