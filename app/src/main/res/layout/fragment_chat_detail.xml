@@ -17,8 +17,10 @@
             android:id="@+id/buttonBack"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Back"
-            android:layout_margin="16dp" />
+            android:layout_margin="16dp"
+            android:text="Torna alle chat"
+            android:background="@android:color/transparent"
+            android:textColor="@color/statusBarColor"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerViewMessages"
@@ -50,7 +52,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Invia"
-                android:onClick="@{() -> viewModel.sendMessage()}" />
+                android:onClick="@{() -> viewModel.sendMessage()}"
+                android:background="@android:color/transparent"
+                android:textColor="@color/statusBarColor"/>
 
         </LinearLayout>
     </LinearLayout>

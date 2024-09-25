@@ -20,28 +20,46 @@
         android:padding="8dp"
         android:gravity="@{isMine ? Gravity.END : Gravity.START}">
 
-        <!-- Visualizza il testo del messaggio -->
-        <TextView
-            android:id="@+id/textViewMessage"
+        <androidx.cardview.widget.CardView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@{message.text}"
-            android:textSize="16sp"
-            android:textColor="@{isMine ? @android:color/white : @android:color/black}"
-            android:background="@{isMine ? @color/statusBarColor : @color/colorBackground}"
+            android:layout_margin="8dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp"
             android:padding="8dp"
-            android:ellipsize="end"
-            android:maxLines="2"/>
+            app:cardBackgroundColor="@{isMine ? @color/statusBarColor : @color/colorBackground}">
 
-        <!-- Visualizza il timestamp formattato -->
-        <TextView
-            android:id="@+id/textViewTimestamp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@{message.formattedTimestamp}"
-            android:textSize="12sp"
-            android:textColor="@android:color/darker_gray"
-            android:layout_marginTop="4dp"/>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="8dp">
+
+                <!-- Visualizza il testo del messaggio -->
+                <TextView
+                    android:id="@+id/textViewMessage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{message.text}"
+                    android:textSize="16sp"
+                    android:textColor="@{isMine ? @android:color/white : @android:color/black}"
+                    android:padding="8dp"
+                    android:ellipsize="end"
+                    android:maxLines="2" />
+
+                <!-- Visualizza il timestamp formattato -->
+                <TextView
+                    android:id="@+id/textViewTimestamp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{message.formattedTimestamp}"
+                    android:textSize="12sp"
+                    android:textColor="@{isMine ? @android:color/white : @android:color/black}"
+                    android:layout_marginTop="4dp" />
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
 
     </LinearLayout>
 </layout>
