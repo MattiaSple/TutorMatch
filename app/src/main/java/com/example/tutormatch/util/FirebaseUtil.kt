@@ -1,10 +1,15 @@
 package com.example.tutormatch.util
 
+
 import com.example.tutormatch.data.model.Annuncio
+import com.example.tutormatch.data.model.Calendario
 import com.example.tutormatch.data.model.Utente
-import com.google.firebase.firestore.DocumentChange
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 // Oggetto per gestire le operazioni Firestore
 object FirebaseUtil {
@@ -47,6 +52,84 @@ object FirebaseUtil {
             if (querySnapshot != null && querySnapshot.documentChanges.isNotEmpty()) {
                 onAnnunciUpdated()  // Chiama la callback per aggiornare gli annunci
             }
+        }
+    }
+
+    fun eliminaFasceOrarieScadutePerTutor(tutorRef: DocumentReference, callback: (Boolean, String?) -> Unit) {
+        val calendarioCollection = db.collection("calendario")
+
+        // Ottieni la data e l'ora correnti come oggetti Date
+        val currentCalendar = Calendar.getInstance()
+        val currentDate = currentCalendar.time
+
+        // Query per ottenere le fasce del tutor specifico
+        calendarioCollection.whereEqualTo("tutorRef", tutorRef).get().addOnSuccessListener { querySnapshot ->
+            querySnapshot?.let { documents ->
+                for (document in documents) {
+                    val calendario = document.toObject(Calendario::class.java)
+                    calendario.let {
+                        // 1. Primo controllo: confronto solo le date
+                        val fasciaData = calendario.data
+                        if (fasciaData.before(currentDate)) {
+                            // Se la data della fascia è passata, elimina il documento
+                            calendarioCollection.document(document.id).delete()
+                                .addOnFailureListener { e ->
+                                    callback(false, e.message)
+                                }
+                        }
+                        if (fasciaData.equals(currentDate)) {
+                            // 2. Se la data è quella corrente, confronta gli orari
+                            val fasciaCalendar = Calendar.getInstance().apply {
+                                time = calendario.data // Usa la data dal database
+                                set(Calendar.HOUR_OF_DAY, calendario.oraInizio.split(":")[0].toInt())
+                                set(Calendar.MINUTE, calendario.oraInizio.split(":")[1].toInt())
+                            }
+
+                            val fasciaInizio = fasciaCalendar.time
+                            val currentHour = currentCalendar.time
+
+                            // Se l'ora di inizio è già passata, elimina la fascia
+                            if (fasciaInizio.before(currentHour)) {
+                                calendarioCollection.document(document.id).delete()
+                                    .addOnSuccessListener {
+                                        // Successo nell'eliminazione
+                                    }
+                                    .addOnFailureListener { e ->
+                                        callback(false, e.message)
+                                    }
+                            }
+                        }
+                    }
+                }
+                callback(true, null) // Eliminazione completata con successo
+            }
+        }.addOnFailureListener { exception ->
+            callback(false, exception.message) // Errore nel recupero delle fasce
+        }
+    }
+
+
+
+    // Funzione per ottenere il tutorRef dall'annuncio
+    fun getTutorDaAnnuncioF(
+        annuncioId: String,
+        onSuccess: (DocumentReference) -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        val annuncioDocumentReference = db.collection("annunci").document(annuncioId)
+
+        annuncioDocumentReference.get().addOnSuccessListener { documentSnapshot ->
+            val annuncio = documentSnapshot.toObject(Annuncio::class.java)
+            if (annuncio != null) {
+                // Se l'annuncio esiste, esegui il callback di successo
+                onSuccess(annuncio.tutor!!)
+            } else {
+                // Se l'annuncio non è valido, segnala l'errore
+                onFailure(Exception("Annuncio non valido o tutor non trovato"))
+            }
+        }.addOnFailureListener { exception ->
+            // Gestisci l'errore e esegui il callback di fallimento
+            onFailure(exception)
         }
     }
 }

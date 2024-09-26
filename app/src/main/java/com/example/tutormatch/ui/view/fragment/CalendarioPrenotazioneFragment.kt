@@ -14,8 +14,8 @@ import com.example.tutormatch.databinding.FragmentCalendarioPrenotazioneBinding
 import com.example.tutormatch.ui.adapter.SelezioneFasceOrarieAdapter
 import com.example.tutormatch.ui.viewmodel.CalendarioViewModel
 import com.example.tutormatch.ui.viewmodel.PrenotazioneViewModel
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ktx.toObject
+import com.google.firebase.firestore.DocumentReference
+
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -27,7 +27,7 @@ class CalendarioPrenotazioneFragment : Fragment() {
     private lateinit var selezioneFasceOrarieAdapter: SelezioneFasceOrarieAdapter
     private var selectedDate: String? = null
     private lateinit var annuncioIdSel: String
-    private lateinit var tutorRef: String
+    private lateinit var tutorRef: DocumentReference  // Variabile per memorizzare l'ID del tutor
 
     // Lista per memorizzare le fasce orarie selezionate
     private val fasceSelezionate = mutableListOf<Calendario>()
@@ -41,30 +41,34 @@ class CalendarioPrenotazioneFragment : Fragment() {
         calendarioViewModel = ViewModelProvider(this)[CalendarioViewModel::class.java]
         prenotazioneViewModel = ViewModelProvider(this)[PrenotazioneViewModel::class.java]
 
-//        val userId = arguments?.getString("userId")
-//        val nome = arguments?.getString("nome")
-//        val cognome = arguments?.getString("cognome")
-//        val ruolo = arguments?.getBoolean("ruolo")
-        annuncioIdSel = arguments?.getString("annuncioId").toString()  // Recupera annuncioId se presente
+        // Recupera l'annuncioId
+        annuncioIdSel = arguments?.getString("annuncioId").toString()
 
-
-        // Carica i dati del tutor associato all'annuncio
-        val firestore = FirebaseFirestore.getInstance()
-        val annuncioDocumentReference = firestore.collection("annunci").document(annuncioIdSel)
-
-        annuncioDocumentReference.get().addOnSuccessListener { documentSnapshot ->
-            val annuncio = documentSnapshot.toObject<Annuncio>()
-            annuncio?.let {
-                tutorRef = it.tutor!!.id
-                val tutorDocumentReference = it.tutor
-                // Imposta il tutorRef per caricare le fasce orarie del tutor
-                calendarioViewModel.setTutorReference(tutorDocumentReference)
+        // Ottieni l'ID del tutor usando il callback
+        calendarioViewModel.getTutorDaAnnuncio(annuncioIdSel) { tutorRef ->
+            if (tutorRef != null) {
+                this.tutorRef = tutorRef  // Salva l'ID del tutor
+                // Ora puoi eseguire operazioni che dipendono dall'ID del tutor
+                calendarioViewModel.eliminaFasceScadutePerTutor(tutorRef)
+                setupRecyclerView() // Configura il RecyclerView
+                setupCalendarView() // Imposta il CalendarView e le altre operazioni
+            } else {
+                Toast.makeText(context, "Errore: Tutor non trovato", Toast.LENGTH_SHORT).show()
             }
         }
 
-        // Configura il RecyclerView
-        setupRecyclerView()
+        return _binding.root
+    }
 
+    // Configura il RecyclerView per mostrare le fasce orarie disponibili
+    private fun setupRecyclerView() {
+        selezioneFasceOrarieAdapter = SelezioneFasceOrarieAdapter()
+        _binding.recyclerViewOrariDisponibili.layoutManager = LinearLayoutManager(context)
+        _binding.recyclerViewOrariDisponibili.adapter = selezioneFasceOrarieAdapter
+    }
+
+    // Imposta il CalendarView e le altre operazioni
+    private fun setupCalendarView() {
         // Imposta la data di oggi come predefinita
         val today = Calendar.getInstance().time
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
@@ -84,26 +88,5 @@ class CalendarioPrenotazioneFragment : Fragment() {
             }
             selezioneFasceOrarieAdapter.setFasceOrarie(filteredList)
         }
-
-        // Gestione del pulsante "Prenota"
-        _binding.btnPrenota.setOnClickListener {
-            if (fasceSelezionate.isNotEmpty()) {
-                // Effettua la prenotazione per ogni fascia oraria selezionata
-                for (fascia in fasceSelezionate) {
-                }
-                Toast.makeText(context, "Prenotazioni effettuate con successo", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(context, "Seleziona almeno una fascia oraria", Toast.LENGTH_SHORT).show()
-            }
-        }
-        return _binding.root
-    }
-
-
-    // Configura il RecyclerView per mostrare le fasce orarie disponibili
-    private fun setupRecyclerView() {
-        selezioneFasceOrarieAdapter = SelezioneFasceOrarieAdapter()
-        _binding.recyclerViewOrariDisponibili.layoutManager = LinearLayoutManager(context)
-        _binding.recyclerViewOrariDisponibili.adapter = selezioneFasceOrarieAdapter
     }
 }

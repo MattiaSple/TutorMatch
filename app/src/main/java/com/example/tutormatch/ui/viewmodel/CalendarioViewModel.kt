@@ -6,7 +6,9 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.example.tutormatch.data.model.Annuncio
 import com.example.tutormatch.data.model.Calendario
+import com.example.tutormatch.util.FirebaseUtil
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.Dispatchers
@@ -32,7 +34,7 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
     val oraFine = MutableLiveData<String>()
     val statoPren = MutableLiveData<Boolean>()
 
-    private lateinit var _tutorRef: DocumentReference
+    private var _tutorRef: DocumentReference? = null
     private var updateOrariInizioCallback: (() -> Unit)? = null
 
     fun setUpdateOrariInizioCallback(callback: () -> Unit) {
@@ -227,5 +229,31 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
 
     fun loadDisponibilitaForDate(selectedDate: String?) {
         loadDisponibilita()
+    }
+
+    // Funzione per eliminare le fasce orarie scadute di un tutor specifico
+    fun eliminaFasceScadutePerTutor(tutorRef: DocumentReference) {
+        FirebaseUtil.eliminaFasceOrarieScadutePerTutor(tutorRef) { successo, errore ->
+            if (successo) {
+                Log.d("CalendarioViewModel", "Fasce orarie scadute eliminate con successo per tutor: ${tutorRef}")
+            } else {
+                errore?.let {
+                    Log.e("CalendarioViewModel", "Errore eliminazione fasce per tutor: $errore")
+                }
+            }
+        }
+    }
+
+    fun getTutorDaAnnuncio(annuncioId: String, callback: (DocumentReference?) -> Unit) {
+        FirebaseUtil.getTutorDaAnnuncioF(
+            annuncioId,
+            onSuccess = { tutorPrelevatoDaAnnuncio ->
+                callback(tutorPrelevatoDaAnnuncio)  // Restituisci il tutorRef tramite il callback
+            },
+            onFailure = { exception ->
+                _message.value = "Errore nel recupero del tutor: ${exception.message}"
+                callback(null)  // Restituisci null in caso di errore
+            }
+        )
     }
 }
