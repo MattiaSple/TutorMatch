@@ -55,7 +55,7 @@ class CalendarioFragment : Fragment() {
         _binding.calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
             selectedDate = String.format(Locale.getDefault(), "%04d-%02d-%02d", year, month + 1, dayOfMonth)
             updateOrariInizioSpinner(selectedDate)
-            calendarioViewModel.loadDisponibilitaForDate(selectedDate)
+            calendarioViewModel.loadDisponibilita()
         }
 
         updateOrariInizioSpinner(selectedDate)

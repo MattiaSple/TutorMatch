@@ -1,12 +1,6 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <data>
-        <variable
-            name="calendario"
-            type="com.example.tutormatch.data.model.Calendario" />
-    </data>
-
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -32,22 +26,14 @@
 
             <!-- Orario di inizio -->
             <TextView
-                android:id="@+id/orario_inizio"
+                android:id="@+id/orario_lezione"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text='@{"Inizio: " + calendario.oraInizio}'
                 android:textColor="@android:color/black"
                 android:textSize="16sp"
                 android:layout_marginEnd="16dp" />
 
             <!-- Orario di fine -->
-            <TextView
-                android:id="@+id/orario_fine"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text='@{"Fine: " + calendario.oraFine}'
-                android:textColor="@android:color/black"
-                android:textSize="16sp" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 </layout>

@@ -27,10 +27,7 @@ class CalendarioPrenotazioneFragment : Fragment() {
     private lateinit var selezioneFasceOrarieAdapter: SelezioneFasceOrarieAdapter
     private var selectedDate: String? = null
     private lateinit var annuncioIdSel: String
-    private lateinit var tutorRef: DocumentReference  // Variabile per memorizzare l'ID del tutor
 
-    // Lista per memorizzare le fasce orarie selezionate
-    private val fasceSelezionate = mutableListOf<Calendario>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -44,16 +41,41 @@ class CalendarioPrenotazioneFragment : Fragment() {
         // Recupera l'annuncioId
         annuncioIdSel = arguments?.getString("annuncioId").toString()
 
+
         // Ottieni l'ID del tutor usando il callback
         calendarioViewModel.getTutorDaAnnuncio(annuncioIdSel) { tutorRef ->
             if (tutorRef != null) {
-                this.tutorRef = tutorRef  // Salva l'ID del tutor
-                // Ora puoi eseguire operazioni che dipendono dall'ID del tutor
-                calendarioViewModel.eliminaFasceScadutePerTutor(tutorRef)
+                calendarioViewModel.setTutorReference(tutorRef)
+
+                calendarioViewModel.eliminaFasceScadutePerTutor()
                 setupRecyclerView() // Configura il RecyclerView
-                setupCalendarView() // Imposta il CalendarView e le altre operazioni
             } else {
                 Toast.makeText(context, "Errore: Tutor non trovato", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        // Imposta la data di oggi come predefinita
+        val today = Calendar.getInstance().time
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        selectedDate = dateFormat.format(today)
+        _binding.calendarView.minDate = today.time
+
+        // Ascolta i cambiamenti di data nel CalendarView
+        _binding.calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
+            selectedDate = String.format(Locale.getDefault(), "%04d-%02d-%02d", year, month + 1, dayOfMonth)
+            calendarioViewModel.loadDisponibilita()
+        }
+
+        // Osserva le fasce orarie disponibili per la data selezionata
+        calendarioViewModel.lista_disponibilita.observe(viewLifecycleOwner) { listaDisponibilita ->
+            val filteredList = listaDisponibilita.filter { dateFormat.format(it.data) == selectedDate }
+            val listaOrdinata = calendarioViewModel.ordinaFasceOrarie(filteredList)
+            selezioneFasceOrarieAdapter.setFasceOrarie(listaOrdinata)
+        }
+
+        calendarioViewModel.message.observe(viewLifecycleOwner) { message ->
+            message?.let {
+                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -65,28 +87,5 @@ class CalendarioPrenotazioneFragment : Fragment() {
         selezioneFasceOrarieAdapter = SelezioneFasceOrarieAdapter()
         _binding.recyclerViewOrariDisponibili.layoutManager = LinearLayoutManager(context)
         _binding.recyclerViewOrariDisponibili.adapter = selezioneFasceOrarieAdapter
-    }
-
-    // Imposta il CalendarView e le altre operazioni
-    private fun setupCalendarView() {
-        // Imposta la data di oggi come predefinita
-        val today = Calendar.getInstance().time
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        selectedDate = dateFormat.format(today)
-        _binding.calendarView.minDate = today.time
-
-        // Ascolta i cambiamenti di data nel CalendarView
-        _binding.calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
-            selectedDate = String.format(Locale.getDefault(), "%04d-%02d-%02d", year, month + 1, dayOfMonth)
-            calendarioViewModel.loadDisponibilitaForDate(selectedDate)
-        }
-
-        // Osserva le fasce orarie disponibili per la data selezionata
-        calendarioViewModel.lista_disponibilita.observe(viewLifecycleOwner) { listaDisponibilita ->
-            val filteredList = listaDisponibilita.filter {
-                dateFormat.format(it.data) == selectedDate
-            }
-            selezioneFasceOrarieAdapter.setFasceOrarie(filteredList)
-        }
     }
 }

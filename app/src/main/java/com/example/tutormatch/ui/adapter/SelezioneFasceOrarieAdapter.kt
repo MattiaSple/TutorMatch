@@ -22,16 +22,10 @@ class SelezioneFasceOrarieAdapter : RecyclerView.Adapter<SelezioneFasceOrarieAda
         // Metodo per associare i dati della fascia oraria alla vista
         fun bind(fasciaOraria: Calendario) {
             // Imposta i dati della fascia oraria nel layout
-            binding.orarioInizio.text = fasciaOraria.oraInizio
-            binding.orarioFine.text = fasciaOraria.oraFine
+            binding.orarioLezione.text = "Lezione: " + fasciaOraria.oraInizio+" - "+fasciaOraria.oraFine
 
             // Imposta lo stato della CheckBox in base alla selezione
             binding.checkBoxSeleziona.isChecked = false  // Di default la CheckBox non è selezionata
-        }
-
-        // Metodo per verificare se la `CheckBox` è selezionata
-        fun isChecked(): Boolean {
-            return binding.checkBoxSeleziona.isChecked
         }
     }
 

@@ -6,7 +6,6 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.example.tutormatch.data.model.Annuncio
 import com.example.tutormatch.data.model.Calendario
 import com.example.tutormatch.util.FirebaseUtil
 import com.google.firebase.firestore.DocumentReference
@@ -34,7 +33,8 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
     val oraFine = MutableLiveData<String>()
     val statoPren = MutableLiveData<Boolean>()
 
-    private var _tutorRef: DocumentReference? = null
+    private lateinit var _tutorRef: DocumentReference
+
     private var updateOrariInizioCallback: (() -> Unit)? = null
 
     fun setUpdateOrariInizioCallback(callback: () -> Unit) {
@@ -46,7 +46,7 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
         loadDisponibilita()
     }
 
-    private fun loadDisponibilita() {
+    fun loadDisponibilita() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val querySnapshot = disponibilitaCollection.whereEqualTo("tutorRef", _tutorRef).get().await()
@@ -227,15 +227,11 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-    fun loadDisponibilitaForDate(selectedDate: String?) {
-        loadDisponibilita()
-    }
-
     // Funzione per eliminare le fasce orarie scadute di un tutor specifico
-    fun eliminaFasceScadutePerTutor(tutorRef: DocumentReference) {
-        FirebaseUtil.eliminaFasceOrarieScadutePerTutor(tutorRef) { successo, errore ->
+    fun eliminaFasceScadutePerTutor() {
+        FirebaseUtil.eliminaFasceOrarieScadutePerTutor(_tutorRef) { successo, errore ->
             if (successo) {
-                Log.d("CalendarioViewModel", "Fasce orarie scadute eliminate con successo per tutor: ${tutorRef}")
+                Log.d("CalendarioViewModel", "Fasce orarie scadute eliminate con successo per tutor: ${_tutorRef!!}")
             } else {
                 errore?.let {
                     Log.e("CalendarioViewModel", "Errore eliminazione fasce per tutor: $errore")
@@ -255,5 +251,8 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
                 callback(null)  // Restituisci null in caso di errore
             }
         )
+    }
+    fun ordinaFasceOrarie(fasceOrarie: List<Calendario>): List<Calendario> {
+        return fasceOrarie.sortedBy { it.oraInizio }
     }
 }
