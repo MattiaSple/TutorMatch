@@ -114,8 +114,6 @@ object FirebaseUtil {
         }
     }
 
-
-
     // Funzione per ottenere il tutorRef dall'annuncio
     fun getTutorDaAnnuncioF(
         annuncioId: String,
