@@ -41,7 +41,7 @@
                 android:id="@+id/stato_pren"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text='@{"Stato Prenotazione: " + (calendario.stato_pren ? "Prenotata" : "Non prenotata")}'
+                android:text='@{"Stato Prenotazione: " + (calendario.statoPren ? "Prenotata" : "Non prenotata")}'
                 android:textColor="@color/colorBackground"
                 android:textSize="16sp" />
 

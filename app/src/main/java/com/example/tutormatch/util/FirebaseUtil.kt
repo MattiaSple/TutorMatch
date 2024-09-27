@@ -3,6 +3,7 @@ package com.example.tutormatch.util
 
 import com.example.tutormatch.data.model.Annuncio
 import com.example.tutormatch.data.model.Calendario
+import com.example.tutormatch.data.model.Prenotazione
 import com.example.tutormatch.data.model.Utente
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
@@ -134,6 +135,84 @@ object FirebaseUtil {
         }.addOnFailureListener { exception ->
             // Gestisci l'errore e esegui il callback di fallimento
             onFailure(exception)
+        }
+    }
+
+    // Funzione per gestire la prenotazione e l'aggiornamento atomico delle fasce orarie
+    // Funzione per gestire la prenotazione e l'aggiornamento atomico delle fasce orarie
+    fun creaPrenotazioniConBatch(
+        listaFasceSelezionate: List<Calendario>, // Lista delle fasce orarie selezionate
+        idStudente: String, // ID dello studente
+        annuncioId: String, // ID dell'annuncio
+        onSuccess: () -> Unit, // Callback per successo
+        onFailure: (Exception) -> Unit // Callback per errore
+    ) {
+        // Ottieni il riferimento all'annuncio
+        val annuncioRef = db.collection("annunci").document(annuncioId)
+
+        annuncioRef.get().addOnSuccessListener { documentSnapshot ->
+            val annuncio = documentSnapshot.toObject(Annuncio::class.java)
+
+            if (annuncio != null) {
+                val tutorRef = annuncio.tutor // Recupera il riferimento al tutor dall'annuncio
+
+                // Inizializza il batch
+                val batch = db.batch()
+
+                // Contatore per tenere traccia delle operazioni completate
+                var operazioniCompletate = 0
+                val totaleOperazioni = listaFasceSelezionate.size
+
+                // Itera sulle fasce orarie selezionate e cerca il documento in Firestore
+                listaFasceSelezionate.forEach { fasciaOraria ->
+                    db.collection("calendario")
+                        .whereEqualTo("tutorRef", tutorRef) // Cerca in base al tutor
+                        .whereEqualTo("data", fasciaOraria.data) // Cerca in base alla data
+                        .whereEqualTo("oraInizio", fasciaOraria.oraInizio) // Cerca in base all'ora di inizio
+                        .get()
+                        .addOnSuccessListener { querySnapshot ->
+                            if (!querySnapshot.isEmpty) {
+                                val calendarioDocument = querySnapshot.documents.first()
+                                val calendarioRef = calendarioDocument.reference
+
+                                // Aggiungi l'aggiornamento dello stato al batch
+                                batch.update(calendarioRef, "statoPren", true)
+
+                                // Crea un nuovo documento per ogni prenotazione
+                                val prenotazioneRef = db.collection("prenotazioni").document()
+                                val prenotazione = Prenotazione(
+                                    annuncioRef = annuncioRef,
+                                    fasciaCalendarioRef = calendarioRef,
+                                    studenteRef = idStudente
+                                )
+
+                                // Aggiungi la prenotazione al batch
+                                batch.set(prenotazioneRef, prenotazione)
+                            }
+
+                            // Incrementa il contatore delle operazioni completate
+                            operazioniCompletate++
+
+                            // Quando tutte le operazioni sono completate, committa il batch
+                            if (operazioniCompletate == totaleOperazioni) {
+                                // Committa il batch
+                                batch.commit().addOnSuccessListener {
+                                    onSuccess() // Tutte le operazioni sono state eseguite con successo
+                                }.addOnFailureListener { exception ->
+                                    onFailure(exception) // Gestisci l'errore nel commit
+                                }
+                            }
+                        }
+                        .addOnFailureListener { exception ->
+                            onFailure(exception) // Gestisci l'errore nel recupero della fascia oraria
+                        }
+                }
+
+            } else {
+                onFailure(Exception("Annuncio non trovato"))
+            }
+        }.addOnFailureListener { exception ->
+            onFailure(exception) // Gestisci l'errore nel recupero dell'annuncio
         }
     }
 }

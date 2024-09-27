@@ -27,7 +27,9 @@ class CalendarioPrenotazioneFragment : Fragment() {
     private lateinit var selezioneFasceOrarieAdapter: SelezioneFasceOrarieAdapter
     private var selectedDate: String? = null
     private lateinit var annuncioIdSel: String
+    private lateinit var idStudente: String
 
+    private val listaFasceSelezionate = mutableListOf<Calendario>() // Fasce selezionate
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -39,6 +41,7 @@ class CalendarioPrenotazioneFragment : Fragment() {
         prenotazioneViewModel = ViewModelProvider(this)[PrenotazioneViewModel::class.java]
 
         // Recupera l'annuncioId
+        idStudente = arguments?.getString("userId").toString()
         annuncioIdSel = arguments?.getString("annuncioId").toString()
 
 
@@ -68,7 +71,7 @@ class CalendarioPrenotazioneFragment : Fragment() {
 
         // Osserva le fasce orarie disponibili per la data selezionata
         calendarioViewModel.lista_disponibilita.observe(viewLifecycleOwner) { listaDisponibilita ->
-            val filteredList = listaDisponibilita.filter { dateFormat.format(it.data) == selectedDate }
+            val filteredList = listaDisponibilita.filter { dateFormat.format(it.data) == selectedDate && !it.statoPren }
             val listaOrdinata = calendarioViewModel.ordinaFasceOrarie(filteredList)
             selezioneFasceOrarieAdapter.setFasceOrarie(listaOrdinata)
         }
@@ -79,12 +82,26 @@ class CalendarioPrenotazioneFragment : Fragment() {
             }
         }
 
+        // Imposta l'azione sul pulsante "Prenota"
+        _binding.btnPrenota.setOnClickListener {
+            if (listaFasceSelezionate.isNotEmpty()) {
+                // Passa le fasce selezionate al ViewModel e crea subito la prenotazione
+                prenotazioneViewModel.setPrenotazioni(listaFasceSelezionate, idStudente, annuncioIdSel)
+
+            } else {
+                Toast.makeText(requireContext(), "Seleziona almeno una fascia oraria", Toast.LENGTH_SHORT).show()
+            }
+        }
+
         return _binding.root
     }
 
-    // Configura il RecyclerView per mostrare le fasce orarie disponibili
     private fun setupRecyclerView() {
-        selezioneFasceOrarieAdapter = SelezioneFasceOrarieAdapter()
+        selezioneFasceOrarieAdapter = SelezioneFasceOrarieAdapter { fasceSelezionate ->
+            listaFasceSelezionate.clear()
+            listaFasceSelezionate.addAll(fasceSelezionate)
+        }
+
         _binding.recyclerViewOrariDisponibili.layoutManager = LinearLayoutManager(context)
         _binding.recyclerViewOrariDisponibili.adapter = selezioneFasceOrarieAdapter
     }

@@ -8,7 +8,7 @@ data class Calendario(
     val data: Date = Date(),
     val oraInizio: String = "",
     val oraFine: String = "",
-    val stato_pren: Boolean = false,
+    val statoPren: Boolean = false,
     val studenteRef: String = ""
 ) {
     // Costruttore senza argomenti richiesto per la deserializzazione di Firestore

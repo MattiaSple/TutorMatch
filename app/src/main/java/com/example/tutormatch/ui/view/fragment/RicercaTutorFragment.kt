@@ -257,7 +257,7 @@ class RicercaTutorFragment : Fragment() {
 
             binding.btnPrenota.setOnClickListener {
                 // Usa il FragmentManager per la navigazione
-                (activity as? HomeActivity)?.replaceFragment(CalendarioPrenotazioneFragment(), userIdStudente!!, nome!!, cognome!!, false, annuncio.id)
+                (activity as? HomeActivity)?.replaceFragment(CalendarioPrenotazioneFragment(), userIdStudente, nome, cognome, false, annuncio.id)
             }
 
 

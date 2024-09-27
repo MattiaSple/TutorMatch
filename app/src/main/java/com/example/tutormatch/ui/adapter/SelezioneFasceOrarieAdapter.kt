@@ -6,13 +6,16 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.tutormatch.data.model.Calendario
 import com.example.tutormatch.databinding.ItemSelezionaFasciaBinding
 
-class SelezioneFasceOrarieAdapter : RecyclerView.Adapter<SelezioneFasceOrarieAdapter.CalendarioViewHolder>() {
+class SelezioneFasceOrarieAdapter(private val getFasceSelezionate: (List<Calendario>) -> Unit  // Callback per notificare la selezione
+) : RecyclerView.Adapter<SelezioneFasceOrarieAdapter.CalendarioViewHolder>() {
 
-    private var fasceOrarie = listOf<Calendario>()  // Lista di fasce orarie da mostrare
+    private var listaFasceOrarie = listOf<Calendario>()  // Lista di fasce orarie da mostrare
+    private val selectedFasceOrarie = mutableListOf<Calendario>() // Fasce selezionate
 
     // Metodo per aggiornare la lista di fasce orarie
-    fun setFasceOrarie(newFasceOrarie: List<Calendario>) {
-        fasceOrarie = newFasceOrarie
+    fun setFasceOrarie(listaFasce: List<Calendario>) {
+        listaFasceOrarie = listaFasce
+        selectedFasceOrarie.clear() // Resetta le selezioni
         notifyDataSetChanged() // Notifica l'Adapter che i dati sono cambiati
     }
 
@@ -26,6 +29,16 @@ class SelezioneFasceOrarieAdapter : RecyclerView.Adapter<SelezioneFasceOrarieAda
 
             // Imposta lo stato della CheckBox in base alla selezione
             binding.checkBoxSeleziona.isChecked = false  // Di default la CheckBox non è selezionata
+
+            // Aggiungi o rimuovi la fascia selezionata dalla lista
+            binding.checkBoxSeleziona.setOnCheckedChangeListener { _, isChecked ->
+                if (isChecked) {
+                    selectedFasceOrarie.add(fasciaOraria)
+                } else {
+                    selectedFasceOrarie.remove(fasciaOraria)
+                }
+                getFasceSelezionate(selectedFasceOrarie)
+            }
         }
     }
 
@@ -37,11 +50,11 @@ class SelezioneFasceOrarieAdapter : RecyclerView.Adapter<SelezioneFasceOrarieAda
 
     // Metodo chiamato per associare i dati a una vista (ViewHolder) in una certa posizione
     override fun onBindViewHolder(holder: CalendarioViewHolder, position: Int) {
-        holder.bind(fasceOrarie[position]) // Collega la fascia oraria alla vista
+        holder.bind(listaFasceOrarie[position]) // Collega la fascia oraria alla vista
     }
 
     // Restituisce il numero totale di elementi da visualizzare
-    override fun getItemCount(): Int = fasceOrarie.size
+    override fun getItemCount(): Int = listaFasceOrarie.size
 
 
 

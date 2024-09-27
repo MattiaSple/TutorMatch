@@ -172,7 +172,7 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
                 data = dataParsed,
                 oraInizio = oraInizioStr,
                 oraFine = oraFineStr,
-                stato_pren = statoPrenVal
+                statoPren = statoPrenVal
             ))
         }
 
