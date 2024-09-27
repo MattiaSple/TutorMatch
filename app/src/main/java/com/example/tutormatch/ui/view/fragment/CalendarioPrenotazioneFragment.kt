@@ -8,13 +8,11 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.tutormatch.data.model.Annuncio
 import com.example.tutormatch.data.model.Calendario
 import com.example.tutormatch.databinding.FragmentCalendarioPrenotazioneBinding
 import com.example.tutormatch.ui.adapter.SelezioneFasceOrarieAdapter
 import com.example.tutormatch.ui.viewmodel.CalendarioViewModel
 import com.example.tutormatch.ui.viewmodel.PrenotazioneViewModel
-import com.google.firebase.firestore.DocumentReference
 
 import java.text.SimpleDateFormat
 import java.util.*
@@ -49,8 +47,6 @@ class CalendarioPrenotazioneFragment : Fragment() {
         calendarioViewModel.getTutorDaAnnuncio(annuncioIdSel) { tutorRef ->
             if (tutorRef != null) {
                 calendarioViewModel.setTutorReference(tutorRef)
-
-                calendarioViewModel.eliminaFasceScadutePerTutor()
                 setupRecyclerView() // Configura il RecyclerView
             } else {
                 Toast.makeText(context, "Errore: Tutor non trovato", Toast.LENGTH_SHORT).show()
@@ -65,13 +61,26 @@ class CalendarioPrenotazioneFragment : Fragment() {
 
         // Ascolta i cambiamenti di data nel CalendarView
         _binding.calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
-            selectedDate = String.format(Locale.getDefault(), "%04d-%02d-%02d", year, month + 1, dayOfMonth)
-            calendarioViewModel.loadDisponibilita()
+            calendarioViewModel.eliminaFasceScadutePerTutor {
+                // Solo dopo aver eliminato le fasce, aggiorna la data selezionata e carica le disponibilità
+                selectedDate = String.format(Locale.getDefault(), "%04d-%02d-%02d", year, month + 1, dayOfMonth)
+                calendarioViewModel.loadDisponibilita()
+            }
         }
 
         // Osserva le fasce orarie disponibili per la data selezionata
         calendarioViewModel.lista_disponibilita.observe(viewLifecycleOwner) { listaDisponibilita ->
-            val filteredList = listaDisponibilita.filter { dateFormat.format(it.data) == selectedDate && !it.statoPren }
+            val filteredList = listaDisponibilita.filter {
+                // Aggiungi un giorno alla data della disponibilità (it.data)
+                val calendar = Calendar.getInstance().apply {
+                    time = it.data // Imposta la data corrente dall'oggetto
+                    add(Calendar.DAY_OF_YEAR, 1) // Aggiungi un giorno
+                }
+                val newFormattedDate = dateFormat.format(calendar.time) // Formatta la data con un giorno aggiunto
+
+                // Filtro: confronta la data formattata con quella selezionata e verifica se non è prenotata
+                newFormattedDate == selectedDate && !it.statoPren
+            }
             val listaOrdinata = calendarioViewModel.ordinaFasceOrarie(filteredList)
             selezioneFasceOrarieAdapter.setFasceOrarie(listaOrdinata)
         }

@@ -8,9 +8,9 @@ import com.example.tutormatch.data.model.Utente
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
-import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Locale
+import java.util.TimeZone
+
 
 // Oggetto per gestire le operazioni Firestore
 object FirebaseUtil {
@@ -57,16 +57,19 @@ object FirebaseUtil {
     }
 
     fun eliminaFasceOrarieScadutePerTutor(tutorRef: DocumentReference, callback: (Boolean, String?) -> Unit) {
+
         val calendarioCollection = db.collection("calendario")
 
-        val dataCompleta = Calendar.getInstance().apply {
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
-        }.time
 
-        // Ottieni l'istanza di Calendar per la data corrente
+        val calendar = Calendar.getInstance(TimeZone.getDefault()).apply {
+            set(Calendar.SECOND, 0)      // Azzera i secondi
+            set(Calendar.MILLISECOND, 0) // Azzera i millisecondi
+        }
+        val dataCompleta = calendar.time
+
+        // Ottieni l'istanza di Calendar per la data corrente in UTC
         val dataCorrente = Calendar.getInstance().apply {
-            // Resetta l'orario a mezzanotte
+            // Resetta l'orario a mezzanotte in UTC
             set(Calendar.HOUR_OF_DAY, 0)
             set(Calendar.MINUTE, 0)
             set(Calendar.SECOND, 0)
@@ -80,8 +83,17 @@ object FirebaseUtil {
                 for (document in documents) {
                     val calendario = document.toObject(Calendario::class.java)
                     calendario.let {
+
                         // 1. Primo controllo: confronto solo le date
-                        val fasciaData = calendario.data
+                        val fasciaData = Calendar.getInstance().apply {
+                            time = calendario.data
+                            add(Calendar.DAY_OF_MONTH, 1)
+                            set(Calendar.HOUR_OF_DAY, 0)
+                            set(Calendar.MINUTE, 0)
+                            set(Calendar.SECOND, 0)
+                            set(Calendar.MILLISECOND, 0)
+                        }.time
+
                         if (fasciaData.before(dataCorrente)) {
                             // Se la data della fascia è passata, elimina il documento
                             calendarioCollection.document(document.id).delete()
@@ -93,6 +105,7 @@ object FirebaseUtil {
                             // 2. Se la data è quella corrente, confronta gli orari
                             val dataFasciaInizio = Calendar.getInstance().apply {
                                 time = calendario.data // Usa la data dal database
+                                add(Calendar.DAY_OF_MONTH, 1)
                                 set(Calendar.HOUR_OF_DAY, calendario.oraInizio.split(":")[0].toInt())
                                 set(Calendar.MINUTE, calendario.oraInizio.split(":")[1].toInt())
                             }.time

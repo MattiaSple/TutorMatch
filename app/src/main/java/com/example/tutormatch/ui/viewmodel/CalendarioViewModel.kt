@@ -227,18 +227,19 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-    // Funzione per eliminare le fasce orarie scadute di un tutor specifico
-    fun eliminaFasceScadutePerTutor() {
+    fun eliminaFasceScadutePerTutor(onComplete: () -> Unit) {
         FirebaseUtil.eliminaFasceOrarieScadutePerTutor(_tutorRef) { successo, errore ->
             if (successo) {
-                Log.d("CalendarioViewModel", "Fasce orarie scadute eliminate con successo per tutor: ${_tutorRef!!}")
+                // Se l'operazione è completata con successo, chiama il callback
+                onComplete()
             } else {
-                errore?.let {
-                    Log.e("CalendarioViewModel", "Errore eliminazione fasce per tutor: $errore")
-                }
+                // Gestisci l'errore
+                Log.e("CalendarioViewModel", "Errore eliminazione fasce scadute: $errore")
+                onComplete() // Anche in caso di errore, chiama il callback per proseguire
             }
         }
     }
+
 
     fun getTutorDaAnnuncio(annuncioId: String, callback: (DocumentReference?) -> Unit) {
         FirebaseUtil.getTutorDaAnnuncioF(
