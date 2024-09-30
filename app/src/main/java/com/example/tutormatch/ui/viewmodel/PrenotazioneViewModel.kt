@@ -5,31 +5,47 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.tutormatch.data.model.Calendario
+import com.example.tutormatch.data.model.Prenotazione
 import com.example.tutormatch.util.FirebaseUtil
 
 
 class PrenotazioneViewModel : ViewModel() {
 
-    private val _prenotazioni = MutableLiveData<List<Calendario>>()
-    val prenotazioni: LiveData<List<Calendario>> get() = _prenotazioni
+    // Cambia da LiveData a una semplice variabile privata non osservata
+    private var listaCreaPrenotazioni: List<Calendario> = emptyList()
+
+    private val _listaPrenotazioni = MutableLiveData<List<Prenotazione>>()
+    val listaPrenotazioni: LiveData<List<Prenotazione>> get() = _listaPrenotazioni
 
     fun setPrenotazioni(prenotazioniSelezionate: List<Calendario>, studenteRef: String, annuncioRef: String) {
-        _prenotazioni.value = prenotazioniSelezionate
+        listaCreaPrenotazioni = prenotazioniSelezionate
 
         // Chiamata a FirebaseUtil per salvare le prenotazioni su Firestore
         FirebaseUtil.creaPrenotazioniConBatch(
             listaFasceSelezionate = prenotazioniSelezionate,
             idStudente = studenteRef,
-            annuncioId = annuncioRef,  // Aggiungi questo parametro
+            annuncioId = annuncioRef,
             onSuccess = {
-                // Gestisci il successo, es: notificare l'utente
                 Log.d("Prenotazione", "Prenotazioni salvate con successo")
             },
             onFailure = { exception ->
-                // Gestisci il fallimento, es: mostra un messaggio di errore
                 Log.e("Prenotazione", "Errore nel salvataggio delle prenotazioni: ${exception.message}")
             }
         )
     }
 
+    // Funzione unica per caricare le prenotazioni in base al ruolo
+    fun caricaPrenotazioni(ruolo: Boolean, userId: String) {
+        FirebaseUtil.getPrenotazioniPerRuolo(
+            userId = userId,
+            isTutor = ruolo,
+            onSuccess = { prenotazioniList ->
+                _listaPrenotazioni.value = prenotazioniList
+            },
+            onFailure = { exception ->
+                Log.e("PrenotazioneViewModel", "Errore nel caricamento delle prenotazioni: ${exception.message}")
+            }
+        )
+    }
 }
+

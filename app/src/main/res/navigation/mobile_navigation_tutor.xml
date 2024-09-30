@@ -16,10 +16,10 @@
     </fragment>
 
     <fragment
-        android:id="@+id/navigation_prenotazione_tutor"
+        android:id="@+id/navigation_prenotazione"
         android:name="com.example.tutormatch.ui.view.fragment.PrenotazioniFragment"
         android:label="Prenotazione"
-        tools:layout="@layout/fragment_prenotazioni_tutor" />
+        tools:layout="@layout/fragment_prenotazioni" />
 
     <fragment
         android:id="@+id/navigation_calendario_tutor"

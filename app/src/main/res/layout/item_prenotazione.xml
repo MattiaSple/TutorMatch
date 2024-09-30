@@ -1,12 +1,6 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <data>
-        <variable
-            name="annuncio"
-            type="com.example.tutormatch.data.model.Annuncio" />
-    </data>
-
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -21,40 +15,52 @@
             android:orientation="vertical"
             android:padding="16dp">
 
+            <!-- Titolo della materia -->
             <TextView
-                android:id="@+id/materia"
+                android:id="@+id/tvMateria"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@{annuncio.materia}"
-                android:textAlignment="center"
+                android:gravity="center"
                 android:textColor="@color/colorBackground"
-                android:textSize="18sp"
+                android:textSize="20sp"
                 android:textStyle="bold" />
 
+            <!-- Nome e cognome del tutor -->
             <TextView
-                android:id="@+id/tv_prezzo"
-                android:layout_width="wrap_content"
+                android:id="@+id/tvNomeCognome"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text='@{"Costo: " + annuncio.prezzo + " €"}'
                 android:textColor="@color/colorBackground"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:layout_marginTop="8dp"/>
+
+            <!-- Orario della lezione -->
+            <TextView
+                android:id="@+id/tvPrezzo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textColor="@color/colorBackground"
+                android:textSize="16sp"/>
 
             <TextView
-                android:id="@+id/descrizione"
-                android:layout_width="wrap_content"
+                android:id="@+id/tvOrarioLezione"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text='@{"Descrizione: " + (annuncio.descrizione.isEmpty() ? "Nessuna descrizione" : annuncio.descrizione)}'
+                android:layout_marginTop="8dp"
                 android:textColor="@color/colorBackground"
                 android:textSize="16sp" />
 
             <TextView
                 android:id="@+id/tvModalita"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text='@{annuncio.getModalita()}'
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
                 android:textColor="@color/colorBackground"
                 android:textSize="16sp" />
 
+            <!-- Pulsante per eliminare la prenotazione -->
             <Button
                 android:id="@+id/btnDelete"
                 android:layout_width="wrap_content"

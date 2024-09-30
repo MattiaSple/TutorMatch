@@ -70,17 +70,7 @@ class CalendarioPrenotazioneFragment : Fragment() {
 
         // Osserva le fasce orarie disponibili per la data selezionata
         calendarioViewModel.lista_disponibilita.observe(viewLifecycleOwner) { listaDisponibilita ->
-            val filteredList = listaDisponibilita.filter {
-                // Aggiungi un giorno alla data della disponibilità (it.data)
-                val calendar = Calendar.getInstance().apply {
-                    time = it.data // Imposta la data corrente dall'oggetto
-                    add(Calendar.DAY_OF_YEAR, 1) // Aggiungi un giorno
-                }
-                val newFormattedDate = dateFormat.format(calendar.time) // Formatta la data con un giorno aggiunto
-
-                // Filtro: confronta la data formattata con quella selezionata e verifica se non è prenotata
-                newFormattedDate == selectedDate && !it.statoPren
-            }
+            val filteredList = listaDisponibilita.filter { dateFormat.format(it.data) == selectedDate && !it.statoPren}
             val listaOrdinata = calendarioViewModel.ordinaFasceOrarie(filteredList)
             selezioneFasceOrarieAdapter.setFasceOrarie(listaOrdinata)
         }

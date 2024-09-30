@@ -4,7 +4,7 @@
 
     <!-- Definizione del secondo elemento del menu con id, icona e titolo -->
     <item
-        android:id="@+id/navigation_prenotazione_tutor"
+        android:id="@+id/navigation_prenotazione"
         android:icon="@drawable/lista_pren"
         android:title="" />
 

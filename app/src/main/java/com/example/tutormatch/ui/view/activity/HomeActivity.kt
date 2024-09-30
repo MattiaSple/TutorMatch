@@ -1,5 +1,6 @@
 package com.example.tutormatch.ui.view.activity
 
+
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -50,7 +51,7 @@ class HomeActivity : AppCompatActivity() {
                     replaceFragment(HomeFragmentTutor(), userId, nome, cognome, ruolo)
                     true
                 }
-                R.id.navigation_prenotazione_tutor -> {
+                R.id.navigation_prenotazione -> {
                     replaceFragment(PrenotazioniFragment(), userId, nome, cognome, ruolo)
                     true
                 }
@@ -85,7 +86,7 @@ class HomeActivity : AppCompatActivity() {
                     replaceFragment(RicercaTutorFragment(), userId, nome, cognome, ruolo)
                     true
                 }
-                R.id.navigation_studente -> {
+                R.id.navigation_prenotazione -> {
                     replaceFragment(PrenotazioniFragment(), userId, nome, cognome, ruolo)
                     true
                 }

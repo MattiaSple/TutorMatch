@@ -5,6 +5,7 @@ import com.example.tutormatch.data.model.Annuncio
 import com.example.tutormatch.data.model.Calendario
 import com.example.tutormatch.data.model.Prenotazione
 import com.example.tutormatch.data.model.Utente
+import com.google.android.gms.tasks.Tasks
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
@@ -87,7 +88,7 @@ object FirebaseUtil {
                         // 1. Primo controllo: confronto solo le date
                         val fasciaData = Calendar.getInstance().apply {
                             time = calendario.data
-                            add(Calendar.DAY_OF_MONTH, 1)
+                            //add(Calendar.DAY_OF_MONTH, 1)
                             set(Calendar.HOUR_OF_DAY, 0)
                             set(Calendar.MINUTE, 0)
                             set(Calendar.SECOND, 0)
@@ -105,7 +106,7 @@ object FirebaseUtil {
                             // 2. Se la data è quella corrente, confronta gli orari
                             val dataFasciaInizio = Calendar.getInstance().apply {
                                 time = calendario.data // Usa la data dal database
-                                add(Calendar.DAY_OF_MONTH, 1)
+                                //add(Calendar.DAY_OF_MONTH, 1)
                                 set(Calendar.HOUR_OF_DAY, calendario.oraInizio.split(":")[0].toInt())
                                 set(Calendar.MINUTE, calendario.oraInizio.split(":")[1].toInt())
                             }.time
@@ -152,15 +153,13 @@ object FirebaseUtil {
     }
 
     // Funzione per gestire la prenotazione e l'aggiornamento atomico delle fasce orarie
-    // Funzione per gestire la prenotazione e l'aggiornamento atomico delle fasce orarie
     fun creaPrenotazioniConBatch(
-        listaFasceSelezionate: List<Calendario>, // Lista delle fasce orarie selezionate
-        idStudente: String, // ID dello studente
-        annuncioId: String, // ID dell'annuncio
-        onSuccess: () -> Unit, // Callback per successo
-        onFailure: (Exception) -> Unit // Callback per errore
+    listaFasceSelezionate: List<Calendario>,
+    idStudente: String,
+    annuncioId: String,
+    onSuccess: () -> Unit,
+    onFailure: (Exception) -> Unit
     ) {
-        // Ottieni il riferimento all'annuncio
         val annuncioRef = db.collection("annunci").document(annuncioId)
 
         annuncioRef.get().addOnSuccessListener { documentSnapshot ->
@@ -172,16 +171,12 @@ object FirebaseUtil {
                 // Inizializza il batch
                 val batch = db.batch()
 
-                // Contatore per tenere traccia delle operazioni completate
-                var operazioniCompletate = 0
-                val totaleOperazioni = listaFasceSelezionate.size
-
                 // Itera sulle fasce orarie selezionate e cerca il documento in Firestore
-                listaFasceSelezionate.forEach { fasciaOraria ->
+                listaFasceSelezionate.forEachIndexed { index, fasciaOraria ->
                     db.collection("calendario")
-                        .whereEqualTo("tutorRef", tutorRef) // Cerca in base al tutor
-                        .whereEqualTo("data", fasciaOraria.data) // Cerca in base alla data
-                        .whereEqualTo("oraInizio", fasciaOraria.oraInizio) // Cerca in base all'ora di inizio
+                        .whereEqualTo("tutorRef", tutorRef)
+                        .whereEqualTo("data", fasciaOraria.data)
+                        .whereEqualTo("oraInizio", fasciaOraria.oraInizio)
                         .get()
                         .addOnSuccessListener { querySnapshot ->
                             if (!querySnapshot.isEmpty) {
@@ -193,39 +188,123 @@ object FirebaseUtil {
 
                                 // Crea un nuovo documento per ogni prenotazione
                                 val prenotazioneRef = db.collection("prenotazioni").document()
-                                val prenotazione = Prenotazione(
-                                    annuncioRef = annuncioRef,
-                                    fasciaCalendarioRef = calendarioRef,
-                                    studenteRef = idStudente
+                                val prenotazione = mapOf(
+                                    "annuncioRef" to annuncioRef,
+                                    "fasciaCalendarioRef" to calendarioRef,
+                                    "studenteRef" to db.collection("utenti").document(idStudente)
                                 )
 
                                 // Aggiungi la prenotazione al batch
                                 batch.set(prenotazioneRef, prenotazione)
-                            }
 
-                            // Incrementa il contatore delle operazioni completate
-                            operazioniCompletate++
-
-                            // Quando tutte le operazioni sono completate, committa il batch
-                            if (operazioniCompletate == totaleOperazioni) {
-                                // Committa il batch
-                                batch.commit().addOnSuccessListener {
-                                    onSuccess() // Tutte le operazioni sono state eseguite con successo
-                                }.addOnFailureListener { exception ->
-                                    onFailure(exception) // Gestisci l'errore nel commit
+                                // Se è l'ultima operazione, committa il batch
+                                if (index == listaFasceSelezionate.size - 1) {
+                                    batch.commit().addOnSuccessListener {
+                                        onSuccess()
+                                    }.addOnFailureListener { exception ->
+                                        onFailure(exception)
+                                    }
                                 }
+                            } else {
+                                onFailure(Exception("Fascia oraria non trovata"))
                             }
-                        }
-                        .addOnFailureListener { exception ->
-                            onFailure(exception) // Gestisci l'errore nel recupero della fascia oraria
+                        }.addOnFailureListener { exception ->
+                            onFailure(exception)
                         }
                 }
-
             } else {
                 onFailure(Exception("Annuncio non trovato"))
             }
         }.addOnFailureListener { exception ->
-            onFailure(exception) // Gestisci l'errore nel recupero dell'annuncio
+            onFailure(exception)
         }
     }
+
+
+
+    fun getNomeCognomeUtenteAtomico(
+        annuncioRef: DocumentReference,
+        calendarioRef: DocumentReference,
+        studenteId: String,
+        isTutor: Boolean,  // Indica se chi sta accedendo è il tutor
+        onSuccess: (Annuncio, Calendario, String, String) -> Unit,  // Restituisce nome e cognome
+        onFailure: (Exception) -> Unit
+    ) {
+        // Ottieni entrambe le chiamate Firestore
+        val annuncioTask = annuncioRef.get()
+        val calendarioTask = calendarioRef.get()
+
+        annuncioTask.addOnSuccessListener { annuncioSnapshot ->
+            val annuncio = annuncioSnapshot.toObject(Annuncio::class.java)
+            if (annuncio != null) {
+                // Se è il tutor che visualizza, recupera lo studente, altrimenti recupera il tutor
+                val utenteTask = if (isTutor) {
+                    // Recupera lo studente dalla collezione utenti usando l'userId
+                    FirebaseFirestore.getInstance().collection("utenti").document(studenteId).get()
+                } else {
+                    // Recupera il tutor tramite DocumentReference
+                    annuncio.tutor!!.get()
+                }
+
+                // Usa Tasks.whenAll per eseguire tutto in modo atomico
+                Tasks.whenAllSuccess<Any>(annuncioTask, calendarioTask, utenteTask)
+                    .addOnSuccessListener { results ->
+                        val annuncioSnapshot = results[0] as com.google.firebase.firestore.DocumentSnapshot
+                        val calendarioSnapshot = results[1] as? com.google.firebase.firestore.DocumentSnapshot
+                        val utenteSnapshot = results[2] as? com.google.firebase.firestore.DocumentSnapshot
+
+                        if (calendarioSnapshot != null && utenteSnapshot != null) {
+                            val annuncio = annuncioSnapshot.toObject(Annuncio::class.java)
+                            val calendario = calendarioSnapshot.toObject(Calendario::class.java)
+                            val utente = utenteSnapshot.toObject(Utente::class.java)
+
+                            if (annuncio != null && calendario != null && utente != null) {
+                                // Restituisci i dati in base al ruolo
+                                onSuccess(annuncio, calendario, utente.nome, utente.cognome)
+                            } else {
+                                onFailure(Exception("Dati non trovati"))
+                            }
+                        } else {
+                            onFailure(Exception("Snapshot non valido"))
+                        }
+                    }
+                    .addOnFailureListener { exception ->
+                        onFailure(exception)
+                    }
+            } else {
+                onFailure(Exception("Annuncio non trovato"))
+            }
+        }.addOnFailureListener { exception ->
+            onFailure(exception)
+        }
+    }
+
+
+    // Funzione unica per ottenere le prenotazioni in base al ruolo (tutor o studente)
+    fun getPrenotazioniPerRuolo(
+        userId: String,
+        isTutor: Boolean,
+        onSuccess: (List<Prenotazione>) -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        val db = FirebaseFirestore.getInstance()
+        val query = if (isTutor) {
+            // Se è un tutor, cerca le prenotazioni dove il tutorRef è uguale al document reference del tutor
+            db.collection("prenotazioni").whereEqualTo("tutorRef", db.collection("utenti").document(userId))
+        } else {
+            // Se è uno studente, cerca le prenotazioni dove il studenteRef è uguale all'userId
+            db.collection("prenotazioni").whereEqualTo("studenteRef", userId)
+        }
+
+        query.get()
+            .addOnSuccessListener { querySnapshot ->
+                val prenotazioni = querySnapshot.toObjects(Prenotazione::class.java)
+                onSuccess(prenotazioni) // Restituisci direttamente la lista delle prenotazioni
+            }
+            .addOnFailureListener { exception ->
+                onFailure(exception)
+            }
+    }
+
+
 }

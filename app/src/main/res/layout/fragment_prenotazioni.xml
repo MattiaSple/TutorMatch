@@ -4,11 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".ui.view.fragment.PrenotazioniFragment">
 
-    <data>
-        <variable
-            name="viewModel"
-            type="com.example.tutormatch.ui.viewmodel.PrenotazioneViewModel" />
-    </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"

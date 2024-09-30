@@ -28,10 +28,10 @@
         tools:layout="@layout/fragment_ricerca_tutor" />
 
     <fragment
-        android:id="@+id/navigation_studente"
+        android:id="@+id/navigation_prenotazione"
         android:name="com.example.tutormatch.ui.view.fragment.PrenotazioniFragment"
         android:label="Studente"
-        tools:layout="@layout/fragment_prenotazioni_studente" />
+        tools:layout="@layout/fragment_prenotazioni" />
     <fragment
         android:id="@+id/navigation_chat"
         android:name="com.example.tutormatch.ui.view.fragment.ChatFragment"
