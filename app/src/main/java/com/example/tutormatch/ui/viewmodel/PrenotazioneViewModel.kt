@@ -17,7 +17,7 @@ class PrenotazioneViewModel : ViewModel() {
     private val _listaPrenotazioni = MutableLiveData<List<Prenotazione>>()
     val listaPrenotazioni: LiveData<List<Prenotazione>> get() = _listaPrenotazioni
 
-    fun setPrenotazioni(prenotazioniSelezionate: List<Calendario>, studenteRef: String, annuncioRef: String) {
+    fun setPrenotazioni(prenotazioniSelezionate: List<Calendario>, studenteRef: String, annuncioRef: String, onComplete: () -> Unit) {
         listaCreaPrenotazioni = prenotazioniSelezionate
 
         // Chiamata a FirebaseUtil per salvare le prenotazioni su Firestore
@@ -26,7 +26,8 @@ class PrenotazioneViewModel : ViewModel() {
             idStudente = studenteRef,
             annuncioId = annuncioRef,
             onSuccess = {
-                Log.d("Prenotazione", "Prenotazioni salvate con successo")
+                caricaPrenotazioni(false, studenteRef)
+                onComplete()
             },
             onFailure = { exception ->
                 Log.e("Prenotazione", "Errore nel salvataggio delle prenotazioni: ${exception.message}")
@@ -47,5 +48,27 @@ class PrenotazioneViewModel : ViewModel() {
             }
         )
     }
+
+    fun eliminaPrenotazione(prenotazione: Prenotazione) {
+        FirebaseUtil.eliminaPrenotazioneF(
+            prenotazione,
+            onSuccess = {
+                // Verifica che la lista delle prenotazioni non sia null e aggiorna la lista
+                val nuovaLista = _listaPrenotazioni.value?.toMutableList() ?: mutableListOf()
+
+                // Rimuovi la prenotazione dalla lista se presente
+                if (nuovaLista.remove(prenotazione)) {
+                    _listaPrenotazioni.value = nuovaLista
+                } else {
+                    Log.w("PrenotazioneViewModel", "Prenotazione non trovata nella lista")
+                }
+            },
+            onFailure = { exception ->
+                // Gestisci l'errore
+                Log.e("PrenotazioneViewModel", "Errore nell'eliminazione: ${exception.message}")
+            }
+        )
+    }
+
 }
 

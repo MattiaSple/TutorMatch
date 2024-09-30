@@ -243,7 +243,6 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-
     fun getTutorDaAnnuncio(annuncioId: String, callback: (DocumentReference?) -> Unit) {
         FirebaseUtil.getTutorDaAnnuncioF(
             annuncioId,
@@ -256,7 +255,9 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
             }
         )
     }
+
     fun ordinaFasceOrarie(fasceOrarie: List<Calendario>): List<Calendario> {
         return fasceOrarie.sortedBy { it.oraInizio }
     }
+
 }

@@ -9,6 +9,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.tutormatch.databinding.FragmentPrenotazioniBinding
+import com.example.tutormatch.ui.adapter.AnnuncioAdapter
 import com.example.tutormatch.ui.adapter.PrenotazioneAdapter
 import com.example.tutormatch.ui.viewmodel.PrenotazioneViewModel
 
@@ -33,8 +34,10 @@ class PrenotazioniFragment : Fragment() {
         val userId = arguments?.getString("userId")
         val ruolo = arguments?.getBoolean("ruolo")
 
+
+        //setUpRecycle view
         adapterPrenotazione = PrenotazioneAdapter(emptyList(), ruolo!!) { prenotazione ->
-            // Gestisci il click per eliminare la prenotazione, se necessario
+            prenotazioneViewModel.eliminaPrenotazione(prenotazione)
         }
         binding.recyclerViewPrenotazioni.layoutManager = LinearLayoutManager(context)
         binding.recyclerViewPrenotazioni.adapter = adapterPrenotazione
@@ -51,6 +54,8 @@ class PrenotazioniFragment : Fragment() {
 
 
     }
+
+
 
     override fun onDestroyView() {
         super.onDestroyView()
