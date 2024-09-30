@@ -191,7 +191,8 @@ object FirebaseUtil {
                                 val prenotazione = mapOf(
                                     "annuncioRef" to annuncioRef,
                                     "fasciaCalendarioRef" to calendarioRef,
-                                    "studenteRef" to db.collection("utenti").document(idStudente)
+                                    "studenteRef" to idStudente,
+                                    "tutorRef" to tutorRef!!.id
                                 )
 
                                 // Aggiungi la prenotazione al batch
@@ -290,7 +291,7 @@ object FirebaseUtil {
         val db = FirebaseFirestore.getInstance()
         val query = if (isTutor) {
             // Se è un tutor, cerca le prenotazioni dove il tutorRef è uguale al document reference del tutor
-            db.collection("prenotazioni").whereEqualTo("tutorRef", db.collection("utenti").document(userId))
+            db.collection("prenotazioni").whereEqualTo("tutorRef", userId)
         } else {
             // Se è uno studente, cerca le prenotazioni dove il studenteRef è uguale all'userId
             db.collection("prenotazioni").whereEqualTo("studenteRef", userId)

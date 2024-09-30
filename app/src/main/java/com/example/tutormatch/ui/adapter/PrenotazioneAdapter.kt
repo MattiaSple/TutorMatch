@@ -20,13 +20,13 @@ class PrenotazioneAdapter(
         fun bind(prenotazione: Prenotazione) {
             // Recupera in modo atomico i dettagli dell'annuncio e della fascia oraria tramite FirebaseUtil
             FirebaseUtil.getNomeCognomeUtenteAtomico(
-                annuncioRef = prenotazione.annuncioRef,
-                calendarioRef = prenotazione.fasciaCalendarioRef,
+                annuncioRef = prenotazione.annuncioRef!!,
+                calendarioRef = prenotazione.fasciaCalendarioRef!!,
                 studenteId = prenotazione.studenteRef,  // Passa l'userId dello studente
                 isTutor = ruolo,  // Flag che indica se chi visualizza è un tutor
                 onSuccess = { annuncio, calendario, nome, cognome ->
                     // Usa i dati recuperati
-                    binding.tvMateria.text = "Materia: ${annuncio.materia}"
+                    binding.tvMateria.text = "${annuncio.materia}"
                     binding.tvNomeCognome.text = if (ruolo) {
                         "Studente: $nome $cognome"
                     } else {
@@ -34,7 +34,7 @@ class PrenotazioneAdapter(
                     }
                     binding.tvPrezzo.text = "Prezzo: ${annuncio.prezzo} €"
                     binding.tvOrarioLezione.text = "Orario: ${calendario.oraInizio} - ${calendario.oraFine}"
-                    binding.tvModalita.text = "Modalità: ${annuncio.getModalita()}"
+                    binding.tvModalita.text = "${annuncio.getModalita()}"
                 },
                 onFailure = { exception ->
                     // Gestisci l'errore

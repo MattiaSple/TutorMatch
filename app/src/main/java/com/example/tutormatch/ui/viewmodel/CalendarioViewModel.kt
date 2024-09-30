@@ -33,6 +33,8 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
     val oraFine = MutableLiveData<String>()
     val statoPren = MutableLiveData<Boolean>()
 
+    lateinit var tutorId: String
+
     private lateinit var _tutorRef: DocumentReference
 
     private var updateOrariInizioCallback: (() -> Unit)? = null
@@ -40,6 +42,7 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
     fun setUpdateOrariInizioCallback(callback: () -> Unit) {
         updateOrariInizioCallback = callback
     }
+
 
     fun setTutorReference(tutorRef: DocumentReference) {
         _tutorRef = tutorRef
