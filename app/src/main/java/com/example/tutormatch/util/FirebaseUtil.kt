@@ -322,7 +322,6 @@ object FirebaseUtil {
 
         // 3. Trova il documento della prenotazione
         db.collection("prenotazioni")
-            .whereEqualTo("annuncioRef", prenotazione.annuncioRef)
             .whereEqualTo("tutorRef", prenotazione.tutorRef)
             .whereEqualTo("fasciaCalendarioRef", prenotazione.fasciaCalendarioRef)
             .get()
