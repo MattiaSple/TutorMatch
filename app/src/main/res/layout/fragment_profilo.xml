@@ -16,24 +16,28 @@
 
         <androidx.cardview.widget.CardView
             android:id="@+id/cardView"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
-            app:cardBackgroundColor="@color/statusBarColor"
-            app:cardCornerRadius="8dp"
+            app:cardBackgroundColor="@color/coloreSecondario"
+            app:cardCornerRadius="16dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
             <TextView
+                android:id="@+id/titolo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
                 android:gravity="center"
                 android:padding="16dp"
-                android:text="Profilo"
-                android:textColor="#FFFFFF"
+                android:text="@string/profilo"
+                android:textColor="@color/colorBackground"
                 android:textSize="24sp"
                 android:textStyle="bold" />
+
         </androidx.cardview.widget.CardView>
 
         <ScrollView
@@ -51,14 +55,14 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Nome" />
+                    android:text="@string/textNome" />
 
                 <EditText
                     android:id="@+id/name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:backgroundTint="#000000"
-                    android:hint="Nome"
+                    android:hint="@string/editTextNome"
                     android:minHeight="48dp"
                     android:padding="10dp"
                     android:text="@={viewModel.nome}" />
@@ -66,14 +70,14 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Cognome" />
+                    android:text="@string/textCognome" />
 
                 <EditText
                     android:id="@+id/cognome"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:backgroundTint="#000000"
-                    android:hint="Cognome"
+                    android:hint="@string/editTextCognome"
                     android:minHeight="48dp"
                     android:padding="10dp"
                     android:text="@={viewModel.cognome}" />
@@ -81,14 +85,14 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Residenza" />
+                    android:text="@string/textResidenza" />
 
                 <EditText
                     android:id="@+id/residenza"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:backgroundTint="#000000"
-                    android:hint="Residenza"
+                    android:hint="@string/editTextResidenza"
                     android:minHeight="48dp"
                     android:padding="10dp"
                     android:text="@={viewModel.residenza}" />
@@ -96,14 +100,14 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Via" />
+                    android:text="@string/textVia" />
 
                 <EditText
                     android:id="@+id/via"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:backgroundTint="#000000"
-                    android:hint="Via"
+                    android:hint="@string/editTextVia"
                     android:minHeight="48dp"
                     android:padding="10dp"
                     android:text="@={viewModel.via}" />
@@ -111,14 +115,14 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="CAP" />
+                    android:text="@string/textCap" />
 
                 <EditText
                     android:id="@+id/civico"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:backgroundTint="#000000"
-                    android:hint="60234"
+                    android:hint="@string/editTextCivico"
                     android:inputType="number"
                     android:minHeight="48dp"
                     android:padding="10dp"
@@ -143,8 +147,8 @@
                 android:id="@+id/salva"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:backgroundTint="#4D7881"
-                android:text="Salva"
+                android:backgroundTint="@color/coloreSecondario"
+                android:text="@string/salva"
                 android:textColor="#FFFFFF" />
 
             <Button
@@ -152,9 +156,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:backgroundTint="@color/statusBarColor"
-                android:text="Elimina Account" />
-
+                android:backgroundTint="@color/coloreSecondario"
+                android:text="@string/eliminaAccount" />
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

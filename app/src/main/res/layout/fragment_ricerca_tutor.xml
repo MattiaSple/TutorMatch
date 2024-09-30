@@ -9,28 +9,29 @@
 
     <!-- Header CardView with Title -->
     <androidx.cardview.widget.CardView
-        android:id="@+id/headerCardView"
-        android:layout_width="0dp"
+        android:id="@+id/cardView"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        app:cardBackgroundColor="@color/statusBarColor"
-        app:cardCornerRadius="8dp"
-        app:cardElevation="4dp"
+        android:layout_margin="16dp"
+        app:cardBackgroundColor="@color/coloreSecondario"
+        app:cardCornerRadius="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
+            android:id="@+id/titolo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
             android:gravity="center"
             android:padding="16dp"
-            android:text="Ricerca Tutor"
-            android:textColor="@android:color/white"
-            android:textSize="20sp"
+            android:text="@string/ricercaTutor"
+            android:textColor="@color/colorBackground"
+            android:textSize="24sp"
             android:textStyle="bold" />
+
     </androidx.cardview.widget.CardView>
 
     <!-- MapView -->
@@ -38,7 +39,7 @@
         android:id="@+id/mapView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@+id/headerCardView"
+        app:layout_constraintTop_toBottomOf="@+id/cardView"
         app:layout_constraintBottom_toTopOf="@+id/searchParamsLayout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -62,7 +63,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:paddingBottom="8dp"
-            android:text="Parametri di ricerca"
+            android:text="@string/parametriRicerca"
             android:textSize="18sp"
             android:textColor="@android:color/black" />
 
@@ -78,13 +79,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="20dp"
-                android:text="Materia:"
+                android:text="@string/materia"
                 android:textColor="@android:color/black" />
 
             <Spinner
                 android:id="@+id/subjectSpinner"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="48dp"
                 android:layout_weight="1"
                 android:padding="8dp"
                 android:textColor="@android:color/black"
@@ -103,7 +104,7 @@
                 android:id="@+id/budgetLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Budget (€):"
+                android:text="@string/budget"
                 android:textColor="@android:color/black"
                 android:layout_marginEnd="8dp"/>
 
@@ -136,7 +137,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="20dp"
-                android:text="Modalità:"
+                android:text="@string/mod"
                 android:textColor="@android:color/black" />
 
             <CheckBox
@@ -144,14 +145,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="30dp"
-                android:text="Online"
+                android:text="@string/on"
                 android:textColor="@android:color/black" />
 
             <CheckBox
                 android:id="@+id/inPersonCheckBox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="In presenza"
+                android:text="@string/pres"
                 android:textColor="@android:color/black" />
         </LinearLayout>
 
@@ -167,8 +168,8 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:backgroundTint="@color/statusBarColor"
-                android:text="Reset"
+                android:backgroundTint="@color/coloreSecondario"
+                android:text="@string/reset"
                 android:textColor="@android:color/white"
                 android:padding="8dp" />
 
@@ -177,8 +178,8 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:backgroundTint="@color/statusBarColor"
-                android:text="Applica"
+                android:backgroundTint="@color/coloreSecondario"
+                android:text="@string/applica"
                 android:textColor="@android:color/white"
                 android:padding="8dp" />
         </LinearLayout>

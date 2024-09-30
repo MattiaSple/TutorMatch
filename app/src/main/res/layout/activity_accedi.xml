@@ -14,38 +14,31 @@
         android:layout_height="match_parent"
         tools:context=".ui.view.activity.LoginActivity">
 
-        <FrameLayout
-            android:id="@+id/frameLayout"
-            android:layout_width="0dp"
-            android:layout_height="70dp"
-            android:maxHeight="200dp"
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            app:cardBackgroundColor="@color/coloreSecondario"
+            app:cardCornerRadius="16dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHeight_default="wrap"
-            app:layout_constraintHeight_max="200dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cardView"
+            <TextView
+                android:id="@+id/titolo"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                app:cardBackgroundColor="@color/statusBarColor"
-                app:cardElevation="4dp">
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+                android:gravity="center"
+                android:padding="16dp"
+                android:text="@string/accedi"
+                android:textColor="@color/colorBackground"
+                android:textSize="24sp"
+                android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/titolo"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:gravity="center"
-                    android:text="Accedi"
-                    android:textColor="@color/colorBackground"
-                    android:textSize="24sp"
-                    android:textStyle="bold" />
-
-            </androidx.cardview.widget.CardView>
-
-        </FrameLayout>
+        </androidx.cardview.widget.CardView>
 
         <ImageView
             android:id="@+id/imageView4"
@@ -56,7 +49,7 @@
             app:layout_constraintBottom_toTopOf="@+id/linearLayout"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/frameLayout"
+            app:layout_constraintTop_toBottomOf="@+id/cardView"
             app:srcCompat="@drawable/group_38" />
 
         <LinearLayout
@@ -75,31 +68,31 @@
                 android:id="@+id/textView12"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Email" />
+                android:text="@string/textEmail" />
 
             <EditText
                 android:id="@+id/email"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:backgroundTint="#000000"
-                android:hint="Email"
                 android:inputType="textEmailAddress"
                 android:minHeight="48dp"
                 android:padding="10dp"
+                android:hint="@string/editTextEmail"
                 android:text="@={viewModel.email}" />
 
             <TextView
                 android:id="@+id/textView13"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Password" />
+                android:text="@string/textPassword" />
 
             <EditText
                 android:id="@+id/password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:backgroundTint="#000000"
-                android:hint="Password"
+                android:hint="@string/textPassword"
                 android:inputType="textPassword"
                 android:minHeight="48dp"
                 android:padding="10dp"
@@ -110,9 +103,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="60px"
-                android:backgroundTint="#4D7881"
+                android:backgroundTint="@color/coloreSecondario"
                 android:onClick="@{() -> viewModel.onLoginClick()}"
-                android:text="Accedi" />
+                android:text="@string/accedi" />
 
             <Button
                 android:id="@+id/back"
@@ -120,7 +113,7 @@
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:onClick="@{() -> viewModel.onBackClick()}"
-                android:text="Non hai un account? Registrati"
+                android:text="@string/noAccount"
                 android:textAllCaps="false"
                 android:textColor="@android:color/holo_blue_dark" />
 
@@ -130,7 +123,7 @@
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:onClick="@{() -> viewModel.onForgotPasswordClick()}"
-                android:text="Password dimenticata?"
+                android:text="@string/passwordDimentica"
                 android:textAllCaps="false"
                 android:textColor="@android:color/holo_blue_dark" />
 

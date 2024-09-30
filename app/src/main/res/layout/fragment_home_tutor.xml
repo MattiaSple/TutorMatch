@@ -16,10 +16,11 @@
         <!-- CardView per il titolo -->
         <androidx.cardview.widget.CardView
             android:id="@+id/cardView"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
-            app:cardBackgroundColor="@color/statusBarColor"
+            app:cardBackgroundColor="@color/coloreSecondario"
+            app:cardCornerRadius="16dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -28,9 +29,11 @@
                 android:id="@+id/titolo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
                 android:gravity="center"
                 android:padding="16dp"
-                android:text="Home"
+                android:text="@string/home"
                 android:textColor="@color/colorBackground"
                 android:textSize="24sp"
                 android:textStyle="bold" />
@@ -60,7 +63,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
-                    app:cardBackgroundColor="@color/statusBarColor"
+                    app:cardBackgroundColor="@color/coloreSecondario"
                     app:cardCornerRadius="20dp">
 
                     <TextView
@@ -68,7 +71,7 @@
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:padding="10dp"
-                        android:text="Crea il tuo annuncio"
+                        android:text="@string/creaAnnuncio"
                         android:textColor="@color/colorBackground"
                         android:textSize="18sp"
                         android:textStyle="bold" />
@@ -97,7 +100,7 @@
                             android:layout_width="0dp"
                             android:layout_height="48dp"
                             android:layout_weight="1"
-                            android:text="Materia:"
+                            android:text="@string/materia"
                             android:textStyle="bold" />
 
                         <Spinner
@@ -122,7 +125,7 @@
                             android:layout_width="0dp"
                             android:layout_height="48dp"
                             android:layout_weight="1"
-                            android:text="Costo:"
+                            android:text="@string/prezzo"
                             android:textStyle="bold" />
 
                         <EditText
@@ -131,7 +134,7 @@
                             android:layout_height="48dp"
                             android:layout_weight="2"
                             android:ems="10"
-                            android:hint="Inserisci prezzo"
+                            android:hint="@string/insPrezzo"
                             android:inputType="number"
                             android:text="@={viewModel.prezzo}" />
                     </LinearLayout>
@@ -148,7 +151,7 @@
                             android:id="@+id/textView9"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Descrizione:"
+                            android:text="@string/descrizione"
                             android:textAlignment="viewStart"
                             android:textStyle="bold" />
 
@@ -156,7 +159,7 @@
                             android:id="@+id/editTextDescrizione"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="Inserire descrizione"
+                            android:hint="@string/insDesc"
                             android:minHeight="48dp"
                             android:text="@={viewModel.descrizione}" />
                     </LinearLayout>
@@ -173,7 +176,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Modalità:"
+                            android:text="@string/mod"
                             android:textStyle="bold" />
 
                         <CheckBox
@@ -182,7 +185,7 @@
                             android:layout_height="48dp"
                             android:layout_weight="1"
                             android:checked="@={viewModel.online}"
-                            android:text="Online" />
+                            android:text="@string/on" />
 
                         <CheckBox
                             android:id="@+id/checkBoxPresenza"
@@ -190,7 +193,7 @@
                             android:layout_height="48dp"
                             android:layout_weight="1"
                             android:checked="@={viewModel.presenza}"
-                            android:text="Presenza" />
+                            android:text="@string/pres" />
                     </LinearLayout>
 
                     <!-- Pulsanti per salvare o eliminare l'annuncio -->
@@ -199,8 +202,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="0dp"
                         android:layout_weight="1"
-                        android:backgroundTint="@color/statusBarColor"
-                        android:text="Salva"
+                        android:backgroundTint="@color/coloreSecondario"
+                        android:text="@string/salva"
                         android:textColor="@color/colorBackground" />
 
                 </LinearLayout>
@@ -212,7 +215,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="15dp"
                     android:layout_marginBottom="10dp"
-                    app:cardBackgroundColor="@color/statusBarColor"
+                    app:cardBackgroundColor="@color/coloreSecondario"
                     app:cardCornerRadius="20dp">
 
                     <TextView
@@ -220,7 +223,7 @@
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:padding="10dp"
-                        android:text="I tuoi annunci"
+                        android:text="@string/tuoiAnnunci"
                         android:textColor="@color/colorBackground"
                         android:textSize="16sp"
                         android:textStyle="bold" />

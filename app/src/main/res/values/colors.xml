@@ -2,7 +2,7 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="colorBackground">#FFFFFFFF</color>
-    <color name="statusBarColor">#4D7881</color>
-    <color name="markerBackgroundColor">#F2F2F2</color> <!-- Un grigio molto chiaro -->
-
+    <color name="statusBarColor">#FFFFFFFF</color>
+    <color name="markerBackgroundColor">#F2F2F2</color>
+    <color name="coloreSecondario">#4D7881</color>
 </resources>

@@ -18,9 +18,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
-            android:text="Torna alle chat"
+            android:text="@string/backButton"
             android:background="@android:color/transparent"
-            android:textColor="@color/statusBarColor"/>
+            android:textColor="@color/coloreSecondario"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerViewMessages"
@@ -43,7 +43,7 @@
                 android:layout_weight="1"
                 android:minHeight="48dp"
                 android:padding="8dp"
-                android:hint="Scrivi un messaggio"
+                android:hint="@string/scriviUnMessaggio"
                 android:inputType="text"
                 android:text="@={viewModel.newMessage}" />
 
@@ -51,10 +51,10 @@
                 android:id="@+id/buttonSend"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Invia"
+                android:text="@string/invia"
                 android:onClick="@{() -> viewModel.sendMessage()}"
                 android:background="@android:color/transparent"
-                android:textColor="@color/statusBarColor"/>
+                android:textColor="@color/coloreSecondario"/>
 
         </LinearLayout>
     </LinearLayout>

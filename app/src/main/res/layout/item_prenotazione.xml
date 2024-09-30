@@ -5,7 +5,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
-        app:cardBackgroundColor="@color/statusBarColor"
+        app:cardBackgroundColor="@color/coloreSecondario"
         app:cardCornerRadius="12dp"
         app:cardElevation="4dp">
 
@@ -67,8 +67,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:backgroundTint="@color/colorBackground"
-                android:text="Elimina"
-                android:textColor="@color/statusBarColor" />
+                android:text="@string/elimina"
+                android:textColor="@color/coloreSecondario" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 </layout>

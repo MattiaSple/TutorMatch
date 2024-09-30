@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
         <variable
@@ -10,8 +11,33 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:gravity="center_horizontal"> <!-- Centra orizzontalmente gli elementi -->
 
+        <!-- CardView centrato -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            app:cardBackgroundColor="@color/coloreSecondario"
+            app:cardCornerRadius="16dp">
+
+            <TextView
+                android:id="@+id/titolo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+                android:gravity="center"
+                android:padding="16dp"
+                android:text="@string/chat"
+                android:textColor="@color/colorBackground"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+        </androidx.cardview.widget.CardView>
+
+        <!-- RecyclerView per i messaggi di chat -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerViewChat"
             android:layout_width="match_parent"
@@ -21,4 +47,3 @@
 
     </LinearLayout>
 </layout>
-

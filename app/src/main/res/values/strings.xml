@@ -1,4 +1,51 @@
 <resources>
+    <string name="noAccount">Non hai un account? Registrati</string>
+    <string name="passwordDimentica">Password dimenticata?</string>
+
+    <string name="registrati">Registrati</string>
+
+    <string name="fasceOrarie">Selezione le fasce orarie</string>
+    <string name="lezioniDisponibili">Lezioni disponibili</string>
+    <string name="prenota">Prenota</string>
+
+    <string name="calendario">Calendario</string>
+    <string name="orarioInizio">Orario inizio</string>
+    <string name="orarioFine">Orario fine</string>
+    <string name="aggDisponibilita">Aggiungi disponibilità</string>
+
+    <string name="chat">Chat</string>
+
+    <string name="backButton">Torna alle chat</string>
+    <string name="scriviUnMessaggio">Scrivi un messaggio</string>
+    <string name="invia">Invia</string>
+
+    <string name="home">Home</string>
+    <string name="comeFunziona">Come funziona?</string>
+
+    <string name="creaAnnuncio">Crea il tuo annuncio</string>
+    <string name="materia">Materia:</string>
+    <string name="prezzo">Prezzo:</string>
+    <string name="insPrezzo">Inserire prezzo</string>
+    <string name="descrizione">Descrizione</string>
+    <string name="insDesc">Inserire descrizione</string>
+    <string name="mod">Modalità</string>
+    <string name="on">Online</string>
+    <string name="pres">Presenza</string>
+    <string name="salva">Salva</string>
+    <string name="tuoiAnnunci">I tuoi annunci</string>
+
+    <string name="prenotazioni">Prenotazioni</string>
+
+    <string name="profilo">Profilo</string>
+    <string name="eliminaAccount">Elimina account</string>
+
+    <string name="ricercaTutor">Ricerca tutor</string>
+    <string name="parametriRicerca">Parametri di ricerca</string>
+    <string name="budget">Budget (€):</string>
+    <string name="reset">Reset</string>
+    <string name="applica">Applica</string>
+
+    <string name="elimina">Elimina</string>
     <!-- tag della pagina Home (activity_main) -->
 
     <string name="app_name">TutorMatch</string>

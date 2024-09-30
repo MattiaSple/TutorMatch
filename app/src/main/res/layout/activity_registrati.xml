@@ -15,40 +15,31 @@
         tools:context=".auth.AuthActivity">
 
 
-        <FrameLayout
-            android:id="@+id/frameLayout"
-            android:layout_width="0dp"
-            android:layout_height="135dp"
-            android:maxHeight="200dp"
-            app:layout_constraintBottom_toTopOf="@+id/scrollView"
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            app:cardBackgroundColor="@color/coloreSecondario"
+            app:cardCornerRadius="16dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHeight_default="wrap"
-            app:layout_constraintHeight_max="200dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cardView"
+            <TextView
+                android:id="@+id/titolo"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                app:cardBackgroundColor="@color/statusBarColor"
-                app:cardElevation="4dp">
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+                android:gravity="center"
+                android:padding="16dp"
+                android:text="@string/registrati"
+                android:textColor="@color/colorBackground"
+                android:textSize="24sp"
+                android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/titolo"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:gravity="center"
-                    android:fontFamily="@font/poppins_light"
-                    android:text="Registrati"
-                    android:textColor="@color/colorBackground"
-                    android:textSize="34sp"
-                    android:textStyle="bold" />
-
-            </androidx.cardview.widget.CardView>
-
-        </FrameLayout>
+        </androidx.cardview.widget.CardView>
 
         <ScrollView
             android:id="@+id/scrollView"
@@ -57,7 +48,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/frameLayout">
+            app:layout_constraintTop_toBottomOf="@+id/cardView">
 
             <LinearLayout
                 android:id="@+id/linearLayout"
@@ -223,9 +214,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
-                        android:backgroundTint="#4D7881"
+                        android:backgroundTint="@color/coloreSecondario"
                         android:onClick="@{() -> viewModel.onRegisterClick()}"
-                        android:text="Crea un account tutor"
+                        android:text="@string/crea_un_account_tutor"
                         android:textColor="#FFFFFF" />
 
                     <Button

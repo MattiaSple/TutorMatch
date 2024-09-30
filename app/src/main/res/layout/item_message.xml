@@ -27,7 +27,7 @@
             app:cardCornerRadius="16dp"
             app:cardElevation="4dp"
             android:padding="8dp"
-            app:cardBackgroundColor="@{isMine ? @color/statusBarColor : @color/colorBackground}">
+            app:cardBackgroundColor="@{isMine ? @color/coloreSecondario : @color/colorBackground}">
 
             <LinearLayout
                 android:layout_width="wrap_content"

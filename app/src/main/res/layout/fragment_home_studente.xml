@@ -16,10 +16,11 @@
         <!-- Titolo fuori dalla ScrollView -->
         <androidx.cardview.widget.CardView
             android:id="@+id/cardView"
-            android:layout_width="match_parent"
-            android:layout_height="70dp"
-            app:cardBackgroundColor="@color/statusBarColor"
-            app:cardElevation="4dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            app:cardBackgroundColor="@color/coloreSecondario"
+            app:cardCornerRadius="16dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -28,19 +29,17 @@
                 android:id="@+id/titolo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
                 android:gravity="center"
                 android:padding="16dp"
-                android:text="Home"
+                android:text="@string/home"
                 android:textColor="@color/colorBackground"
                 android:textSize="24sp"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="@+id/cardView"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/cardView" />
+                android:textStyle="bold" />
 
         </androidx.cardview.widget.CardView>
+
 
         <!-- ScrollView per contenuti -->
         <ScrollView
@@ -65,7 +64,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    app:cardBackgroundColor="@color/statusBarColor"
+                    app:cardBackgroundColor="@color/coloreSecondario"
                     app:cardCornerRadius="15dp"
                     app:cardElevation="4dp">
 
@@ -75,7 +74,7 @@
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:padding="10dp"
-                        android:text="Come funziona?"
+                        android:text="@string/comeFunziona"
                         android:textColor="@android:color/white"
                         android:textSize="16sp"
                         android:textStyle="bold" />
