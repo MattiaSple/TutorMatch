@@ -33,8 +33,6 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
     val oraFine = MutableLiveData<String>()
     val statoPren = MutableLiveData<Boolean>()
 
-    lateinit var tutorId: String
-
     private lateinit var _tutorRef: DocumentReference
 
     private var updateOrariInizioCallback: (() -> Unit)? = null
@@ -149,64 +147,59 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
             return false
         }
 
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ITALY).apply {
-            timeZone = TimeZone.getTimeZone("Europe/Rome")  // Usa il fuso orario italiano
-        }
-        val timeFormat = SimpleDateFormat("HH:mm", Locale.ITALY).apply {
-            timeZone = TimeZone.getTimeZone("Europe/Rome")  // Usa il fuso orario italiano
-        }
+        // Parsing della data e delle ore
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
         val dataParsed = dateFormat.parse(dataVal)
 
         val inizioParsed = timeFormat.parse(oraInizioVal)
-        var fineParsed = timeFormat.parse(oraFineVal)
-
-        val disponibilitaList = mutableListOf<Calendario>()
-        val calendar = Calendar.getInstance(TimeZone.getTimeZone("Europe/Rome")).apply { time = inizioParsed }
+        val fineParsed = timeFormat.parse(oraFineVal)
 
         if (fineParsed.before(inizioParsed)) {
-            val calendarFine = Calendar.getInstance(TimeZone.getTimeZone("Europe/Rome")).apply {
-                time = fineParsed
-                add(Calendar.DAY_OF_MONTH, 1)
-            }
-            fineParsed = calendarFine.time
-        }
-
-        while (calendar.time.before(fineParsed)) {
-            val oraInizioStr = timeFormat.format(calendar.time)
-            calendar.add(Calendar.HOUR_OF_DAY, 1)
-            val oraFineStr = timeFormat.format(calendar.time)
-
-            if (calendar.time.after(fineParsed)) {
-                break
-            }
-
-            disponibilitaList.add(Calendario(
-                tutorRef = _tutorRef,
-                data = dataParsed,
-                oraInizio = oraInizioStr,
-                oraFine = oraFineStr,
-                statoPren = statoPrenVal
-            ))
+            _message.value = "L'ora di fine non può essere prima dell'ora di inizio!"
+            return false
         }
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                for (disponibilita in disponibilitaList) {
-                    val existingSnapshot = disponibilitaCollection
-                        .whereEqualTo("tutorRef", disponibilita.tutorRef)
-                        .whereEqualTo("data", disponibilita.data)
-                        .whereEqualTo("oraInizio", disponibilita.oraInizio)
-                        .get()
-                        .await()
+                val disponibilitaList = mutableListOf<Calendario>()
+                val calendar = Calendar.getInstance().apply { time = inizioParsed }
 
-                    if (existingSnapshot.isEmpty) {
-                        disponibilitaCollection.add(disponibilita).await()
+                while (calendar.time.before(fineParsed)) {
+                    val oraInizioStr = timeFormat.format(calendar.time)
+                    calendar.add(Calendar.HOUR_OF_DAY, 1)
+                    val oraFineStr = timeFormat.format(calendar.time)
+
+                    if (calendar.time.after(fineParsed)) {
+                        break
                     }
+
+                    // Crea la disponibilità senza idCalendario, che sarà aggiornato successivamente
+                    val disponibilita = Calendario(
+                        tutorRef = _tutorRef,
+                        data = dataParsed,
+                        oraInizio = oraInizioStr,
+                        oraFine = oraFineStr,
+                        statoPren = statoPrenVal
+                    )
+
+//                    // Aggiungi la disponibilità alla collezione su Firestore e ottieni il documento generato
+//                    val documentReference = disponibilitaCollection.add(disponibilita).await()
+//
+//                    // Ottieni l'UID generato da Firestore
+//                    val documentId = documentReference.id
+//
+//                    // (Opzionale) Aggiorna l'ID anche su Firestore, nel caso voglia avere l'ID anche come campo
+//                    documentReference.update("idCalendario", documentId).await()
+
+                    // Aggiungi alla lista locale
+                    disponibilitaList.add(disponibilita)
                 }
+
                 withContext(Dispatchers.Main) {
                     _message.value = "Disponibilità salvate con successo"
                 }
-                loadDisponibilita()
+                loadDisponibilita()  // Aggiorna la lista delle disponibilità
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     _message.value = "Errore nel salvataggio della disponibilità: ${e.message}"
@@ -215,6 +208,7 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
         }
         return true
     }
+
 
 
     fun eliminaDisponibilita(calendario: Calendario) {
