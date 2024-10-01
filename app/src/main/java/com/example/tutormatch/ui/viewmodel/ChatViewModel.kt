@@ -23,7 +23,7 @@ class ChatViewModel : ViewModel() {
     }
 
     // Caricamento e aggiornamento in tempo reale delle chat dell'utente
-    private fun loadUserChats() {
+    fun loadUserChats() {
         val userEmail = FirebaseAuth.getInstance().currentUser?.email
         val chatList = mutableListOf<Chat>()
 
@@ -38,7 +38,6 @@ class ChatViewModel : ViewModel() {
 
             override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
                 val chat = snapshot.getValue(Chat::class.java)
-                val userEmail = FirebaseAuth.getInstance().currentUser?.email
                 if (chat != null && chat.participants.contains(userEmail)) {
                     val index = chatList.indexOfFirst { it.id == chat.id }
                     if (index != -1) {
@@ -56,14 +55,19 @@ class ChatViewModel : ViewModel() {
                 }
             }
 
-            override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
-                // Non necessario per questa implementazione
-            }
-
+            override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {}
             override fun onCancelled(error: DatabaseError) {
                 Log.e("ChatViewModel", "Error loading chats: ${error.message}")
             }
         })
+    }
+
+    fun deleteChat(chatId: String, onSuccess: () -> Unit) {
+        chatRef.child(chatId).removeValue()
+            .addOnSuccessListener { onSuccess() }
+            .addOnFailureListener { error ->
+                Log.e("ChatViewModel", "Errore durante l'eliminazione della chat: ${error.message}")
+            }
     }
 
     // Funzione per creare una chat con un tutor

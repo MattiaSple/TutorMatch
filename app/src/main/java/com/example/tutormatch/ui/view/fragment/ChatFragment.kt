@@ -5,16 +5,16 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.tutormatch.databinding.FragmentChatBinding
 import com.example.tutormatch.ui.adapter.ChatAdapter
 import com.example.tutormatch.ui.viewmodel.ChatViewModel
 import com.example.tutormatch.ui.viewmodel.SharedViewModel
 import com.example.tutormatch.ui.view.activity.HomeActivity
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.tutormatch.util.FirebaseUtil
 
 class ChatFragment : Fragment() {
@@ -40,22 +40,16 @@ class ChatFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Recupera il nome completo dell'utente corrente
         val currentUserFullName = "${arguments?.getString("nome")} ${arguments?.getString("cognome")}"
-
-        // Recupera l'ID dell'utente dai parametri di "arguments"
         val userId = arguments?.getString("userId") ?: ""
 
-        // Imposta il LayoutManager per il RecyclerView
         binding.recyclerViewChat.layoutManager = LinearLayoutManager(context)
 
-        // Recupera l'utente da Firestore
         FirebaseUtil.getUserFromFirestore(userId) { utente ->
             val email = utente?.email
 
-            // Ora che hai l'email, inizializza l'adapter
             val adapter = email?.let {
-                ChatAdapter(emptyList(), currentUserFullName, it) { chat ->
+                ChatAdapter(emptyList(), currentUserFullName, it, { chat ->
                     Log.d("ChatFragment", "Chat ID: ${chat.id}")
 
                     if (chat.id.isNullOrEmpty()) {
@@ -71,22 +65,29 @@ class ChatFragment : Fragment() {
                             ruolo = arguments?.getBoolean("ruolo") ?: false
                         )
                     }
-                }
+                }, { chatToDelete ->
+                    // Mostra dialogo di conferma
+                    AlertDialog.Builder(requireContext())
+                        .setTitle("Elimina Chat")
+                        .setMessage("Sei sicuro di voler eliminare questa chat?")
+                        .setPositiveButton("Sì") { _, _ ->
+                            chatViewModel.deleteChat(chatToDelete.id) {
+                                // Ricarica il fragment dopo l'eliminazione
+                                chatViewModel.loadUserChats()
+                            }
+                        }
+                        .setNegativeButton("No", null)
+                        .show()
+                })
             }
 
-            // Imposta l'adapter per il RecyclerView
             binding.recyclerViewChat.adapter = adapter
 
-            // Osserva le modifiche alle chat e aggiorna l'adapter quando i dati cambiano
             chatViewModel.chats.observe(viewLifecycleOwner) { chats ->
-                if (adapter != null) {
-                    adapter.updateData(chats)
-                }
+                adapter?.updateData(chats)
             }
         }
     }
-
-
 
     override fun onDestroyView() {
         super.onDestroyView()
