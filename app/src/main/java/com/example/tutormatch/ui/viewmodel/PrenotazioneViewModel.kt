@@ -14,6 +14,10 @@ class PrenotazioneViewModel : ViewModel() {
     // Cambia da LiveData a una semplice variabile privata non osservata
     private var listaCreaPrenotazioni: List<Calendario> = emptyList()
 
+    // LiveData per gestire i messaggi di notifica
+    private val _notificaPrenotazione = MutableLiveData<String>()
+    val notificaPrenotazione: LiveData<String> get() = _notificaPrenotazione
+
     private val _listaPrenotazioni = MutableLiveData<List<Prenotazione>>()
     val listaPrenotazioni: LiveData<List<Prenotazione>> get() = _listaPrenotazioni
 
@@ -60,7 +64,7 @@ class PrenotazioneViewModel : ViewModel() {
                 if (nuovaLista.remove(prenotazione)) {
                     _listaPrenotazioni.value = nuovaLista
                 } else {
-                    Log.w("PrenotazioneViewModel", "Prenotazione non trovata nella lista")
+                    _notificaPrenotazione.postValue("La prenotazione selezionata è già stata eliminata, rientra nella pagina per aggiornarla")
                 }
             },
             onFailure = { exception ->
