@@ -19,8 +19,9 @@ class ChatAdapter(
     // Funzione per aggiornare i dati
     fun updateData(newChats: List<Chat>) {
         chats = newChats
-        notifyDataSetChanged()  // Notifica che i dati sono cambiati
+        notifyItemRangeChanged(0, newChats.size)  // Questo notifica che tutti gli elementi sono cambiati
     }
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatViewHolder {
         val binding = ItemChatBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -43,13 +44,13 @@ class ChatAdapter(
 
             // Crea una rappresentazione della chat con i partecipanti filtrati
             val filteredChat = chat.copy(participantsNames = filteredParticipantsNames)
-            val statusBarColor = ContextCompat.getColor(binding.root.context, R.color.statusBarColor)
+            val coloreSecondario = ContextCompat.getColor(binding.root.context, R.color.coloreSecondario)
             // Passa la chat filtrata al layout
             binding.chat = filteredChat
 
             // Cambia colore della chat se ci sono messaggi non letti
             if (chat.hasUnreadMessages(userEmail)) {
-                binding.root.setBackgroundColor(statusBarColor)  // Evidenzia se ci sono messaggi non letti
+                binding.root.setBackgroundColor(coloreSecondario)  // Evidenzia se ci sono messaggi non letti
             } else {
                 binding.root.setBackgroundColor(Color.WHITE)  // Colore normale se non ci sono messaggi non letti
             }
