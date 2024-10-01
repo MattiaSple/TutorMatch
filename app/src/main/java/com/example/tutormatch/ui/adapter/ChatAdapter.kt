@@ -44,13 +44,13 @@ class ChatAdapter(
 
             // Crea una rappresentazione della chat con i partecipanti filtrati
             val filteredChat = chat.copy(participantsNames = filteredParticipantsNames)
-            val coloreSecondario = ContextCompat.getColor(binding.root.context, R.color.coloreSecondario)
+            val statusBarColor = ContextCompat.getColor(binding.root.context, R.color.statusBarColor)
             // Passa la chat filtrata al layout
             binding.chat = filteredChat
 
             // Cambia colore della chat se ci sono messaggi non letti
             if (chat.hasUnreadMessages(userEmail)) {
-                binding.root.setBackgroundColor(coloreSecondario)  // Evidenzia se ci sono messaggi non letti
+                binding.root.setBackgroundColor(statusBarColor)  // Evidenzia se ci sono messaggi non letti
             } else {
                 binding.root.setBackgroundColor(Color.WHITE)  // Colore normale se non ci sono messaggi non letti
             }
