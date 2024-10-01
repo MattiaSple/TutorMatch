@@ -147,7 +147,6 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
             return false
         }
 
-        // Parsing della data e delle ore
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
         val dataParsed = dateFormat.parse(dataVal)
@@ -155,51 +154,53 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
         val inizioParsed = timeFormat.parse(oraInizioVal)
         val fineParsed = timeFormat.parse(oraFineVal)
 
+        val disponibilitaList = mutableListOf<Calendario>()
+        val calendar = Calendar.getInstance().apply { time = inizioParsed }
+
         if (fineParsed.before(inizioParsed)) {
-            _message.value = "L'ora di fine non può essere prima dell'ora di inizio!"
-            return false
+            val calendarFine = Calendar.getInstance().apply {
+                time = fineParsed
+                add(Calendar.DAY_OF_MONTH, 1)
+            }
+            fineParsed.time = calendarFine.timeInMillis
+        }
+
+        while (calendar.time.before(fineParsed)) {
+            val oraInizioStr = timeFormat.format(calendar.time)
+            calendar.add(Calendar.HOUR_OF_DAY, 1)
+            val oraFineStr = timeFormat.format(calendar.time)
+
+            if (calendar.time.after(fineParsed)) {
+                break
+            }
+
+            disponibilitaList.add(Calendario(
+                tutorRef = _tutorRef,
+                data = dataParsed,
+                oraInizio = oraInizioStr,
+                oraFine = oraFineStr,
+                statoPren = statoPrenVal
+            ))
         }
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val disponibilitaList = mutableListOf<Calendario>()
-                val calendar = Calendar.getInstance().apply { time = inizioParsed }
+                for (disponibilita in disponibilitaList) {
+                    val existingSnapshot = disponibilitaCollection
+                        .whereEqualTo("tutorRef", disponibilita.tutorRef)
+                        .whereEqualTo("data", disponibilita.data)
+                        .whereEqualTo("oraInizio", disponibilita.oraInizio)
+                        .get()
+                        .await()
 
-                while (calendar.time.before(fineParsed)) {
-                    val oraInizioStr = timeFormat.format(calendar.time)
-                    calendar.add(Calendar.HOUR_OF_DAY, 1)
-                    val oraFineStr = timeFormat.format(calendar.time)
-
-                    if (calendar.time.after(fineParsed)) {
-                        break
+                    if (existingSnapshot.isEmpty) {
+                        disponibilitaCollection.add(disponibilita).await()
                     }
-
-                    // Crea la disponibilità senza idCalendario, che sarà aggiornato successivamente
-                    val disponibilita = Calendario(
-                        tutorRef = _tutorRef,
-                        data = dataParsed,
-                        oraInizio = oraInizioStr,
-                        oraFine = oraFineStr,
-                        statoPren = statoPrenVal
-                    )
-
-//                    // Aggiungi la disponibilità alla collezione su Firestore e ottieni il documento generato
-//                    val documentReference = disponibilitaCollection.add(disponibilita).await()
-//
-//                    // Ottieni l'UID generato da Firestore
-//                    val documentId = documentReference.id
-//
-//                    // (Opzionale) Aggiorna l'ID anche su Firestore, nel caso voglia avere l'ID anche come campo
-//                    documentReference.update("idCalendario", documentId).await()
-
-                    // Aggiungi alla lista locale
-                    disponibilitaList.add(disponibilita)
                 }
-
                 withContext(Dispatchers.Main) {
                     _message.value = "Disponibilità salvate con successo"
                 }
-                loadDisponibilita()  // Aggiorna la lista delle disponibilità
+                loadDisponibilita()
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     _message.value = "Errore nel salvataggio della disponibilità: ${e.message}"
