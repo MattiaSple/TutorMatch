@@ -69,7 +69,8 @@ class ChatFragment : Fragment() {
                     // Mostra dialogo di conferma
                     AlertDialog.Builder(requireContext())
                         .setTitle("Elimina Chat")
-                        .setMessage("Sei sicuro di voler eliminare questa chat?")
+                        .setMessage("Sei sicuro di voler eliminare questa chat?" +
+                                "La conversazione sarà eliminata anche per l'altro partecipante")
                         .setPositiveButton("Sì") { _, _ ->
                             chatViewModel.deleteChat(chatToDelete.id) {
                                 // Ricarica il fragment dopo l'eliminazione
