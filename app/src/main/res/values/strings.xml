@@ -44,6 +44,9 @@
     <string name="budget">Budget (€):</string>
     <string name="reset">Reset</string>
     <string name="applica">Applica</string>
+    <string name="inviaMSG">Invia messaggio</string>
+    <string name="prenLezione">Prenota la tua lezione</string>
+    <string name="chiudi">Chiudi</string>
 
     <string name="elimina">Elimina</string>
     <!-- tag della pagina Home (activity_main) -->

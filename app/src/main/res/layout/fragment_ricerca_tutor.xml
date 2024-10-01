@@ -247,8 +247,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:backgroundTint="@color/statusBarColor"
-                    android:text="Invia un messaggio"
+                    android:backgroundTint="@color/coloreSecondario"
+                    android:text="@string/inviaMSG"
                     android:textColor="@android:color/white" />
 
                 <Button
@@ -256,18 +256,18 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:backgroundTint="@color/statusBarColor"
+                    android:backgroundTint="@color/coloreSecondario"
                     android:textColor="@android:color/white"
-                    android:text="Prenota la tua lezione" />
+                    android:text="@string/prenLezione" />
 
                 <Button
                     android:id="@+id/btn_close"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:backgroundTint="@color/statusBarColor"
+                    android:backgroundTint="@color/coloreSecondario"
                     android:textColor="@android:color/white"
-                    android:text="Chiudi" />
+                    android:text="@string/chiudi" />
 
             </LinearLayout>
         </ScrollView>
