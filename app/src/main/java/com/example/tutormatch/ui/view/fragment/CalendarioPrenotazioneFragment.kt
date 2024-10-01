@@ -56,7 +56,9 @@ class CalendarioPrenotazioneFragment : Fragment() {
 
         // Imposta la data di oggi come predefinita
         val today = Calendar.getInstance().time
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ITALY).apply {
+            timeZone = TimeZone.getTimeZone("Europe/Rome")  // Usa il fuso orario italiano
+        }
         selectedDate = dateFormat.format(today)
         _binding.calendarView.minDate = today.time
 
