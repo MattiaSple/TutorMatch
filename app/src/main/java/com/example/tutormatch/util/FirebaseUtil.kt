@@ -281,7 +281,6 @@ object FirebaseUtil {
     }
 
 
-    // Funzione unica per ottenere le prenotazioni in base al ruolo (tutor o studente)
     fun getPrenotazioniPerRuolo(
         userId: String,
         isTutor: Boolean,
@@ -290,22 +289,47 @@ object FirebaseUtil {
     ) {
         val db = FirebaseFirestore.getInstance()
         val query = if (isTutor) {
-            // Se è un tutor, cerca le prenotazioni dove il tutorRef è uguale al document reference del tutor
             db.collection("prenotazioni").whereEqualTo("tutorRef", userId)
         } else {
-            // Se è uno studente, cerca le prenotazioni dove il studenteRef è uguale all'userId
             db.collection("prenotazioni").whereEqualTo("studenteRef", userId)
         }
 
         query.get()
             .addOnSuccessListener { querySnapshot ->
                 val prenotazioni = querySnapshot.toObjects(Prenotazione::class.java)
-                onSuccess(prenotazioni) // Restituisci direttamente la lista delle prenotazioni
+
+                // Lista per conservare le prenotazioni con informazioni sul calendario
+                val prenotazioniConCalendario = mutableListOf<Pair<Prenotazione, Calendario>>()
+
+                // Recupera i dettagli del Calendario per ciascuna prenotazione
+                val tasks = prenotazioni.map { prenotazione ->
+                    prenotazione.fasciaCalendarioRef?.get()?.addOnSuccessListener { calendarioSnapshot ->
+                        val calendario = calendarioSnapshot.toObject(Calendario::class.java)
+                        if (calendario != null) {
+                            prenotazioniConCalendario.add(Pair(prenotazione, calendario))
+                        }
+                    }
+                }
+
+                // Esegui tutto in modo atomico e ordina dopo aver recuperato tutte le informazioni
+                Tasks.whenAllSuccess<Any>(tasks).addOnSuccessListener {
+                    // Ordina per data e oraInizio
+                    val prenotazioniOrdinate = prenotazioniConCalendario.sortedWith(compareBy(
+                        { it.second.data },  // Ordina per data
+                        { it.second.oraInizio }  // Ordina per ora di inizio
+                    ))
+
+                    // Restituisci la lista delle prenotazioni ordinate (senza il calendario)
+                    onSuccess(prenotazioniOrdinate.map { it.first })
+                }.addOnFailureListener { exception ->
+                    onFailure(exception)
+                }
             }
             .addOnFailureListener { exception ->
                 onFailure(exception)
             }
     }
+
 
 
     fun eliminaPrenotazioneF(prenotazione: Prenotazione, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
