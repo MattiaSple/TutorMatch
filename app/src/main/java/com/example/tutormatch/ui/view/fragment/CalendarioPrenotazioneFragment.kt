@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.tutormatch.data.model.Calendario
 import com.example.tutormatch.databinding.FragmentCalendarioPrenotazioneBinding
 import com.example.tutormatch.ui.adapter.SelezioneFasceOrarieAdapter
+import com.example.tutormatch.ui.view.activity.HomeActivity
 import com.example.tutormatch.ui.viewmodel.CalendarioViewModel
 import com.example.tutormatch.ui.viewmodel.PrenotazioneViewModel
 
@@ -84,9 +85,9 @@ class CalendarioPrenotazioneFragment : Fragment() {
         // Imposta l'azione sul pulsante "Prenota"
         _binding.btnPrenota.setOnClickListener {
             if (listaFasceSelezionate.isNotEmpty()) {
-                // Passa le fasce selezionate al ViewModel e crea subito la prenotazione
-                prenotazioneViewModel.setPrenotazioni(listaFasceSelezionate, idStudente, annuncioIdSel)
-
+                prenotazioneViewModel.setPrenotazioni(listaFasceSelezionate, idStudente, annuncioIdSel) {
+                    (activity as? HomeActivity)?.replaceFragment(PrenotazioniFragment(), idStudente, ruolo = false)
+                }
             } else {
                 Toast.makeText(requireContext(), "Seleziona almeno una fascia oraria", Toast.LENGTH_SHORT).show()
             }

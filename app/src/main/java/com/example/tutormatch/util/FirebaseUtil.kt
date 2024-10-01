@@ -308,4 +308,52 @@ object FirebaseUtil {
     }
 
 
+    fun eliminaPrenotazioneF(prenotazione: Prenotazione, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+        val db = FirebaseFirestore.getInstance()
+
+        // Inizializza un batch
+        val batch = db.batch()
+
+        // 1. Recupera il riferimento alla fascia oraria associata alla prenotazione
+        val fasciaCalendarioRef = prenotazione.fasciaCalendarioRef
+
+        // 2. Aggiorna lo stato della fascia oraria a 'false'
+        batch.update(fasciaCalendarioRef!!, "statoPren", false)
+
+        // 3. Trova il documento della prenotazione
+        db.collection("prenotazioni")
+            .whereEqualTo("tutorRef", prenotazione.tutorRef)
+            .whereEqualTo("fasciaCalendarioRef", prenotazione.fasciaCalendarioRef)
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                if (!querySnapshot.isEmpty) {
+                    // 4. Ottieni il riferimento del documento della prenotazione
+                    val prenotazioneDoc = querySnapshot.documents.first()
+                    val prenotazioneRef = prenotazioneDoc.reference
+
+                    // 5. Aggiungi l'operazione di eliminazione al batch
+                    batch.delete(prenotazioneRef)
+
+                    // 6. Commetti il batch solo se entrambe le operazioni sono pronte
+                    batch.commit()
+                        .addOnSuccessListener {
+                            // Se entrambe le operazioni sono eseguite con successo
+                            onSuccess()
+                        }
+                        .addOnFailureListener { exception ->
+                            // Se il batch fallisce
+                            onFailure(exception)
+                        }
+                } else {
+                    // Se la prenotazione non è stata trovata
+                    onFailure(Exception("Prenotazione non trovata"))
+                }
+            }
+            .addOnFailureListener { exception ->
+                // Fallimento nel trovare la prenotazione
+                onFailure(exception)
+            }
+    }
+
+
 }

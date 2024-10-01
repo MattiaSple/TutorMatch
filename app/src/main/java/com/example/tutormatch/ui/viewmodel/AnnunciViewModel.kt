@@ -173,6 +173,7 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
                     posizione = geoPoint,
                     prezzo = prezzo.value!!,
                     tutor = _tutorRef
+
                 )
 
                 // Aggiungi l'annuncio alla collezione "annunci" e ottieni il riferimento al documento appena creato

@@ -7,6 +7,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.tutormatch.data.model.Prenotazione
 import com.example.tutormatch.databinding.ItemPrenotazioneBinding
 import com.example.tutormatch.util.FirebaseUtil
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class PrenotazioneAdapter(
     private var prenotazioniList: List<Prenotazione>,
@@ -33,6 +35,10 @@ class PrenotazioneAdapter(
                         "Tutor: $nome $cognome"
                     }
                     binding.tvPrezzo.text = "Prezzo: ${annuncio.prezzo} €"
+                    // Formatta la data in "dd/MM/yy"
+                    val dateFormat = SimpleDateFormat("dd/MM/yy", Locale.getDefault())
+                    val formattedDate = dateFormat.format(calendario.data)
+                    binding.tvData.text = "Data: ${formattedDate}"
                     binding.tvOrarioLezione.text = "Orario: ${calendario.oraInizio} - ${calendario.oraFine}"
                     binding.tvModalita.text = "${annuncio.getModalita()}"
                 },
