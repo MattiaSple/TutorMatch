@@ -51,6 +51,7 @@ class PrenotazioneAdapter(
             // Imposta il click listener per il pulsante di eliminazione
             binding.btnDelete.setOnClickListener {
                 onDeleteClick(prenotazione)
+
             }
         }
     }

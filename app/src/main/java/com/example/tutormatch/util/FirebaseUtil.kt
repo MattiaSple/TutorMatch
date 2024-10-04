@@ -154,11 +154,11 @@ object FirebaseUtil {
 
     // Funzione per gestire la prenotazione e l'aggiornamento atomico delle fasce orarie
     fun creaPrenotazioniConBatch(
-    listaFasceSelezionate: List<Calendario>,
-    idStudente: String,
-    annuncioId: String,
-    onSuccess: () -> Unit,
-    onFailure: (Exception) -> Unit
+        listaFasceSelezionate: List<Calendario>,
+        idStudente: String,
+        annuncioId: String,
+        onSuccess: () -> Unit,
+        onFailure: (Exception) -> Unit
     ) {
         val annuncioRef = db.collection("annunci").document(annuncioId)
 
@@ -170,9 +170,11 @@ object FirebaseUtil {
 
                 // Inizializza il batch
                 val batch = db.batch()
+                var completate = 0 // Contatore delle operazioni completate
+                var operazioneFallita = false
 
-                // Itera sulle fasce orarie selezionate e cerca il documento in Firestore
-                listaFasceSelezionate.forEachIndexed { index, fasciaOraria ->
+                // Itera sulle fasce orarie selezionate
+                listaFasceSelezionate.forEach { fasciaOraria ->
                     db.collection("calendario")
                         .whereEqualTo("tutorRef", tutorRef)
                         .whereEqualTo("data", fasciaOraria.data)
@@ -197,19 +199,23 @@ object FirebaseUtil {
 
                                 // Aggiungi la prenotazione al batch
                                 batch.set(prenotazioneRef, prenotazione)
-
-                                // Se è l'ultima operazione, committa il batch
-                                if (index == listaFasceSelezionate.size - 1) {
-                                    batch.commit().addOnSuccessListener {
-                                        onSuccess()
-                                    }.addOnFailureListener { exception ->
-                                        onFailure(exception)
-                                    }
-                                }
                             } else {
+                                operazioneFallita = true
                                 onFailure(Exception("Fascia oraria non trovata"))
                             }
+
+                            completate++
+
+                            // Se tutte le operazioni sono completate, committa il batch
+                            if (completate == listaFasceSelezionate.size && !operazioneFallita) {
+                                batch.commit().addOnSuccessListener {
+                                    onSuccess()
+                                }.addOnFailureListener { exception ->
+                                    onFailure(exception)
+                                }
+                            }
                         }.addOnFailureListener { exception ->
+                            operazioneFallita = true
                             onFailure(exception)
                         }
                 }
@@ -220,6 +226,7 @@ object FirebaseUtil {
             onFailure(exception)
         }
     }
+
 
 
 
