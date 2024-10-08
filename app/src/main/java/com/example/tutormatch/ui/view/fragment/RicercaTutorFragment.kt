@@ -24,7 +24,6 @@ import com.example.tutormatch.ui.view.activity.HomeActivity
 import com.example.tutormatch.ui.viewmodel.AnnunciViewModel
 import com.example.tutormatch.ui.viewmodel.ChatViewModel
 import com.example.tutormatch.ui.viewmodel.RicercaTutorViewModel
-import com.example.tutormatch.ui.viewmodel.SharedViewModel
 import org.osmdroid.config.Configuration
 import org.osmdroid.library.BuildConfig
 import org.osmdroid.util.GeoPoint
@@ -44,7 +43,6 @@ class RicercaTutorFragment : Fragment() {
     private lateinit var ricercaTutorViewModel: RicercaTutorViewModel
     private lateinit var annunciViewModel: AnnunciViewModel
     private lateinit var chatViewModel: ChatViewModel
-    private lateinit var sharedViewModel: SharedViewModel
 
     private lateinit var mapView: MapView
     private lateinit var locationSettingsLauncher: ActivityResultLauncher<IntentSenderRequest>
@@ -72,7 +70,6 @@ class RicercaTutorFragment : Fragment() {
         ricercaTutorViewModel = ViewModelProvider(this).get(RicercaTutorViewModel::class.java)
         annunciViewModel = ViewModelProvider(this).get(AnnunciViewModel::class.java)
         chatViewModel = ViewModelProvider(this).get(ChatViewModel::class.java)
-        sharedViewModel = ViewModelProvider(requireActivity()).get(SharedViewModel::class.java)
         // Inizializza il launcher per gestire il risultato delle impostazioni di localizzazione
         locationSettingsLauncher = registerForActivityResult(
             ActivityResultContracts.StartIntentSenderForResult()
@@ -125,7 +122,10 @@ class RicercaTutorFragment : Fragment() {
         userIdStudente = requireArguments().getString("userId").toString()
         nome = requireArguments().getString("nome").toString()
         cognome = requireArguments().getString("cognome").toString()
-
+        // Osserva il messaggio di creazione della chat
+        chatViewModel.chatCreationMessage.observe(viewLifecycleOwner, Observer { message ->
+            Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+        })
         // Osserva la richiesta di attivazione dei servizi di localizzazione
         ricercaTutorViewModel.richiestaServiziLocalizzazione.observe(viewLifecycleOwner, Observer { resolvable ->
             resolvable?.let {
@@ -234,16 +234,7 @@ class RicercaTutorFragment : Fragment() {
                     userName = arguments?.getString("nome") ?: "",
                     userSurname = arguments?.getString("cognome") ?: "",
                     materia = annuncio.materia,
-                    onSuccess = { chatId ->
-                        // Passa alla schermata della chat
-                        sharedViewModel.setChatId(chatId)
-                        (activity as? HomeActivity)?.replaceFragment(
-                            ChatFragment(),
-                            userId = arguments?.getString("userId") ?: "",
-                            nome = arguments?.getString("nome") ?: "",
-                            cognome = arguments?.getString("cognome") ?: "",
-                            ruolo = arguments?.getBoolean("ruolo") ?: false
-                        )
+                    onSuccess = {
                     },
                     onFailure = { errorMessage ->
                         Toast.makeText(context, "Errore: $errorMessage", Toast.LENGTH_SHORT).show()

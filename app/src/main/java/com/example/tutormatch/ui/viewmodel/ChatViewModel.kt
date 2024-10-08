@@ -18,6 +18,10 @@ class ChatViewModel : ViewModel() {
     private val _chats = MutableLiveData<List<Chat>>()
     val chats: LiveData<List<Chat>> get() = _chats
 
+    // LiveData per il messaggio di successo o fallimento
+    private val _chatCreationMessage = MutableLiveData<String>()
+    val chatCreationMessage: LiveData<String> get() = _chatCreationMessage
+
     init {
         loadUserChats()
     }
@@ -144,9 +148,11 @@ class ChatViewModel : ViewModel() {
         )
         chatRef.child(chatId).setValue(chatData)
             .addOnSuccessListener {
+                _chatCreationMessage.value = "Chat creata con successo!"
                 onSuccess(chatId)  // Callback di successo
             }
             .addOnFailureListener { e ->
+                _chatCreationMessage.value = "Errore durante la creazione della chat: ${e.message}"
                 onFailure(e.message ?: "Errore durante la creazione della chat")
             }
     }

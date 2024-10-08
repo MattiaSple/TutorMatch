@@ -23,7 +23,6 @@ class ChatFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val chatViewModel: ChatViewModel by viewModels()
-    private val sharedViewModel: SharedViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -55,14 +54,11 @@ class ChatFragment : Fragment() {
                     if (chat.id.isNullOrEmpty()) {
                         Log.e("ChatFragment", "Chat ID is null or empty")
                     } else {
-                        sharedViewModel.setChatId(chat.id)
-                        sharedViewModel.setEmail((email))
-                        (activity as? HomeActivity)?.replaceFragment(
-                            ChatDetailFragment(),
-                            userId = arguments?.getString("userId") ?: "",
-                            nome = arguments?.getString("nome") ?: "",
-                            cognome = arguments?.getString("cognome") ?: "",
-                            ruolo = arguments?.getBoolean("ruolo") ?: false
+                        // Naviga al ChatDetailFragment passando chatId ed email
+                        (activity as? HomeActivity)?.replaceFragmentChat(
+                            ChatDetailFragment(),  // Il fragment di destinazione
+                            chat.id,               // Passa il chatId
+                            email                  // Passa l'email dell'utente
                         )
                     }
                 }, { chatToDelete ->
