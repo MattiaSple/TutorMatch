@@ -64,7 +64,7 @@ class PrenotazioneViewModel : ViewModel() {
                 if (nuovaLista.remove(prenotazione)) {
                     _listaPrenotazioni.value = nuovaLista
                 } else {
-                    _notificaPrenotazione.value = "La prenotazione selezionata è già stata eliminata, rientra nella pagina per aggiornarla"
+                    _notificaPrenotazione.postValue("Prenotazione non trovata nella lista, aggiorna la pagina")
                 }
             },
             onFailure = { exception ->

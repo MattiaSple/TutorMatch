@@ -55,20 +55,21 @@ class CalendarioPrenotazioneFragment : Fragment() {
         }
 
         // Imposta la data di oggi come predefinita
-        val today = Calendar.getInstance().time
+        val data = Calendar.getInstance()
+        data.add(Calendar.DAY_OF_MONTH,1)
+        val domani = data.time
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ITALY).apply {
             timeZone = TimeZone.getTimeZone("Europe/Rome")  // Usa il fuso orario italiano
         }
-        selectedDate = dateFormat.format(today)
-        _binding.calendarView.minDate = today.time
+        selectedDate = dateFormat.format(domani)
+        _binding.calendarView.minDate = domani.time
 
         // Ascolta i cambiamenti di data nel CalendarView
         _binding.calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
-            calendarioViewModel.eliminaFasceScadutePerTutor {
-                // Solo dopo aver eliminato le fasce, aggiorna la data selezionata e carica le disponibilità
-                selectedDate = String.format(Locale.getDefault(), "%04d-%02d-%02d", year, month + 1, dayOfMonth)
-                calendarioViewModel.loadDisponibilita()
-            }
+
+            selectedDate = String.format(Locale.getDefault(), "%04d-%02d-%02d", year, month + 1, dayOfMonth)
+            calendarioViewModel.loadDisponibilita()
+
         }
 
         // Osserva le fasce orarie disponibili per la data selezionata
@@ -88,7 +89,8 @@ class CalendarioPrenotazioneFragment : Fragment() {
         _binding.btnPrenota.setOnClickListener {
             if (listaFasceSelezionate.isNotEmpty()) {
                 prenotazioneViewModel.setPrenotazioni(listaFasceSelezionate, idStudente, annuncioIdSel) {
-                    (activity as? HomeActivity)?.replaceFragment(PrenotazioniFragment(), idStudente, ruolo = false)
+                    Toast.makeText(requireContext(), "Prenotazioni aggiornate!", Toast.LENGTH_SHORT).show()
+                    calendarioViewModel.loadDisponibilita()
                 }
             } else {
                 Toast.makeText(requireContext(), "Seleziona almeno una fascia oraria", Toast.LENGTH_SHORT).show()

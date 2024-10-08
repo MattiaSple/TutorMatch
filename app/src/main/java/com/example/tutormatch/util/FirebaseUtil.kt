@@ -57,77 +57,7 @@ object FirebaseUtil {
         }
     }
 
-    fun eliminaFasceOrarieScadutePerTutor(tutorRef: DocumentReference, callback: (Boolean, String?) -> Unit) {
 
-        val calendarioCollection = db.collection("calendario")
-
-
-        val calendar = Calendar.getInstance(TimeZone.getDefault()).apply {
-            set(Calendar.SECOND, 0)      // Azzera i secondi
-            set(Calendar.MILLISECOND, 0) // Azzera i millisecondi
-        }
-        val dataCompleta = calendar.time
-
-        // Ottieni l'istanza di Calendar per la data corrente in UTC
-        val dataCorrente = Calendar.getInstance().apply {
-            // Resetta l'orario a mezzanotte in UTC
-            set(Calendar.HOUR_OF_DAY, 0)
-            set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
-        }.time
-
-
-        // Query per ottenere le fasce del tutor specifico
-        calendarioCollection.whereEqualTo("tutorRef", tutorRef).get().addOnSuccessListener { querySnapshot ->
-            querySnapshot?.let { documents ->
-                for (document in documents) {
-                    val calendario = document.toObject(Calendario::class.java)
-                    calendario.let {
-
-                        // 1. Primo controllo: confronto solo le date
-                        val fasciaData = Calendar.getInstance().apply {
-                            time = calendario.data
-                            //add(Calendar.DAY_OF_MONTH, 1)
-                            set(Calendar.HOUR_OF_DAY, 0)
-                            set(Calendar.MINUTE, 0)
-                            set(Calendar.SECOND, 0)
-                            set(Calendar.MILLISECOND, 0)
-                        }.time
-
-                        if (fasciaData.before(dataCorrente)) {
-                            // Se la data della fascia è passata, elimina il documento
-                            calendarioCollection.document(document.id).delete()
-                                .addOnFailureListener { e ->
-                                    callback(false, e.message)
-                                }
-                        }
-                        if (fasciaData.equals(dataCorrente)) {
-                            // 2. Se la data è quella corrente, confronta gli orari
-                            val dataFasciaInizio = Calendar.getInstance().apply {
-                                time = calendario.data // Usa la data dal database
-                                //add(Calendar.DAY_OF_MONTH, 1)
-                                set(Calendar.HOUR_OF_DAY, calendario.oraInizio.split(":")[0].toInt())
-                                set(Calendar.MINUTE, calendario.oraInizio.split(":")[1].toInt())
-                            }.time
-
-
-                            // Se l'ora di inizio è già passata, elimina la fascia
-                            if (dataFasciaInizio.before(dataCompleta)) {
-                                calendarioCollection.document(document.id).delete()
-                                    .addOnFailureListener { e ->
-                                        callback(false, e.message)
-                                    }
-                            }
-                        }
-                    }
-                }
-                callback(true, null) // Eliminazione completata con successo
-            }
-        }.addOnFailureListener { exception ->
-            callback(false, exception.message) // Errore nel recupero delle fasce
-        }
-    }
     fun getAnnuncio(
         annuncioRef: DocumentReference,
         callback: (Annuncio?) -> Unit
