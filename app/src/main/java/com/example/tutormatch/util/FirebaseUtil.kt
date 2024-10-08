@@ -9,7 +9,9 @@ import com.google.android.gms.tasks.Tasks
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
+import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Locale
 import java.util.TimeZone
 
 
@@ -329,5 +331,84 @@ object FirebaseUtil {
             }
     }
 
+    // Funzione atomica per gestire la scadenza delle fasce orarie e delle prenotazioni
+    fun gestisciScadenzeAtomiche(
+        dataCorrente: String,
+        oraCorrente: String,
+        onSuccess: () -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        val batch = db.batch()  // Creazione del batch per operazioni atomiche
+
+        // 1. Controllo e rimozione delle voci scadute nel calendario
+        db.collection("calendario")
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                querySnapshot.forEach { document ->
+                    val calendario = document.toObject(Calendario::class.java)
+                    val calendarioDataFormattata = SimpleDateFormat("yyyy-MM-dd", Locale.ITALY).format(calendario.data)
+
+                    // Elimina le fasce scadute dal calendario
+                    if (calendarioDataFormattata < dataCorrente || (calendarioDataFormattata == dataCorrente && calendario.oraInizio < oraCorrente)) {
+                        batch.delete(document.reference)  // Aggiunge l'eliminazione al batch
+                    }
+                }
+
+                // 2. Controllo delle prenotazioni e gestione del feedback
+                db.collection("prenotazioni")
+                    .get()
+                    .addOnSuccessListener { prenotazioniSnapshot ->
+                        prenotazioniSnapshot.forEach { document ->
+                            val prenotazione = document.toObject(Prenotazione::class.java)
+
+                            // Verifica se la fascia oraria associata esiste ancora
+                            prenotazione.fasciaCalendarioRef?.get()
+                                ?.addOnFailureListener {
+                                    val tutorId = prenotazione.tutorRef
+                                    val studenteId = prenotazione.studenteRef
+
+                                    // Recupera lo studente e aggiorna il feedback
+                                    db.collection("utenti").document(studenteId)
+                                        .get()
+                                        .addOnSuccessListener { studenteDoc ->
+                                            val studente = studenteDoc.toObject(Utente::class.java)
+                                            if (studente != null && !studente.feedback.contains(tutorId)) {
+                                                studente.feedback.add(tutorId)
+                                                batch.set(db.collection("utenti").document(studenteId), studente)  // Aggiungi l'update dello studente nel batch
+                                            }
+
+                                            // Elimina la prenotazione scaduta
+                                            batch.delete(document.reference)  // Aggiunge l'eliminazione della prenotazione al batch
+                                        }
+                                        .addOnFailureListener { exception ->
+                                            onFailure(exception)
+                                        }
+                                }
+                                ?.addOnSuccessListener {
+                                    // Se la fascia esiste ancora, non fare nulla
+                                }
+                        }
+
+                        // Esegui il batch in modo atomico
+                        batch.commit()
+                            .addOnSuccessListener {
+                                onSuccess()  // Batch completato con successo
+                            }
+                            .addOnFailureListener { exception ->
+                                onFailure(exception)  // Fallimento del batch
+                            }
+                    }
+                    .addOnFailureListener { exception ->
+                        onFailure(exception)
+                    }
+            }
+            .addOnFailureListener { exception ->
+                onFailure(exception)
+            }
+    }
+
+
+
 
 }
+

@@ -58,11 +58,12 @@ class CalendarioPrenotazioneFragment : Fragment() {
         val data = Calendar.getInstance()
         data.add(Calendar.DAY_OF_MONTH,1)
         val domani = data.time
+        val today = Calendar.getInstance().time
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ITALY).apply {
             timeZone = TimeZone.getTimeZone("Europe/Rome")  // Usa il fuso orario italiano
         }
-        selectedDate = dateFormat.format(domani)
-        _binding.calendarView.minDate = domani.time
+        selectedDate = dateFormat.format(today)
+        _binding.calendarView.minDate = today.time
 
         // Ascolta i cambiamenti di data nel CalendarView
         _binding.calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->

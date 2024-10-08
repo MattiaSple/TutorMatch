@@ -1,7 +1,5 @@
 package com.example.tutormatch.data.model
 
-import com.google.firebase.firestore.GeoPoint
-
 data class Utente(
     val userId: String,
     val email: String,
@@ -11,6 +9,8 @@ data class Utente(
     val via: String,
     val cap: String,
     val ruolo: Boolean = false, // true se tutor, false se studente
+    val feedback: MutableList<String> = mutableListOf(), // ID dei tutor da valutare (solo per studenti)
+    val valutazioni: MutableList<Double> = mutableListOf() // Valutazioni ricevute dai tutor (solo per tutor)
 ) {
     // Costruttore senza argomenti richiesto per Firestore
     constructor() : this("", "", "", "", "", "", "", false)
