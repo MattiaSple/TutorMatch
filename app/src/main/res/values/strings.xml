@@ -75,6 +75,8 @@
     <string name="editTextCivico">60128</string>
     <string name="tornaHome">Torna alla home</string>
 
+    <string name="chatW">Chatta con il tutor</string>
+
     <!-- tag della pagina Homefragment "studente" (fragment_home_studente) -->
     <string name="tutorial">
     Benvenuto su TutorMatch, la tua soluzione ideale per trovare il tutor perfetto!

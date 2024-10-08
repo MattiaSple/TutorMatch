@@ -12,22 +12,21 @@ import java.util.Locale
 
 class PrenotazioneAdapter(
     private var prenotazioniList: List<Prenotazione>,
-    private val ruolo: Boolean,  // Flag per distinguere se chi visualizza è un tutor
-    private val onDeleteClick: (Prenotazione) -> Unit  // Click listener per il pulsante elimina
+    private val ruolo: Boolean,
+    private val onDeleteClick: (Prenotazione) -> Unit,
+    private val onChatClick: (Prenotazione) -> Unit
 ) : RecyclerView.Adapter<PrenotazioneAdapter.PrenotazioneViewHolder>() {
 
     inner class PrenotazioneViewHolder(private val binding: ItemPrenotazioneBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(prenotazione: Prenotazione) {
-            // Recupera in modo atomico i dettagli dell'annuncio e della fascia oraria tramite FirebaseUtil
             FirebaseUtil.getNomeCognomeUtenteAtomico(
                 annuncioRef = prenotazione.annuncioRef!!,
                 calendarioRef = prenotazione.fasciaCalendarioRef!!,
-                studenteId = prenotazione.studenteRef,  // Passa l'userId dello studente
-                isTutor = ruolo,  // Flag che indica se chi visualizza è un tutor
+                studenteId = prenotazione.studenteRef,
+                isTutor = ruolo,
                 onSuccess = { annuncio, calendario, nome, cognome ->
-                    // Usa i dati recuperati
                     binding.tvMateria.text = "${annuncio.materia}"
                     binding.tvNomeCognome.text = if (ruolo) {
                         "Studente: $nome $cognome"
@@ -35,7 +34,6 @@ class PrenotazioneAdapter(
                         "Tutor: $nome $cognome"
                     }
                     binding.tvPrezzo.text = "Prezzo: ${annuncio.prezzo} €"
-                    // Formatta la data in "dd/MM/yy"
                     val dateFormat = SimpleDateFormat("dd/MM/yy", Locale.getDefault())
                     val formattedDate = dateFormat.format(calendario.data)
                     binding.tvData.text = "Data: ${formattedDate}"
@@ -43,15 +41,16 @@ class PrenotazioneAdapter(
                     binding.tvModalita.text = "${annuncio.getModalita()}"
                 },
                 onFailure = { exception ->
-                    // Gestisci l'errore
                     Log.e("Adapter", "Errore nel caricamento dei dati: ${exception.message}")
                 }
             )
 
-            // Imposta il click listener per il pulsante di eliminazione
             binding.btnDelete.setOnClickListener {
                 onDeleteClick(prenotazione)
+            }
 
+            binding.btnChat.setOnClickListener {
+                onChatClick(prenotazione)
             }
         }
     }

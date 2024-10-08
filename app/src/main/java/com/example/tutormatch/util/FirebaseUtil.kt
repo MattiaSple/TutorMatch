@@ -128,6 +128,19 @@ object FirebaseUtil {
             callback(false, exception.message) // Errore nel recupero delle fasce
         }
     }
+    fun getAnnuncio(
+        annuncioRef: DocumentReference,
+        callback: (Annuncio?) -> Unit
+    ) {
+        annuncioRef.get()
+            .addOnSuccessListener { documentSnapshot ->
+                val annuncio = documentSnapshot.toObject(Annuncio::class.java)
+                callback(annuncio)
+            }
+            .addOnFailureListener {
+                callback(null)
+            }
+    }
 
     // Funzione per ottenere il tutorRef dall'annuncio
     fun getTutorDaAnnuncioF(
