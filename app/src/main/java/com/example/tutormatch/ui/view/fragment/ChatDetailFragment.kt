@@ -13,20 +13,20 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.tutormatch.databinding.FragmentChatDetailBinding
 import com.example.tutormatch.ui.adapter.MessageAdapter
 import com.example.tutormatch.ui.viewmodel.ChatDetailViewModel
-import com.example.tutormatch.ui.viewmodel.SharedViewModel
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import android.content.Context
 import android.view.inputmethod.InputMethodManager
 import android.view.ViewTreeObserver
+import androidx.fragment.app.viewModels
 
 class ChatDetailFragment : Fragment() {
 
     private var _binding: FragmentChatDetailBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var chatDetailViewModel: ChatDetailViewModel
-    private val sharedViewModel: SharedViewModel by activityViewModels()
+    // Usa il delegato per inizializzare il ViewModel
+    private val chatDetailViewModel: ChatDetailViewModel by viewModels()
 
     // Listener del layout, salvato per poterlo rimuovere quando il fragment viene distrutto
     private var globalLayoutListener: ViewTreeObserver.OnGlobalLayoutListener? = null
@@ -43,7 +43,13 @@ class ChatDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        chatDetailViewModel = ViewModelProvider(this).get(ChatDetailViewModel::class.java)
+        // Recupera chatId ed email passati tramite il bundle
+        val chatId = arguments?.getString("chatId")
+        val email = arguments?.getString("email")
+
+        if (!chatId.isNullOrEmpty()) {
+            chatDetailViewModel.setChatId(chatId)  // Usa il chatId passato
+        }
 
         binding.viewModel = chatDetailViewModel
         binding.lifecycleOwner = this
@@ -55,12 +61,10 @@ class ChatDetailFragment : Fragment() {
         binding.recyclerViewMessages.adapter = adapter
 
         // Osserva i messaggi aggiornati e scrolla alla fine
-        chatDetailViewModel.messages.observe(viewLifecycleOwner, Observer { messages ->
+        chatDetailViewModel.messages.observe(viewLifecycleOwner) { messages ->
             adapter.updateData(messages)
-
-            // Scorri automaticamente alla fine dei messaggi, solo se il binding esiste ancora
             _binding?.recyclerViewMessages?.scrollToPosition(messages.size - 1)
-        })
+        }
 
         // Listener per il layout (controllo se la tastiera è visibile)
         globalLayoutListener = ViewTreeObserver.OnGlobalLayoutListener {
@@ -95,15 +99,6 @@ class ChatDetailFragment : Fragment() {
             }
         })
 
-        sharedViewModel.chatId.observe(viewLifecycleOwner, Observer { chatId ->
-            if (!chatId.isNullOrEmpty()) {
-                chatDetailViewModel.setChatId(chatId)
-            } else {
-                Log.e("ChatDetailFragment", "Received chatId is null or empty")
-            }
-        })
-
-        // Aggiungi il listener per il pulsante di back
         binding.buttonBack.setOnClickListener {
             parentFragmentManager.popBackStack()
         }

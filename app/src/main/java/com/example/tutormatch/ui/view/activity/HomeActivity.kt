@@ -131,7 +131,21 @@ class HomeActivity : AppCompatActivity() {
             addToBackStack(null)
         }
     }
+    fun replaceFragmentChat(fragment: Fragment, chatId: String, email: String) {
+        // Crea il bundle con i dati
+        val bundle = Bundle().apply {
+            putString("chatId", chatId)
+            putString("email", email)
+        }
+        // Imposta il bundle nel fragment
+        fragment.arguments = bundle
 
+        // Avvia la transizione al nuovo fragment
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.nav_host_fragment_activity_main, fragment)
+            .addToBackStack(null)
+            .commit()
+    }
 
     override fun onSupportNavigateUp(): Boolean {
         return findNavController(R.id.nav_host_fragment_activity_main).navigateUp() || super.onSupportNavigateUp()

@@ -20,7 +20,6 @@ import com.example.tutormatch.ui.viewmodel.AnnunciViewModel
 import com.example.tutormatch.ui.viewmodel.ChatViewModel
 import com.example.tutormatch.ui.viewmodel.PrenotazioneViewModel
 import com.example.tutormatch.ui.viewmodel.RicercaTutorViewModel
-import com.example.tutormatch.ui.viewmodel.SharedViewModel
 import com.example.tutormatch.util.FirebaseUtil
 import org.osmdroid.config.Configuration
 import org.osmdroid.library.BuildConfig
@@ -31,14 +30,12 @@ class PrenotazioniFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var prenotazioneViewModel: PrenotazioneViewModel
     private lateinit var chatViewModel: ChatViewModel
-    private lateinit var sharedViewModel: SharedViewModel
     private lateinit var adapterPrenotazione: PrenotazioneAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         prenotazioneViewModel = ViewModelProvider(this).get(PrenotazioneViewModel::class.java)
         chatViewModel = ViewModelProvider(this).get(ChatViewModel::class.java)
-        sharedViewModel = ViewModelProvider(requireActivity()).get(SharedViewModel::class.java)
 
     }
     override fun onCreateView(
@@ -48,12 +45,25 @@ class PrenotazioniFragment : Fragment() {
         _binding = FragmentPrenotazioniBinding.inflate(inflater, container, false)
         return binding.root
     }
-
+    private fun showConfirmationDialog(message: String, onConfirmAction: () -> Unit) {
+        AlertDialog.Builder(requireContext())
+            .setMessage(message)
+            .setPositiveButton("Sì") { _, _ ->
+                // Se l'utente conferma, esegui l'azione di conferma
+                onConfirmAction()
+            }
+            .setNegativeButton("No", null)
+            .show()
+    }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         val userId = arguments?.getString("userId")
         val ruolo = arguments?.getBoolean("ruolo")
+        // Osserva il messaggio di creazione della chat
+        chatViewModel.chatCreationMessage.observe(viewLifecycleOwner, Observer { message ->
+            Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+        })
 
         adapterPrenotazione = PrenotazioneAdapter(
             emptyList(),
@@ -76,23 +86,14 @@ class PrenotazioniFragment : Fragment() {
                                             userName = studente.nome,
                                             userSurname = studente.cognome,
                                             materia = annuncio.materia,
-                                            onSuccess = { chatId ->
-                                                // Gestisci il successo della creazione della chat, ad esempio apri la chat
+                                            onSuccess = {
                                             },
-                                            onFailure = { errore ->
-                                                Toast.makeText(requireContext(), errore, Toast.LENGTH_LONG).show()
+                                            onFailure = { errorMessage ->
+                                                Toast.makeText(context, "Errore: $errorMessage", Toast.LENGTH_SHORT).show()
                                             },
-                                            onConfirm = { messaggio, confermaCallback ->
-                                                // Mostra il dialog di conferma qui
-                                                AlertDialog.Builder(requireContext())
-                                                    .setTitle("Conferma")
-                                                    .setMessage(messaggio)
-                                                    .setPositiveButton("Conferma") { _, _ ->
-                                                        // Chiamare la funzione di conferma
-                                                        confermaCallback()
-                                                    }
-                                                    .setNegativeButton("Annulla", null) // Non fare nulla se si annulla
-                                                    .show()
+                                            onConfirm = { message, onConfirmAction ->
+                                                // Mostra un dialogo di conferma all'utente
+                                                showConfirmationDialog(message, onConfirmAction)
                                             }
                                         )
                                     }
