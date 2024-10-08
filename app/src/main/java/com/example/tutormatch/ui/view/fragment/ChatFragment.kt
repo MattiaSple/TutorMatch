@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.tutormatch.databinding.FragmentChatBinding
 import com.example.tutormatch.ui.adapter.ChatAdapter
 import com.example.tutormatch.ui.viewmodel.ChatViewModel
-import com.example.tutormatch.ui.viewmodel.SharedViewModel
 import com.example.tutormatch.ui.view.activity.HomeActivity
 import com.example.tutormatch.util.FirebaseUtil
 
