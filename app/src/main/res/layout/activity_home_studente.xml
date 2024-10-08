@@ -10,7 +10,7 @@
         <!-- Wrapper per impostare la larghezza massima e centrare il contenuto -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/content_wrapper"
-            android:layout_width="1918dp"
+            android:layout_width="0dp"
             android:layout_height="0dp"
             android:maxWidth="411dp"
             app:layout_constraintBottom_toBottomOf="parent"
