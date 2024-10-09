@@ -17,6 +17,7 @@ class HomeFragmentStudente : Fragment() {
     private val homeViewModel: HomeViewModel by activityViewModels()
     private lateinit var _binding: FragmentHomeStudenteBinding
     private val binding get() = _binding
+    private lateinit var adapter: ValutaTutorAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -33,6 +34,16 @@ class HomeFragmentStudente : Fragment() {
         val recyclerView = binding.recyclerViewTutors
         recyclerView.layoutManager = LinearLayoutManager(context)
 
+        // Inizializza l'adattatore
+        adapter = ValutaTutorAdapter(emptyList()) { tutor, rating ->
+            // Quando un tutor viene valutato, rimuovilo dalla lista e aggiorna la valutazione
+            val userId = arguments?.getString("userId")
+            if (userId != null) {
+                homeViewModel.rateTutorAndRemoveFromList(userId, tutor, rating)
+            }
+        }
+        recyclerView.adapter = adapter
+
         // Osserva il LiveData tutorRefs e carica i tutor quando cambia
         homeViewModel.tutorRefs.observe(viewLifecycleOwner) { tutorRefs ->
             homeViewModel.loadTutors()
@@ -40,10 +51,7 @@ class HomeFragmentStudente : Fragment() {
 
         // Osserva il LiveData dei tutor e aggiorna la RecyclerView quando la lista dei tutor cambia
         homeViewModel.tutors.observe(viewLifecycleOwner) { tutors ->
-            recyclerView.adapter = ValutaTutorAdapter(tutors) { tutor, rating ->
-                // Quando un tutor viene valutato, rimuovilo dalla lista e aggiorna la valutazione
-                homeViewModel.rateTutorAndRemoveFromList("current_student_id", tutor, rating)
-            }
+            adapter.updateData(tutors)
         }
 
         // Carica l'utente e i riferimenti ai tutor

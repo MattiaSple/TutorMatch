@@ -6,12 +6,13 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.Spinner
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.tutormatch.R
 import com.example.tutormatch.data.model.Utente
 
 class ValutaTutorAdapter(
-    private val tutors: List<Utente>,
+    private var tutors: List<Utente>,
     private val onRateTutor: (Utente, Int) -> Unit
 ) : RecyclerView.Adapter<ValutaTutorAdapter.TutorViewHolder>() {
 
@@ -24,8 +25,10 @@ class ValutaTutorAdapter(
             tutorName.text = "${tutor.nome} ${tutor.cognome}"
 
             submitButton.setOnClickListener {
-                val rating = ratingSpinner.selectedItem.toString().toInt()
-                onRateTutor(tutor, rating)
+                val rating = ratingSpinner.selectedItem.toString().toIntOrNull()
+                rating?.let {
+                    onRateTutor(tutor, it)
+                }
             }
         }
     }
@@ -41,4 +44,32 @@ class ValutaTutorAdapter(
     }
 
     override fun getItemCount(): Int = tutors.size
+
+    // Metodo per aggiornare i dati della lista di tutor
+    fun updateData(newTutors: List<Utente>) {
+        val diffCallback = TutorDiffCallback(tutors, newTutors)
+        val diffResult = DiffUtil.calculateDiff(diffCallback)
+
+        tutors = newTutors
+        diffResult.dispatchUpdatesTo(this)
+    }
+
+    // DiffUtil per ottimizzare gli aggiornamenti
+    class TutorDiffCallback(
+        private val oldList: List<Utente>,
+        private val newList: List<Utente>
+    ) : DiffUtil.Callback() {
+
+        override fun getOldListSize(): Int = oldList.size
+
+        override fun getNewListSize(): Int = newList.size
+
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldList[oldItemPosition].userId == newList[newItemPosition].userId
+        }
+
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldList[oldItemPosition] == newList[newItemPosition]
+        }
+    }
 }
