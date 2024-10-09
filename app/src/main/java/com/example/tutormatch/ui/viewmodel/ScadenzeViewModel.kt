@@ -1,14 +1,10 @@
 package com.example.tutormatch.viewmodel
 
 import android.util.Log
-import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.tutormatch.data.model.Calendario
-import com.example.tutormatch.data.model.Prenotazione
-import com.example.tutormatch.data.model.Utente
-import com.example.tutormatch.util.FirebaseUtil
-import com.google.firebase.firestore.FirebaseFirestore
+import com.example.tutormatch.util.FirebaseUtil.eliminaFasceOrarieScadute
+import com.example.tutormatch.util.FirebaseUtil.eliminaPrenotazioniScadute
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -16,8 +12,6 @@ import java.util.Locale
 import java.util.TimeZone
 
 class ScadenzeViewModel : ViewModel() {
-
-    private val db = FirebaseFirestore.getInstance()
 
     fun gestisciScadenze() {
         viewModelScope.launch {
@@ -35,29 +29,20 @@ class ScadenzeViewModel : ViewModel() {
             val dataCorrente = dateFormat.format(nowRome)
             val oraCorrente = timeFormat.format(nowRome)
 
-            // Chiamata alla funzione atomica in FirebaseUtil
-            FirebaseUtil.gestisciScadenzeAtomiche(
-                dataCorrente = dataCorrente,
-                oraCorrente = oraCorrente,
-                onSuccess = {
-                    Log.e("VAFFANCULO", "DIO PORCO FUNZIONA")
-                },
-                onFailure = { exception ->
-                    // Gestione degli errori
-                }
-            )
+            try {
+                // 1. Prima elimina le fasce orarie scadute
+                eliminaFasceOrarieScadute(dataCorrente, oraCorrente)
+
+                // 2. Poi elimina le prenotazioni scadute
+                eliminaPrenotazioniScadute()
+
+                // Se tutto ha successo, puoi loggare un messaggio
+                Log.i("SUCCESS", "Operazioni completate con successo")
+
+            } catch (exception: Exception) {
+                // Gestione degli errori
+                Log.e("ERROR", "Errore durante le operazioni: ${exception.message}")
+            }
         }
-    }
-
-
-    // Funzione per eliminare un documento da una collezione specifica
-    private fun eliminaDocumento(documentId: String, collezione: String) {
-        db.collection(collezione).document(documentId).delete()
-            .addOnSuccessListener {
-                // Documento eliminato con successo
-            }
-            .addOnFailureListener {
-                // Gestisci eventuali errori durante l'eliminazione
-            }
     }
 }

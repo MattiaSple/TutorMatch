@@ -5,10 +5,13 @@ import com.example.tutormatch.data.model.Annuncio
 import com.example.tutormatch.data.model.Calendario
 import com.example.tutormatch.data.model.Prenotazione
 import com.example.tutormatch.data.model.Utente
+import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.toObject
+import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -58,7 +61,6 @@ object FirebaseUtil {
             }
         }
     }
-
 
     fun getAnnuncio(
         annuncioRef: DocumentReference,
@@ -331,84 +333,64 @@ object FirebaseUtil {
             }
     }
 
-    // Funzione atomica per gestire la scadenza delle fasce orarie e delle prenotazioni
-    fun gestisciScadenzeAtomiche(
-        dataCorrente: String,
-        oraCorrente: String,
-        onSuccess: () -> Unit,
-        onFailure: (Exception) -> Unit
-    ) {
-        val batch = db.batch()  // Creazione del batch per operazioni atomiche
+    suspend fun eliminaFasceOrarieScadute(dataCorrente: String, oraCorrente: String) {
 
-        // 1. Controllo e rimozione delle voci scadute nel calendario
-        db.collection("calendario")
-            .get()
-            .addOnSuccessListener { querySnapshot ->
-                querySnapshot.forEach { document ->
-                    val calendario = document.toObject(Calendario::class.java)
-                    val calendarioDataFormattata = SimpleDateFormat("yyyy-MM-dd", Locale.ITALY).format(calendario.data)
+        val batch = db.batch()  // Batch per operazioni atomiche
 
-                    // Elimina le fasce scadute dal calendario
-                    if (calendarioDataFormattata < dataCorrente || (calendarioDataFormattata == dataCorrente && calendario.oraInizio < oraCorrente)) {
-                        batch.delete(document.reference)  // Aggiunge l'eliminazione al batch
+        val documentiFas = db.collection("calendario").get().await()  // Aspetta il risultato della query
+        documentiFas.forEach { documentoFascia ->
+            val fascia = documentoFascia.toObject(Calendario::class.java)
+            val dataFascia = SimpleDateFormat("yyyy-MM-dd", Locale.ITALY).format(fascia.data)
+
+            // Controlla se la fascia è scaduta
+            if (dataFascia < dataCorrente || (dataFascia == dataCorrente && fascia.oraInizio < oraCorrente)) {
+                batch.delete(documentoFascia.reference)  // Aggiungi al batch
+            }
+        }
+
+        // Commetti il batch
+        batch.commit().await()  // Attendi il commit del batch
+    }
+
+    suspend fun eliminaPrenotazioniScadute() {
+
+        val batch = db.batch()  // Batch per operazioni atomiche
+
+        val documentiPren = db.collection("prenotazioni").get().await()  // Aspetta il risultato della query
+        documentiPren.forEach { documentoPrenotazione ->
+            val prenotazione = documentoPrenotazione.toObject(Prenotazione::class.java)
+
+            // Controlla se la fascia oraria associata alla prenotazione esiste ancora
+            val fasciaCalendarioRef = prenotazione.fasciaCalendarioRef
+            if (fasciaCalendarioRef != null) {
+                val fasciaDoc = fasciaCalendarioRef.get().await()  // Attendi il recupero della fascia
+                if (!fasciaDoc.exists()) {
+                    // Se la fascia non esiste più, procedi con:
+
+                    // 1. Elimina la prenotazione
+                    batch.delete(documentoPrenotazione.reference)
+
+                    // 2. Aggiorna il feedback dello studente
+                    val studenteRef = db.collection("utenti").document(prenotazione.studenteRef)  // Riferimento allo studente
+                    val studenteDoc = studenteRef.get().await()  // Recupera il documento dello studente
+
+
+                    val studente = studenteDoc.toObject(Utente::class.java)
+                    if (studente != null && !studente.tutorDaValutare.contains(prenotazione.tutorRef)) {
+                        // Aggiungi l'ID del tutor al feedback se non è già presente
+                        studente.tutorDaValutare.add(prenotazione.tutorRef)
+
+                        // Aggiungi l'aggiornamento dello studente al batch
+                        batch.set(studenteRef, studente)
+
                     }
                 }
-
-                // 2. Controllo delle prenotazioni e gestione del feedback
-                db.collection("prenotazioni")
-                    .get()
-                    .addOnSuccessListener { prenotazioniSnapshot ->
-                        prenotazioniSnapshot.forEach { document ->
-                            val prenotazione = document.toObject(Prenotazione::class.java)
-
-                            // Verifica se la fascia oraria associata esiste ancora
-                            prenotazione.fasciaCalendarioRef?.get()
-                                ?.addOnFailureListener {
-                                    val tutorId = prenotazione.tutorRef
-                                    val studenteId = prenotazione.studenteRef
-
-                                    // Recupera lo studente e aggiorna il feedback
-                                    db.collection("utenti").document(studenteId)
-                                        .get()
-                                        .addOnSuccessListener { studenteDoc ->
-                                            val studente = studenteDoc.toObject(Utente::class.java)
-                                            if (studente != null && !studente.feedback.contains(tutorId)) {
-                                                studente.feedback.add(tutorId)
-                                                batch.set(db.collection("utenti").document(studenteId), studente)  // Aggiungi l'update dello studente nel batch
-                                            }
-
-                                            // Elimina la prenotazione scaduta
-                                            batch.delete(document.reference)  // Aggiunge l'eliminazione della prenotazione al batch
-                                        }
-                                        .addOnFailureListener { exception ->
-                                            onFailure(exception)
-                                        }
-                                }
-                                ?.addOnSuccessListener {
-                                    // Se la fascia esiste ancora, non fare nulla
-                                }
-                        }
-
-                        // Esegui il batch in modo atomico
-                        batch.commit()
-                            .addOnSuccessListener {
-                                onSuccess()  // Batch completato con successo
-                            }
-                            .addOnFailureListener { exception ->
-                                onFailure(exception)  // Fallimento del batch
-                            }
-                    }
-                    .addOnFailureListener { exception ->
-                        onFailure(exception)
-                    }
             }
-            .addOnFailureListener { exception ->
-                onFailure(exception)
-            }
+        }
+        // Commetti il batch per applicare sia le eliminazioni che gli aggiornamenti
+        batch.commit().await()  // Attendi il commit del batch
     }
 
 
 
-
 }
-

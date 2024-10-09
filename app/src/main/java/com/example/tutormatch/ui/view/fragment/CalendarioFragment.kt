@@ -47,10 +47,13 @@ class CalendarioFragment : Fragment() {
 
         setupRecyclerView()
 
-        val today = Calendar.getInstance().time
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        selectedDate = dateFormat.format(today)
-        _binding.calendarView.minDate = today.time
+
+        val oggi = Calendar.getInstance().time
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ITALY).apply {
+            timeZone = TimeZone.getTimeZone("Europe/Rome")  // Usa il fuso orario italiano
+        }
+        selectedDate = dateFormat.format(oggi)
+        _binding.calendarView.minDate = oggi.time
 
         _binding.calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
             selectedDate = String.format(Locale.getDefault(), "%04d-%02d-%02d", year, month + 1, dayOfMonth)
@@ -89,7 +92,8 @@ class CalendarioFragment : Fragment() {
 
         calendarioViewModel.lista_disponibilita.observe(viewLifecycleOwner) { listaDisponibilita ->
             val filteredList = listaDisponibilita.filter { dateFormat.format(it.data) == selectedDate }
-            calendarioAdapter.setCalendari(filteredList)
+            val listaOrdinata = calendarioViewModel.ordinaFasceOrarie(filteredList)
+            calendarioAdapter.setCalendari(listaOrdinata)
         }
 
         calendarioViewModel.message.observe(viewLifecycleOwner) { message ->

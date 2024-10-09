@@ -9,8 +9,8 @@ data class Utente(
     val via: String,
     val cap: String,
     val ruolo: Boolean = false, // true se tutor, false se studente
-    val feedback: MutableList<String> = mutableListOf(), // ID dei tutor da valutare (solo per studenti)
-    val valutazioni: MutableList<Double> = mutableListOf() // Valutazioni ricevute dai tutor (solo per tutor)
+    val tutorDaValutare: MutableList<String> = mutableListOf(),
+    val feedback: MutableList<Int> = mutableListOf()
 ) {
     // Costruttore senza argomenti richiesto per Firestore
     constructor() : this("", "", "", "", "", "", "", false)

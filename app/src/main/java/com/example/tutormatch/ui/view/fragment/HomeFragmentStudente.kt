@@ -6,8 +6,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.tutormatch.databinding.FragmentHomeStudenteBinding
+import com.example.tutormatch.ui.adapter.ValutaTutorAdapter
 import com.example.tutormatch.ui.viewmodel.HomeViewModel
+import com.example.tutormatch.util.FirebaseUtil
 
 class HomeFragmentStudente : Fragment() {
 
@@ -20,12 +23,40 @@ class HomeFragmentStudente : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         _binding = FragmentHomeStudenteBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
         binding.viewModel = homeViewModel
         binding.lifecycleOwner = viewLifecycleOwner
+
+        // Configura la RecyclerView
+        val recyclerView = binding.recyclerViewTutors
+        recyclerView.layoutManager = LinearLayoutManager(context)
+
+        // Osserva il LiveData tutorRefs e carica i tutor quando cambia
+        homeViewModel.tutorRefs.observe(viewLifecycleOwner) { tutorRefs ->
+            homeViewModel.loadTutors()
+        }
+
+        // Osserva il LiveData dei tutor e aggiorna la RecyclerView quando la lista dei tutor cambia
+        homeViewModel.tutors.observe(viewLifecycleOwner) { tutors ->
+            recyclerView.adapter = ValutaTutorAdapter(tutors) { tutor, rating ->
+                // Quando un tutor viene valutato, rimuovilo dalla lista e aggiorna la valutazione
+                homeViewModel.rateTutorAndRemoveFromList("current_student_id", tutor, rating)
+            }
+        }
+
+        // Carica l'utente e i riferimenti ai tutor
+        val userId = arguments?.getString("userId")
+        if (userId != null) {
+            FirebaseUtil.getUserFromFirestore(userId) { utente ->
+                val lista = utente?.tutorDaValutare
+                lista?.let {
+                    // Carica i riferimenti dei tutor nell'utente
+                    homeViewModel.loadTutorRefs(it)
+                }
+            }
+        }
 
         return root
     }
