@@ -59,9 +59,9 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
         // Prima di registrare l'utente, controlla la validità dell'indirizzo
         val indirizzo = "${cap.value}, ${residenza.value}, ${via.value}"
-
+        val indirizzoSenzaVia = "${cap.value}, ${residenza.value}"
         viewModelScope.launch {
-            val flag = verificaIndirizzo(indirizzo)
+            val flag = verificaIndirizzo(indirizzo, indirizzoSenzaVia)
             if (flag) {
                 registraUtente(email.value!!, password.value!!)
             } else {
@@ -70,24 +70,51 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private suspend fun verificaIndirizzo(indirizzo: String): Boolean {
+    private suspend fun verificaIndirizzo(indirizzo: String, indirizzoSenzaVia: String): Boolean {
         return withContext(Dispatchers.IO) {
-            val call = RetrofitInstance.api.getLocation(indirizzo)
+            val callCompleto = RetrofitInstance.api.getLocation(indirizzo)
             try {
-                val response = call.execute()
-                if (response.isSuccessful && response.body()?.isNotEmpty() == true) {
-                    val location = response.body()!![0]
+                val responseCompleto = callCompleto.execute()
+                if (responseCompleto.isSuccessful && responseCompleto.body()?.isNotEmpty() == true) {
+                    val location = responseCompleto.body()!!
+                    for(localita in location)
+                    {
+                        val address = localita.address
+                        // Verifica che CAP, città e via siano validi
+                        val capValido = address?.postcode?.equals(cap.value, ignoreCase = true) ?: false
+                        val cittaValida = address?.city?.equals(residenza.value, ignoreCase = true)
+                            ?: address?.town?.equals(residenza.value, ignoreCase = true)
+                            ?: address?.village?.equals(residenza.value, ignoreCase = true)
+                            ?: false
+                        val viaValida = address?.road?.contains(via.value!!, ignoreCase = true) ?: false
 
-                    // Ottieni il CAP e la città dal display_name o dall'address (se disponibile)
-                    val displayName = location.display_name.lowercase()
+                        // Se tutti e tre i parametri corrispondono, l'indirizzo è valido
+                        if (capValido && cittaValida && viaValida) {
+                            return@withContext true
+                        }
+                    }
+                }
 
-                    // Converti le stringhe in minuscolo per fare il confronto
-                    val capValido = displayName.contains(cap.value!!)
-                    val residenzaValida = displayName.contains(residenza.value!!.lowercase())
+                // Se l'indirizzo completo non è valido, prova con l'indirizzo senza via
+                val callSenzaVia = RetrofitInstance.api.getLocation(indirizzoSenzaVia)
+                val responseSenzaVia = callSenzaVia.execute()
+                if (responseSenzaVia.isSuccessful && responseSenzaVia.body()?.isNotEmpty() == true) {
 
-                    // Se il CAP e la città corrispondono, restituisci true
-                    if (capValido && residenzaValida) {
-                        return@withContext true
+                    val locationSenzaVia = responseSenzaVia.body()!!
+                    for(localita in locationSenzaVia)
+                    {
+                        val addressSenzaVia = localita.address
+                        val capValidoSenzaVia = addressSenzaVia?.postcode?.equals(cap.value, ignoreCase = true) ?: false
+                        val residenzaValidaSenzaVia = addressSenzaVia?.city?.equals(residenza.value, ignoreCase = true)
+                            ?: addressSenzaVia?.town?.equals(residenza.value, ignoreCase = true)
+                            ?: addressSenzaVia?.village?.equals(residenza.value, ignoreCase = true)
+                            ?: false
+
+                        // Se CAP e residenza corrispondono, ritorna true e informa che la via non è stata trovata
+                        if (capValidoSenzaVia && residenzaValidaSenzaVia) {
+                            _showMessage.postValue("Via non trovata, registrazione con indirizzo senza via")
+                            return@withContext true
+                        }
                     }
                 }
             } catch (e: Exception) {
@@ -96,6 +123,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             return@withContext false
         }
     }
+
     //return@withContext true serve a specificare che true è il valore di ritorno del blocco withContext,
     // il che è particolarmente utile quando lavori con funzioni di ordine superiore
     // o in contesti di coroutine dove vuoi gestire esplicitamente il flusso di ritorno all'interno di un lambda.

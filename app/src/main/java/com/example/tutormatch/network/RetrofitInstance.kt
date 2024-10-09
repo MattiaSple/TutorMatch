@@ -4,6 +4,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 
 object RetrofitInstance {
     private val logging = HttpLoggingInterceptor().apply {
@@ -12,6 +13,8 @@ object RetrofitInstance {
 
     private val client = OkHttpClient.Builder()
         .addInterceptor(logging)
+        .connectTimeout(30, TimeUnit.SECONDS) // Timeout di connessione
+        .readTimeout(30, TimeUnit.SECONDS) // Timeout di lettura
         .build()
 
     val api: NominatimApi by lazy {

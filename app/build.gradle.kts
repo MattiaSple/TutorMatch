@@ -66,7 +66,7 @@ dependencies {
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.auth)
-    
+
 
 
     ////////////////////////////////////////////////////////////////////////////////
