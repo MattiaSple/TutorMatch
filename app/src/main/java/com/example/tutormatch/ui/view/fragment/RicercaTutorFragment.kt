@@ -213,20 +213,27 @@ class RicercaTutorFragment : Fragment() {
             val nomeTutor = documentSnapshot.getString("nome")!!
             val cognomeTutor = documentSnapshot.getString("cognome")!!
             val tutorEmail = documentSnapshot.getString("email")!!
+            val feedbackList = documentSnapshot.get("feedback") as? List<Int> ?: emptyList()
+
+            // Calcola la media dei feedback
+            val mediaFeedback = if (feedbackList.isNotEmpty()) {
+                feedbackList.sum().toDouble() / feedbackList.size
+            } else {
+                0.0
+            }
 
             // Imposta i dati nei TextView
             binding.tvNomeCognome.text = "$nomeTutor $cognomeTutor"
-            binding.tvMateria.text = "Materia: "+annuncio.materia
-            binding.tvPrezzo.text = "Prezzo: "+ annuncio.prezzo + "€"
-            binding.tvDescription.text = "Descrizione:\n"+annuncio.descrizione
+            binding.tvMateria.text = "Materia: ${annuncio.materia}"
+            binding.tvPrezzo.text = "Prezzo: ${annuncio.prezzo}€"
+            binding.tvDescription.text = "Descrizione:\n${annuncio.descrizione}"
+            binding.tvFeedbackMedia.text = "Media Feedback: ${String.format("%.1f", mediaFeedback)}"
 
-            // Mostra il layout
+            // Mostra il layout dei dettagli del marker
             binding.markerDetailCard.visibility = View.VISIBLE
 
             // Gestione del bottone per chattare
             binding.btnChat.setOnClickListener {
-
-                // Ora puoi creare la chat passando i dati dell'utente e del tutor
                 chatViewModel.creaChatConTutor(
                     tutorEmail = tutorEmail,
                     tutorName = nomeTutor,
@@ -234,25 +241,22 @@ class RicercaTutorFragment : Fragment() {
                     userName = arguments?.getString("nome") ?: "",
                     userSurname = arguments?.getString("cognome") ?: "",
                     materia = annuncio.materia,
-                    onSuccess = {
-                    },
+                    onSuccess = {},
                     onFailure = { errorMessage ->
                         Toast.makeText(context, "Errore: $errorMessage", Toast.LENGTH_SHORT).show()
                     },
                     onConfirm = { message, onConfirmAction ->
-                        // Mostra un dialogo di conferma all'utente
                         showConfirmationDialog(message, onConfirmAction)
                     }
                 )
             }
 
             binding.btnPrenota.setOnClickListener {
-                // Usa il FragmentManager per la navigazione
-                (activity as? HomeActivity)?.replaceFragment(CalendarioPrenotazioneFragment(), userIdStudente, nome, cognome, false, annuncio.id)
+                (activity as? HomeActivity)?.replaceFragment(
+                    CalendarioPrenotazioneFragment(), userIdStudente, nome, cognome, false, annuncio.id
+                )
             }
 
-
-            // Gestione del bottone per chiudere
             binding.btnClose.setOnClickListener {
                 binding.markerDetailCard.visibility = View.GONE
             }
@@ -260,6 +264,7 @@ class RicercaTutorFragment : Fragment() {
             Toast.makeText(context, "Impossibile ottenere i dettagli del tutor", Toast.LENGTH_SHORT).show()
         }
     }
+
 
     private fun showConfirmationDialog(message: String, onConfirmAction: () -> Unit) {
         AlertDialog.Builder(requireContext())

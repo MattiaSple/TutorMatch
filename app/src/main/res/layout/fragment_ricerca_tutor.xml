@@ -23,8 +23,6 @@
             android:id="@+id/titolo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp"
             android:gravity="center"
             android:padding="16dp"
             android:text="@string/ricercaTutor"
@@ -39,8 +37,8 @@
         android:id="@+id/mapView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@+id/cardView"
-        app:layout_constraintBottom_toTopOf="@+id/searchParamsLayout"
+        app:layout_constraintTop_toBottomOf="@id/cardView"
+        app:layout_constraintBottom_toTopOf="@id/searchParamsLayout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="16dp"
@@ -88,7 +86,6 @@
                 android:layout_height="48dp"
                 android:layout_weight="1"
                 android:padding="8dp"
-                android:textColor="@android:color/black"
                 android:entries="@array/materie_array"
                 android:textSize="16sp" />
         </LinearLayout>
@@ -156,7 +153,7 @@
                 android:textColor="@android:color/black" />
         </LinearLayout>
 
-
+        <!-- Buttons -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -205,71 +202,104 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
                 android:padding="16dp">
 
-                <TextView
-                    android:id="@+id/tv_nome_cognome"
+                <!-- LinearLayout per la media dei feedback e l'icona della stella -->
+                <LinearLayout
+                    android:id="@+id/feedbackLayout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginBottom="8dp"
-                    android:textColor="@color/black"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
+                    android:orientation="horizontal"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginTop="8dp">
 
-                <TextView
-                    android:id="@+id/tv_materia"
-                    android:layout_width="wrap_content"
+                    <TextView
+                        android:id="@+id/tvFeedbackMedia"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@android:color/black"
+                        android:textSize="15sp"
+                        android:text="Feedback: 0.0" />
+
+                    <ImageView
+                        android:id="@+id/starIcon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_star"
+                        android:layout_marginStart="4dp"/>
+                </LinearLayout>
+
+                <!-- Altri elementi sotto la media dei feedback -->
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="@android:color/black"
-                    android:textSize="15sp" />
+                    android:orientation="vertical"
+                    android:layout_below="@id/feedbackLayout"
+                    android:layout_marginTop="16dp">
 
-                <TextView
-                    android:id="@+id/tv_prezzo"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/black"
-                    android:textSize="15sp" />
+                    <TextView
+                        android:id="@+id/tv_nome_cognome"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:textColor="@color/black"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/tv_description"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@android:color/black"
-                    android:textSize="15sp" />
+                    <TextView
+                        android:id="@+id/tv_materia"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@android:color/black"
+                        android:textSize="15sp" />
 
-                <Button
-                    android:id="@+id/btn_chat"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:backgroundTint="@color/coloreSecondario"
-                    android:text="@string/inviaMSG"
-                    android:textColor="@android:color/white" />
+                    <TextView
+                        android:id="@+id/tv_prezzo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/black"
+                        android:textSize="15sp" />
 
-                <Button
-                    android:id="@+id/btn_prenota"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:backgroundTint="@color/coloreSecondario"
-                    android:textColor="@android:color/white"
-                    android:text="@string/prenLezione" />
+                    <TextView
+                        android:id="@+id/tv_description"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@android:color/black"
+                        android:textSize="15sp" />
 
-                <Button
-                    android:id="@+id/btn_close"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:backgroundTint="@color/coloreSecondario"
-                    android:textColor="@android:color/white"
-                    android:text="@string/chiudi" />
+                    <Button
+                        android:id="@+id/btn_chat"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:backgroundTint="@color/coloreSecondario"
+                        android:text="@string/inviaMSG"
+                        android:textColor="@android:color/white" />
 
-            </LinearLayout>
+                    <Button
+                        android:id="@+id/btn_prenota"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:backgroundTint="@color/coloreSecondario"
+                        android:textColor="@android:color/white"
+                        android:text="@string/prenLezione" />
+
+                    <Button
+                        android:id="@+id/btn_close"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:backgroundTint="@color/coloreSecondario"
+                        android:textColor="@android:color/white"
+                        android:text="@string/chiudi" />
+
+                </LinearLayout>
+            </RelativeLayout>
         </ScrollView>
     </androidx.cardview.widget.CardView>
 

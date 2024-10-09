@@ -29,8 +29,6 @@
                 android:id="@+id/titolo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="30dp"
-                android:layout_marginRight="30dp"
                 android:gravity="center"
                 android:padding="16dp"
                 android:text="@string/home"
@@ -45,7 +43,7 @@
             android:id="@+id/scroll_view"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            app:layout_constraintBottom_toTopOf="@id/recycler_view_tutors"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/cardView">
@@ -94,7 +92,6 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
                         android:orientation="vertical"
                         android:padding="16dp">
 
@@ -113,24 +110,40 @@
                             android:text="@string/tutorial"
                             android:textColor="@android:color/black"
                             android:textSize="16sp" />
-
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
+                <!-- CardView per il titolo "Valuta le tue lezioni" -->
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cardViewValutaLezioni"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    app:cardBackgroundColor="@color/coloreSecondario"
+                    app:cardCornerRadius="15dp"
+                    app:cardElevation="4dp">
+
+                    <TextView
+                        android:id="@+id/titolo_valuta_lezioni"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:padding="10dp"
+                        android:text="Valuta le tue lezioni"
+                        android:textColor="@android:color/white"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+                </androidx.cardview.widget.CardView>
+
+                <!-- RecyclerView per visualizzare i tutor associati -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recycler_view_tutors"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    tools:listitem="@layout/item_tutor" />
+
             </LinearLayout>
         </ScrollView>
-
-        <!-- RecyclerView per visualizzare i tutor associati -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_view_tutors"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_margin="16dp"
-            app:layout_constraintTop_toBottomOf="@id/scroll_view"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            tools:listitem="@layout/item_tutor" />
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
