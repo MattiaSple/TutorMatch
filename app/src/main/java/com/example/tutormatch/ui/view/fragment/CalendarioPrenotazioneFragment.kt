@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.tutormatch.data.model.Calendario
 import com.example.tutormatch.databinding.FragmentCalendarioPrenotazioneBinding
 import com.example.tutormatch.ui.adapter.SelezioneFasceOrarieAdapter
-import com.example.tutormatch.ui.view.activity.HomeActivity
 import com.example.tutormatch.ui.viewmodel.CalendarioViewModel
 import com.example.tutormatch.ui.viewmodel.PrenotazioneViewModel
 

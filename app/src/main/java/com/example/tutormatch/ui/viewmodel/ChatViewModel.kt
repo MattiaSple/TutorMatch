@@ -1,7 +1,6 @@
 
 package com.example.tutormatch.ui.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -61,7 +60,6 @@ class ChatViewModel : ViewModel() {
 
             override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {}
             override fun onCancelled(error: DatabaseError) {
-                Log.e("ChatViewModel", "Error loading chats: ${error.message}")
             }
         })
     }
@@ -69,8 +67,7 @@ class ChatViewModel : ViewModel() {
     fun deleteChat(chatId: String, onSuccess: () -> Unit) {
         chatRef.child(chatId).removeValue()
             .addOnSuccessListener { onSuccess() }
-            .addOnFailureListener { error ->
-                Log.e("ChatViewModel", "Errore durante l'eliminazione della chat: ${error.message}")
+            .addOnFailureListener {
             }
     }
 

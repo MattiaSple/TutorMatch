@@ -2,14 +2,10 @@ package com.example.tutormatch.ui.view.fragment
 
 import android.graphics.Rect
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import com.example.tutormatch.databinding.FragmentChatDetailBinding
 import com.example.tutormatch.ui.adapter.MessageAdapter
 import com.example.tutormatch.ui.viewmodel.ChatDetailViewModel
@@ -18,7 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import android.content.Context
 import android.view.inputmethod.InputMethodManager
 import android.view.ViewTreeObserver
-import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 
 class ChatDetailFragment : Fragment() {
 
@@ -26,7 +22,7 @@ class ChatDetailFragment : Fragment() {
     private val binding get() = _binding!!
 
     // Usa il delegato per inizializzare il ViewModel
-    private val chatDetailViewModel: ChatDetailViewModel by viewModels()
+    private lateinit var chatDetailViewModel: ChatDetailViewModel
 
     // Listener del layout, salvato per poterlo rimuovere quando il fragment viene distrutto
     private var globalLayoutListener: ViewTreeObserver.OnGlobalLayoutListener? = null
@@ -37,6 +33,7 @@ class ChatDetailFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentChatDetailBinding.inflate(inflater, container, false)
+        chatDetailViewModel = ViewModelProvider(this).get(ChatDetailViewModel::class.java)
         return binding.root
     }
 

@@ -1,6 +1,5 @@
 package com.example.tutormatch.ui.adapter
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -40,8 +39,7 @@ class PrenotazioneAdapter(
                     binding.tvOrarioLezione.text = "Orario: ${calendario.oraInizio} - ${calendario.oraFine}"
                     binding.tvModalita.text = "${annuncio.getModalita()}"
                 },
-                onFailure = { exception ->
-                    Log.e("Adapter", "Errore nel caricamento dei dati: ${exception.message}")
+                onFailure = {
                 }
             )
 

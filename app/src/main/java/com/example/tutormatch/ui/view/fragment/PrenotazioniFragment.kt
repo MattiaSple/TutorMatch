@@ -1,28 +1,20 @@
 package com.example.tutormatch.ui.view.fragment
 
-import android.app.Activity
 import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.tutormatch.databinding.FragmentPrenotazioniBinding
-import com.example.tutormatch.ui.adapter.AnnuncioAdapter
 import com.example.tutormatch.ui.adapter.PrenotazioneAdapter
-import com.example.tutormatch.ui.viewmodel.AnnunciViewModel
 import com.example.tutormatch.ui.viewmodel.ChatViewModel
 import com.example.tutormatch.ui.viewmodel.PrenotazioneViewModel
-import com.example.tutormatch.ui.viewmodel.RicercaTutorViewModel
 import com.example.tutormatch.util.FirebaseUtil
-import org.osmdroid.config.Configuration
-import org.osmdroid.library.BuildConfig
 
 class PrenotazioniFragment : Fragment() {
 

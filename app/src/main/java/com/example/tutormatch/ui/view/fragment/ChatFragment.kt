@@ -1,14 +1,12 @@
 package com.example.tutormatch.ui.view.fragment
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.tutormatch.databinding.FragmentChatBinding
 import com.example.tutormatch.ui.adapter.ChatAdapter
@@ -21,7 +19,7 @@ class ChatFragment : Fragment() {
     private var _binding: FragmentChatBinding? = null
     private val binding get() = _binding!!
 
-    private val chatViewModel: ChatViewModel by viewModels()
+    private lateinit var chatViewModel: ChatViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -29,6 +27,7 @@ class ChatFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentChatBinding.inflate(inflater, container, false)
+        chatViewModel = ViewModelProvider(this).get(ChatViewModel::class.java)
         binding.viewModel = chatViewModel
         binding.lifecycleOwner = this
 
@@ -48,10 +47,7 @@ class ChatFragment : Fragment() {
 
             val adapter = email?.let {
                 ChatAdapter(emptyList(), currentUserFullName, it, { chat ->
-                    Log.d("ChatFragment", "Chat ID: ${chat.id}")
-
                     if (chat.id.isNullOrEmpty()) {
-                        Log.e("ChatFragment", "Chat ID is null or empty")
                     } else {
                         // Naviga al ChatDetailFragment passando chatId ed email
                         (activity as? HomeActivity)?.replaceFragmentChat(

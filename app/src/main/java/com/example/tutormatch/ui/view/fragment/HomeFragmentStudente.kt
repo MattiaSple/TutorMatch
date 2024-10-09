@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.tutormatch.databinding.FragmentHomeStudenteBinding
 import com.example.tutormatch.ui.adapter.ValutaTutorAdapter
@@ -14,7 +14,7 @@ import com.example.tutormatch.util.FirebaseUtil
 
 class HomeFragmentStudente : Fragment() {
 
-    private val homeViewModel: HomeViewModel by activityViewModels()
+    private lateinit var homeViewModel: HomeViewModel
     private lateinit var _binding: FragmentHomeStudenteBinding
     private val binding get() = _binding
     private lateinit var adapter: ValutaTutorAdapter
@@ -26,6 +26,8 @@ class HomeFragmentStudente : Fragment() {
     ): View {
         _binding = FragmentHomeStudenteBinding.inflate(inflater, container, false)
         val root: View = binding.root
+
+        homeViewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
 
         binding.viewModel = homeViewModel
         binding.lifecycleOwner = viewLifecycleOwner

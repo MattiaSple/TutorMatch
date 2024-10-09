@@ -1,6 +1,5 @@
 package com.example.tutormatch.ui.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -31,7 +30,6 @@ class ChatDetailViewModel : ViewModel() {
     // Imposta l'ID della chat e carica i dettagli della chat
     fun setChatId(chatId: String) {
         if (chatId.isBlank()) {
-            Log.e("ChatDetailViewModel", "ID chat non valido")
             return
         }
 
@@ -68,14 +66,12 @@ class ChatDetailViewModel : ViewModel() {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                Log.e("ChatDetailViewModel", "Errore nel caricamento dei dettagli della chat: ${error.message}")
             }
         })
     }
 
     private fun loadMessages() {
         if (!::messagesRef.isInitialized) {
-            Log.e("ChatDetailViewModel", "Reference messaggi non inizializzata")
             return
         }
 
@@ -99,7 +95,6 @@ class ChatDetailViewModel : ViewModel() {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                Log.e("ChatDetailViewModel", "Errore nel caricamento dei messaggi: ${error.message}")
             }
         })
     }
@@ -119,24 +114,20 @@ class ChatDetailViewModel : ViewModel() {
 
     fun sendMessage() {
         if (!::chatId.isInitialized || !::messagesRef.isInitialized) {
-            Log.e("ChatDetailViewModel", "Chat o messagesRef non inizializzati")
             return
         }
 
         val messageText = newMessage.value
         if (messageText.isNullOrBlank()) {
-            Log.e("ChatDetailViewModel", "Messaggio vuoto, non inviato")
             return
         }
 
         val senderEmail = FirebaseAuth.getInstance().currentUser?.email
         if (senderEmail.isNullOrBlank()) {
-            Log.e("ChatDetailViewModel", "Email mittente vuota, impossibile inviare messaggio")
             return
         }
 
         if (participants.isEmpty()) {
-            Log.e("ChatDetailViewModel", "Partecipanti non disponibili, impossibile inviare il messaggio")
             return
         }
 
@@ -152,7 +143,6 @@ class ChatDetailViewModel : ViewModel() {
         messagesRef.child(newMessageId).setValue(message).addOnSuccessListener {
             chatRef.child("lastMessage").setValue(message)
         }.addOnFailureListener {
-            Log.e("ChatDetailViewModel", "Errore nell'invio del messaggio: ${it.message}")
         }
 
         newMessage.value = ""

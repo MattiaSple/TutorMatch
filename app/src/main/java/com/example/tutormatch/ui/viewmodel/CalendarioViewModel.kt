@@ -1,7 +1,6 @@
 package com.example.tutormatch.ui.viewmodel
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -92,7 +91,6 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
                         callback(existingOrari)
                     }
                 } catch (e: Exception) {
-                    Log.e("CalendarioViewModel", "Errore nel caricamento delle disponibilità per data: ${e.message}")
                     withContext(Dispatchers.Main) {
                         callback(emptyList())
                     }

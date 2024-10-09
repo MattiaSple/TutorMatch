@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
@@ -46,7 +45,6 @@ class AuthActivity : AppCompatActivity() {
         // Osserva il LiveData showMessage per mostrare il Toast
         authViewModel.showMessage.observe(this, Observer { message ->
             message?.let {
-                Log.d("AuthActivity", "showMessage observed: $it")
                 // Disabilita il bottone
                 binding.registrazione.isEnabled = false
 

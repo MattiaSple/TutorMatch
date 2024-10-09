@@ -40,8 +40,7 @@ class HomeViewModel : ViewModel() {
                     }
                     _tutors.value = tutorList
                 }
-                .addOnFailureListener { e ->
-                    // Gestione degli errori
+                .addOnFailureListener {
                 }
         }
     }
@@ -81,8 +80,6 @@ class HomeViewModel : ViewModel() {
                             updatedTutorList.remove(tutor)
                             _tutors.value = updatedTutorList
                         }.addOnFailureListener {
-                            // Gestione degli errori in caso di aggiornamento fallito
-
                         }
                     }
                 }

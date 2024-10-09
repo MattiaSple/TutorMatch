@@ -5,17 +5,13 @@ import com.example.tutormatch.data.model.Annuncio
 import com.example.tutormatch.data.model.Calendario
 import com.example.tutormatch.data.model.Prenotazione
 import com.example.tutormatch.data.model.Utente
-import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
-import com.google.firebase.firestore.toObject
 import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
-import java.util.Calendar
 import java.util.Locale
-import java.util.TimeZone
 
 
 // Oggetto per gestire le operazioni Firestore

@@ -1,6 +1,5 @@
 package com.example.tutormatch.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.tutormatch.util.FirebaseUtil.eliminaFasceOrarieScadute
@@ -36,12 +35,8 @@ class ScadenzeViewModel : ViewModel() {
                 // 2. Poi elimina le prenotazioni scadute
                 eliminaPrenotazioniScadute()
 
-                // Se tutto ha successo, puoi loggare un messaggio
-                Log.i("SUCCESS", "Operazioni completate con successo")
+            } catch (_: Exception) {
 
-            } catch (exception: Exception) {
-                // Gestione degli errori
-                Log.e("ERROR", "Errore durante le operazioni: ${exception.message}")
             }
         }
     }

@@ -6,7 +6,6 @@ import android.app.AlertDialog
 import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -29,7 +28,6 @@ import org.osmdroid.library.BuildConfig
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
-import android.widget.ArrayAdapter
 import android.widget.SeekBar
 
 import androidx.lifecycle.ViewModelProvider
@@ -334,8 +332,7 @@ class RicercaTutorFragment : Fragment() {
             // Aggiorna la mappa per visualizzare le modifiche
             mapView.invalidate()
 
-        } catch (e: Exception) {
-            Log.e("RicercaTutorFragment", "Errore durante l'aggiornamento degli annunci sulla mappa", e)
+        } catch (_: Exception) {
         }
     }
 

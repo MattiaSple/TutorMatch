@@ -1,6 +1,5 @@
 package com.example.tutormatch.ui.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -33,8 +32,7 @@ class PrenotazioneViewModel : ViewModel() {
                 caricaPrenotazioni(false, studenteRef)
                 onComplete()
             },
-            onFailure = { exception ->
-                Log.e("Prenotazione", "Errore nel salvataggio delle prenotazioni: ${exception.message}")
+            onFailure = {
             }
         )
     }
@@ -47,8 +45,7 @@ class PrenotazioneViewModel : ViewModel() {
             onSuccess = { prenotazioniList ->
                 _listaPrenotazioni.value = prenotazioniList
             },
-            onFailure = { exception ->
-                Log.e("PrenotazioneViewModel", "Errore nel caricamento delle prenotazioni: ${exception.message}")
+            onFailure = {
             }
         )
     }
@@ -67,9 +64,7 @@ class PrenotazioneViewModel : ViewModel() {
                     _notificaPrenotazione.postValue("Prenotazione non trovata nella lista, aggiorna la pagina")
                 }
             },
-            onFailure = { exception ->
-                // Gestisci l'errore
-                Log.e("PrenotazioneViewModel", "Errore nell'eliminazione: ${exception.message}")
+            onFailure = {
             }
         )
     }
