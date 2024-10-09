@@ -5,6 +5,7 @@
     tools:context=".ui.view.fragment.HomeFragmentTutor">
 
     <data>
+        <import type="android.view.View" />
         <variable
             name="viewModel"
             type="com.example.tutormatch.ui.viewmodel.ProfiloViewModel" />
@@ -29,8 +30,6 @@
                 android:id="@+id/titolo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="30dp"
-                android:layout_marginRight="30dp"
                 android:gravity="center"
                 android:padding="16dp"
                 android:text="@string/profilo"
@@ -51,6 +50,30 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="16dp">
+
+                <!-- Layout per la media delle valutazioni con l'icona della stella -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:visibility="@{viewModel.isTutor ? View.VISIBLE : View.GONE}">
+
+                    <TextView
+                        android:id="@+id/media_valutazioni"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@{viewModel.mediaValutazioni}"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:layout_marginEnd="8dp" />
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_star"
+                        android:visibility="@{viewModel.isTutor ? View.VISIBLE : View.GONE}" />
+                </LinearLayout>
 
                 <TextView
                     android:layout_width="match_parent"
@@ -127,7 +150,6 @@
                     android:minHeight="48dp"
                     android:padding="10dp"
                     android:text="@={viewModel.cap}" />
-
 
             </LinearLayout>
         </ScrollView>

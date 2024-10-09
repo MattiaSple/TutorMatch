@@ -24,7 +24,10 @@ class ProfiloViewModel(application: Application) : AndroidViewModel(application)
     val cap = MutableLiveData<String>()
     val message = MutableLiveData<String>()
 
-    private var ruolo: Boolean = false // Variabile per preservare il ruolo
+    val mediaValutazioni = MutableLiveData<String>()
+    val isTutor = MutableLiveData<Boolean>()
+
+    private var ruolo: Boolean = false
 
     // Carica i dati del profilo utente
     fun loadUserProfile(userId: String) {
@@ -38,7 +41,16 @@ class ProfiloViewModel(application: Application) : AndroidViewModel(application)
                     residenza.postValue(it.residenza)
                     via.postValue(it.via)
                     cap.postValue(it.cap)
-                    ruolo = it.ruolo // Preserva il ruolo
+                    ruolo = it.ruolo
+
+                    // Aggiorna la variabile isTutor
+                    isTutor.postValue(it.ruolo)
+
+                    if (ruolo && it.feedback.isNotEmpty()) {
+                        // Calcola la media delle valutazioni
+                        val media = it.feedback.average()
+                        mediaValutazioni.postValue("Valutazioni: %.1f".format(media))
+                    }
                 }
             } catch (e: Exception) {
                 message.postValue("Errore nel caricamento del profilo utente.")
