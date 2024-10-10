@@ -118,11 +118,19 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
 
 
     // Funzione per salvare un nuovo annuncio su Firestore
-    fun salvaAnnuncio(userId: String): Boolean {
+    fun salvaAnnuncio(
+        userId: String,
+        materia: String,
+        prezzo: String,
+        descrizione: String,
+        online: Boolean,
+        presenza: Boolean
+    ){
 
         // Verifica che tutti i campi siano compilati
-        if (materia.value!!.isBlank() || prezzo.value!!.isBlank()) {
-            return false
+        if (materia.isBlank() || prezzo.isBlank() || (!online && !presenza)) {
+            _message.value = "Prezzo e Modalità sono obbligatori!"
+            return
         }
 
         // Recupera i dati dell'utente e salva l'annuncio
@@ -137,12 +145,12 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
                     // Primo tentativo: Ottieni il GeoPoint per l'indirizzo completo
                     getGeoPoint(indirizzoCompleto) { geoPoint ->
                         if (geoPoint != null) {
-                            salvaAnnuncioConGeoPoint(geoPoint)
+                            salvaAnnuncioConGeoPoint(geoPoint, materia, prezzo, descrizione, online, presenza)
                         } else {
                             // Secondo tentativo: Ottieni il GeoPoint senza la via
                             getGeoPoint(indirizzoSenzaVia) { geoPointSenzaVia ->
                                 if (geoPointSenzaVia != null) {
-                                    salvaAnnuncioConGeoPoint(geoPointSenzaVia)
+                                    salvaAnnuncioConGeoPoint(geoPointSenzaVia, materia, prezzo, descrizione, online, presenza)
                                 } else {
                                     // Entrambi i tentativi falliti
                                     _message.postValue("Errore nella geocodifica dell'indirizzo")
@@ -157,23 +165,28 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
                 _message.postValue("Errore nel caricamento dei dati dell'utente: ${e.message}")
             }
         }
-        return true
     }
 
     // Funzione di supporto per salvare l'annuncio con il GeoPoint ottenuto
-    private fun salvaAnnuncioConGeoPoint(geoPoint: GeoPoint) {
+    private fun salvaAnnuncioConGeoPoint(
+        geoPoint: GeoPoint,
+        materia: String,
+        prezzo: String,
+        descrizione: String,
+        online: Boolean,
+        presenza: Boolean
+    ) {
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val nuovoAnnuncio = Annuncio(
-                    descrizione = descrizione.value?.trim()?.replace("\\s+".toRegex(), " ") ?: "",
-                    materia = materia.value!!,
-                    mod_on = online.value ?: false,
-                    mod_pres = presenza.value ?: false,
+                    descrizione = descrizione.trim().replace("\\s+".toRegex(), " "),
+                    materia = materia,
+                    mod_on = online,
+                    mod_pres = presenza,
                     posizione = geoPoint,
-                    prezzo = prezzo.value!!,
+                    prezzo = prezzo,
                     tutor = _tutorRef
-
                 )
 
                 // Aggiungi l'annuncio alla collezione "annunci" e ottieni il riferimento al documento appena creato

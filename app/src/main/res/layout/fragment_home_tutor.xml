@@ -3,12 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".ui.view.fragment.HomeFragmentTutor">
 
-    <data>
-        <variable
-            name="viewModel"
-            type="com.example.tutormatch.ui.viewmodel.AnnunciViewModel" />
-    </data>
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -135,8 +129,7 @@
                             android:layout_weight="2"
                             android:ems="10"
                             android:hint="@string/insPrezzo"
-                            android:inputType="number"
-                            android:text="@={viewModel.prezzo}" />
+                            android:inputType="number" />
                     </LinearLayout>
 
                     <!-- Campo per la descrizione -->
@@ -160,8 +153,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="@string/insDesc"
-                            android:minHeight="48dp"
-                            android:text="@={viewModel.descrizione}" />
+                            android:minHeight="48dp" />
                     </LinearLayout>
 
                     <!-- Campo per la modalità di insegnamento -->
@@ -184,7 +176,6 @@
                             android:layout_width="0dp"
                             android:layout_height="48dp"
                             android:layout_weight="1"
-                            android:checked="@={viewModel.online}"
                             android:text="@string/on" />
 
                         <CheckBox
@@ -192,7 +183,6 @@
                             android:layout_width="0dp"
                             android:layout_height="48dp"
                             android:layout_weight="1"
-                            android:checked="@={viewModel.presenza}"
                             android:text="@string/pres" />
                     </LinearLayout>
 

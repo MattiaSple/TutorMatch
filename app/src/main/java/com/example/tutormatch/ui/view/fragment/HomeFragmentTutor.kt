@@ -28,7 +28,6 @@ class HomeFragmentTutor : Fragment() {
         // Imposta il lifecycle owner e il ViewModel per il binding
         binding.lifecycleOwner = viewLifecycleOwner
         annunciViewModel = ViewModelProvider(this).get(AnnunciViewModel::class.java)
-        binding.viewModel = annunciViewModel
 
         // Configura il RecyclerView
         setupRecyclerView()
@@ -42,13 +41,15 @@ class HomeFragmentTutor : Fragment() {
             annunciViewModel.setTutorReference(tutorRef)
         }
 
-        // Imposta il listener per il pulsante Salva
+        // Nel Fragment: raccolta dei dati e chiamata al ViewModel
         binding.buttonSalva.setOnClickListener {
-            val materiaSpinner = binding.spinnerMateria.selectedItem.toString()
-            annunciViewModel.materia.value = materiaSpinner
-            if (!annunciViewModel.salvaAnnuncio(userId.toString())) {
-                Toast.makeText(context, "Errore: tutti i campi devono essere compilati", Toast.LENGTH_SHORT).show()
-            }
+            val materia = binding.spinnerMateria.selectedItem.toString()
+            val prezzo = binding.editTextNumber.text.toString()
+            val descrizione = binding.editTextDescrizione.text.toString()
+            val online = binding.checkBoxOnline.isChecked
+            val presenza = binding.checkBoxPresenza.isChecked
+
+            annunciViewModel.salvaAnnuncio(userId!!, materia, prezzo, descrizione, online, presenza)
         }
 
         // Osserva i cambiamenti nei dati degli annunci
