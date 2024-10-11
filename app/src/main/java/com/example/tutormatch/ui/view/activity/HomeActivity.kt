@@ -107,30 +107,29 @@ class HomeActivity : AppCompatActivity() {
     }
 
     fun replaceFragment(fragment: Fragment, userId: String, nome: String? = "", cognome: String? = "", ruolo: Boolean, annuncioId: String? = null) {
-        val bundle = Bundle().apply {
+        // Ottieni il Fragment attualmente visualizzato
+        val currentFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment_activity_main)
 
-            putString("userId", userId)
-
-            nome?.let {
-                putString("nome", it)
+        // Verifica se il Fragment corrente è diverso dal Fragment che si vuole mostrare
+        if (currentFragment?.javaClass != fragment.javaClass) {
+            // Esegui la sostituzione solo se il Fragment corrente è diverso da quello selezionato
+            val bundle = Bundle().apply {
+                putString("userId", userId)
+                nome?.let { putString("nome", it) }
+                cognome?.let { putString("cognome", cognome) }
+                putBoolean("ruolo", ruolo)
+                annuncioId?.let { putString("annuncioId", it) }
             }
-            cognome?.let {
-                putString("cognome", cognome)
+            fragment.arguments = bundle
+
+            // Sostituisci il Fragment
+            supportFragmentManager.commit {
+                replace(R.id.nav_host_fragment_activity_main, fragment)
+                // Rimuovi addToBackStack(null) se non hai bisogno di gestire il back stack
             }
-
-            putBoolean("ruolo", ruolo)
-
-            annuncioId?.let {
-                putString("annuncioId", it)  // Aggiungi annuncioId solo se non è null
-            }
-        }
-        fragment.arguments = bundle
-
-        supportFragmentManager.commit {
-            replace(R.id.nav_host_fragment_activity_main, fragment)
-            addToBackStack(null)
         }
     }
+
     fun replaceFragmentChat(fragment: Fragment, chatId: String, email: String) {
         // Crea il bundle con i dati
         val bundle = Bundle().apply {
