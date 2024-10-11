@@ -26,6 +26,7 @@ class ProfiloViewModel(application: Application) : AndroidViewModel(application)
 
     val mediaValutazioni = MutableLiveData<String>()
     val isTutor = MutableLiveData<Boolean>()
+    val addressVerified = MutableLiveData<Boolean>() // Nuovo LiveData per la verifica dell'indirizzo
 
     private var ruolo: Boolean = false
 
@@ -79,84 +80,29 @@ class ProfiloViewModel(application: Application) : AndroidViewModel(application)
                     via.value?.let { updates["via"] = it }
 
                     // Prima di modificare l'utente, controlla la validità dell'indirizzo
-
                     val indirizzoSenzaVia = "${cap.value}, ${residenza.value}"
-                    if(verificaIndirizzo(indirizzoSenzaVia))
-                    {
+                    val isAddressValid = verificaIndirizzo(indirizzoSenzaVia)
+
+                    if (isAddressValid) {
                         residenza.value?.let { updates["residenza"] = it }
                         cap.value?.let { updates["cap"] = it }
-                    }else{
-                        // Se l'indirizzo non è valido, invia un messaggio di errore
+                        addressVerified.postValue(true) // Notifica che l'indirizzo è verificato
+                    } else {
                         message.postValue("Residenza o CAP non validi.")
+                        addressVerified.postValue(false) // Notifica che l'indirizzo non è verificato
                         return@launch
                     }
 
-
                     // Esegui l'aggiornamento del documento
-                    val utentiCollection = FirebaseFirestore.getInstance().collection("utenti")
                     utentiCollection.document(userId).update(updates).await()
                     message.postValue("Profilo salvato con successo.")
                 } else {
                     message.postValue("Tutti i campi devono essere compilati.")
+                    addressVerified.postValue(false) // Se i campi non sono validi
                 }
             } catch (e: Exception) {
                 message.postValue("Errore nel salvataggio del profilo utente: ${e.message}")
-            }
-        }
-    }
-
-
-    fun eliminaDatiUtenteDaFirestore(userId: String) {
-        val currentUser = FirebaseAuth.getInstance().currentUser
-        currentUser?.let { user ->
-            viewModelScope.launch(Dispatchers.IO) {
-                try {
-                    // Elimina i dati dell'utente dal database Firestore
-                    val db = FirebaseFirestore.getInstance()
-                    val batch = db.batch()
-
-                    // Elimina il documento principale dell'utente
-                    val userDocRef = db.collection("utenti").document(userId)
-                    batch.delete(userDocRef)
-
-                    if(ruolo)
-                    {
-                        // Elimina tutti gli annunci associati all'utente
-                        val annunci = db.collection("annunci")
-                            .whereEqualTo("tutor", db.document("utenti/$userId")).get().await()
-                        for (annuncio in annunci.documents) {
-                            batch.delete(annuncio.reference)
-                        }
-
-                        // Elimina tutte le prenotazioni associate all'utente
-                        val prenotazioni = db.collection("prenotazioni")
-                            .whereEqualTo("tutor", db.document("utenti/$userId")).get().await()
-                        for (prenotazione in prenotazioni.documents) {
-                            batch.delete(prenotazione.reference)
-                        }
-
-                        // Elimina tutte le date del calendario associate all'utente
-                        val calendario = db.collection("calendario")
-                            .whereEqualTo("tutorRef", db.document("utenti/$userId")).get().await()
-                        for (fascia in calendario.documents) {
-                            batch.delete(fascia.reference)
-                        }
-                    } else{
-                        message.postValue("ANCORA DA IMPLEMENTARE")
-                    }
-
-                    // Commit del batch
-                    batch.commit().await()
-
-                    // Elimina l'account utente dalla Firebase Authentication
-                    user.delete().await()
-
-                    message.postValue("Account e dati associati eliminati con successo.")
-
-                } catch (e: Exception) {
-
-                    message.postValue("Errore durante l'eliminazione dell'account: ${e.message}")
-                }
+                addressVerified.postValue(false)
             }
         }
     }
@@ -168,23 +114,62 @@ class ProfiloViewModel(application: Application) : AndroidViewModel(application)
                 val response = call.execute()
                 if (response.isSuccessful && response.body()?.isNotEmpty() == true) {
                     val location = response.body()!![0]
-
-                    // Ottieni il CAP e la città dal display_name o dall'address (se disponibile)
                     val displayName = location.display_name.lowercase()
-
-                    // Converti le stringhe in minuscolo per fare il confronto
                     val capValido = displayName.contains(cap.value!!)
                     val residenzaValida = displayName.contains(residenza.value!!.lowercase())
 
-                    // Se il CAP e la città corrispondono, restituisci true
-                    if (capValido && residenzaValida) {
-                        return@withContext true
-                    }
+                    return@withContext capValido && residenzaValida
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
             }
             return@withContext false
+        }
+    }
+
+    fun eliminaDatiUtenteDaFirestore(userId: String) {
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        currentUser?.let { user ->
+            viewModelScope.launch(Dispatchers.IO) {
+                try {
+                    val db = FirebaseFirestore.getInstance()
+                    val batch = db.batch()
+
+                    val userDocRef = db.collection("utenti").document(userId)
+                    batch.delete(userDocRef)
+
+                    if (ruolo) {
+                        val annunci = db.collection("annunci")
+                            .whereEqualTo("tutor", db.document("utenti/$userId")).get().await()
+                        for (annuncio in annunci.documents) {
+                            batch.delete(annuncio.reference)
+                        }
+
+                        val prenotazioni = db.collection("prenotazioni")
+                            .whereEqualTo("tutor", db.document("utenti/$userId")).get().await()
+                        for (prenotazione in prenotazioni.documents) {
+                            batch.delete(prenotazione.reference)
+                        }
+
+                        val calendario = db.collection("calendario")
+                            .whereEqualTo("tutorRef", db.document("utenti/$userId")).get().await()
+                        for (fascia in calendario.documents) {
+                            batch.delete(fascia.reference)
+                        }
+                    } else {
+                        message.postValue("ANCORA DA IMPLEMENTARE")
+                    }
+
+                    batch.commit().await()
+
+                    user.delete().await()
+
+                    message.postValue("Account e dati associati eliminati con successo.")
+
+                } catch (e: Exception) {
+                    message.postValue("Errore durante l'eliminazione dell'account: ${e.message}")
+                }
+            }
         }
     }
 }

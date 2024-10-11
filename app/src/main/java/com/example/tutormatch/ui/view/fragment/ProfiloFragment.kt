@@ -20,7 +20,6 @@ class ProfiloFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var profiloViewModel: ProfiloViewModel
 
-    // Variabili per memorizzare i valori iniziali di residenza, via e cap
     private var initialResidenza: String? = null
     private var initialVia: String? = null
     private var initialCap: String? = null
@@ -34,7 +33,6 @@ class ProfiloFragment : Fragment() {
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = profiloViewModel
 
-        // Recupera l'ID dell'utente dal bundle
         val userId = arguments?.getString("userId")
         userId?.let {
             profiloViewModel.loadUserProfile(it)
@@ -45,7 +43,7 @@ class ProfiloFragment : Fragment() {
 
     private fun showResidenceChangedDialog() {
         AlertDialog.Builder(requireContext())
-            .setTitle("Modifica residenza")
+            .setTitle("RICORDA")
             .setMessage("Hai modificato la tua residenza, ti ricordiamo di modificare i tuoi annunci!")
             .setPositiveButton("Ok") { dialog, _ ->
                 dialog.dismiss()
@@ -61,7 +59,6 @@ class ProfiloFragment : Fragment() {
             profiloViewModel.loadUserProfile(it)
         }
 
-        // Osserva i cambiamenti nelle variabili residenza, via e cap per salvare i valori iniziali
         profiloViewModel.residenza.observe(viewLifecycleOwner, Observer { newValue ->
             if (initialResidenza == null) {
                 initialResidenza = newValue
@@ -80,18 +77,14 @@ class ProfiloFragment : Fragment() {
             }
         })
 
-        // Imposta il listener per il pulsante Salva
         binding.salva.setOnClickListener {
             userId?.let {
-                if (isAddressChanged() && profiloViewModel.isTutor.value == true) {
-                    showResidenceChangedDialog()
-                    updateInitialAddressValues() // Aggiorna i valori iniziali con i nuovi
+                if (isAddressChanged()) {
+                    profiloViewModel.saveUserProfile(it)
                 }
-                profiloViewModel.saveUserProfile(it)
             }
         }
 
-        // Imposta il listener per il pulsante Elimina Account
         binding.eliminaAccount.setOnClickListener {
             userId?.let {
                 val builder = AlertDialog.Builder(requireContext())
@@ -118,9 +111,16 @@ class ProfiloFragment : Fragment() {
                 }
             }
         })
+
+        // Osserva la validazione dell'indirizzo per mostrare il dialog
+        profiloViewModel.addressVerified.observe(viewLifecycleOwner, Observer { isVerified ->
+            if (isVerified == true && isAddressChanged() && profiloViewModel.isTutor.value == true) {
+                showResidenceChangedDialog()
+                updateInitialAddressValues() // Aggiorna i valori iniziali con i nuovi
+            }
+        })
     }
 
-    // Funzione per verificare se l'indirizzo è stato modificato
     private fun isAddressChanged(): Boolean {
         val currentResidenza = profiloViewModel.residenza.value
         val currentVia = profiloViewModel.via.value
@@ -131,7 +131,6 @@ class ProfiloFragment : Fragment() {
                 currentCap != initialCap
     }
 
-    // Aggiorna i valori iniziali con i nuovi valori dopo il salvataggio
     private fun updateInitialAddressValues() {
         initialResidenza = profiloViewModel.residenza.value
         initialVia = profiloViewModel.via.value
