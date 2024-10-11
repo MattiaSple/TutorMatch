@@ -25,23 +25,18 @@ class HomeFragmentTutor : Fragment() {
     ): View {
         _binding = FragmentHomeTutorBinding.inflate(inflater, container, false)
 
-        // Imposta il lifecycle owner e il ViewModel per il binding
         binding.lifecycleOwner = viewLifecycleOwner
         annunciViewModel = ViewModelProvider(this).get(AnnunciViewModel::class.java)
 
-        // Configura il RecyclerView
         setupRecyclerView()
 
-        // Recupera l'ID dell'utente dal bundle
         val userId = arguments?.getString("userId")
         userId?.let {
-            // Imposta il riferimento al tutor nel ViewModel
             val firestore = FirebaseFirestore.getInstance()
             val tutorRef = firestore.collection("utenti").document(it)
             annunciViewModel.setTutorReference(tutorRef)
         }
 
-        // Nel Fragment: raccolta dei dati e chiamata al ViewModel
         binding.buttonSalva.setOnClickListener {
             val materia = binding.spinnerMateria.selectedItem.toString()
             val prezzo = binding.editTextNumber.text.toString()
@@ -52,13 +47,11 @@ class HomeFragmentTutor : Fragment() {
             annunciViewModel.salvaAnnuncio(userId!!, materia, prezzo, descrizione, online, presenza)
         }
 
-        // Osserva i cambiamenti nei dati degli annunci
         annunciViewModel.listaAnnunciTutor.observe(viewLifecycleOwner) { listaAnnunci ->
             annuncioAdapter.setAnnunci(listaAnnunci)
             annuncioAdapter.notifyDataSetChanged()
         }
 
-        // Osserva i messaggi di errore o stato
         annunciViewModel.message.observe(viewLifecycleOwner) { message ->
             message?.let {
                 Toast.makeText(context, it, Toast.LENGTH_SHORT).show()

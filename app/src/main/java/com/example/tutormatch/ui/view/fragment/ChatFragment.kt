@@ -43,12 +43,14 @@ class ChatFragment : Fragment() {
         binding.recyclerViewChat.layoutManager = LinearLayoutManager(context)
 
         FirebaseUtil.getUserFromFirestore(userId) { utente ->
+            // Verifica se il binding è ancora valido
+            if (_binding == null) return@getUserFromFirestore
+
             val email = utente?.email
 
             val adapter = email?.let {
                 ChatAdapter(emptyList(), currentUserFullName, it, { chat ->
-                    if (chat.id.isNullOrEmpty()) {
-                    } else {
+                    if (!chat.id.isNullOrEmpty()) {
                         // Naviga al ChatDetailFragment passando chatId ed email
                         (activity as? HomeActivity)?.replaceFragmentChat(
                             ChatDetailFragment(),  // Il fragment di destinazione
@@ -73,9 +75,13 @@ class ChatFragment : Fragment() {
                 })
             }
 
-            binding.recyclerViewChat.adapter = adapter
+            // Verifica di nuovo che il binding non sia nullo prima di assegnare l'adapter
+            if (_binding != null) {
+                binding.recyclerViewChat.adapter = adapter
+            }
 
             chatViewModel.chats.observe(viewLifecycleOwner) { chats ->
+                // Verifica che l'adapter non sia nullo
                 adapter?.updateData(chats)
             }
         }
