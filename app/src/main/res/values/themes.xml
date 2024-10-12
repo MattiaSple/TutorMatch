@@ -1,16 +1,19 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+    <!-- Base application theme -->
     <style name="Base.Theme.TutorMatch" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Colore di sfondo dell'app -->
+        <!-- Colore di sfondo dell'app, dinamico tra modalità chiara e scura -->
         <item name="android:windowBackground">@color/colorBackground</item>
+
         <!-- Colore di sfondo delle attività -->
         <item name="android:colorBackground">@color/colorBackground</item>
-        <!-- Colore della barra di stato -->
+
+        <!-- Colore della barra di stato, dinamico tra modalità chiara e scura -->
         <item name="android:statusBarColor">@color/statusBarColor</item>
 
-
-
+        <!-- Imposta icone scure su sfondo chiaro (true per modalità chiara, false per modalità scura) -->
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 
+    <!-- Tema principale della tua applicazione -->
     <style name="Theme.TutorMatch" parent="Base.Theme.TutorMatch" />
 </resources>

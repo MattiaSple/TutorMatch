@@ -4,16 +4,16 @@
     <color name="black">#FF000000</color>
 
     <!-- Colore di sfondo dell'applicazione per la modalità chiara (bianco) -->
-    <color name="colorBackground">#FFFFFFFF</color>
+    <color name="colorBackground">#FF000000</color>
 
     <!-- Colore della status bar per la modalità chiara (bianco) -->
-    <color name="statusBarColor">#FFFFFFFF</color>
+    <color name="statusBarColor">#FF000000</color>
 
     <!-- Colore del marker di sfondo -->
     <color name="markerBackgroundColor">#F2F2F2</color>
 
     <!-- Colore secondario dell'applicazione -->
     <color name="coloreSecondario">#4D7881</color>
-    
+
 
 </resources>
