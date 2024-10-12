@@ -58,11 +58,8 @@ class ChatAdapter(
                         ContextCompat.getColor(binding.root.context, R.color.coloreSecondario)
                     )
                 } else {
-                    binding.root.setBackgroundColor(ContextCompat.getColor(binding.root.context, android.R.color.white))
                 }
             } else {
-                // Imposta il colore predefinito se non ci sono messaggi
-                binding.root.setBackgroundColor(ContextCompat.getColor(binding.root.context, android.R.color.white))
             }
 
             binding.root.setOnClickListener {

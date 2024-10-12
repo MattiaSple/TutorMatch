@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white"
     tools:context=".ui.view.fragment.RicercaTutorFragment">
 
     <!-- Header CardView with Title -->
@@ -62,8 +61,7 @@
             android:layout_gravity="center"
             android:paddingBottom="8dp"
             android:text="@string/parametriRicerca"
-            android:textSize="18sp"
-            android:textColor="@android:color/black" />
+            android:textSize="18sp" />
 
         <!-- Spinner for selecting subject -->
         <LinearLayout
@@ -77,8 +75,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="20dp"
-                android:text="@string/materia"
-                android:textColor="@android:color/black" />
+                android:text="@string/materia"/>
 
             <Spinner
                 android:id="@+id/subjectSpinner"
@@ -102,7 +99,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/budget"
-                android:textColor="@android:color/black"
                 android:layout_marginEnd="8dp"/>
 
             <SeekBar
@@ -118,8 +114,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingStart="8dp"
-                android:text="0"
-                android:textColor="@android:color/black" />
+                android:text="0"/>
         </LinearLayout>
 
         <!-- CheckBox for selecting mode of communication -->
@@ -134,23 +129,20 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="20dp"
-                android:text="@string/mod"
-                android:textColor="@android:color/black" />
+                android:text="@string/mod"/>
 
             <CheckBox
                 android:id="@+id/onlineCheckBox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="30dp"
-                android:text="@string/on"
-                android:textColor="@android:color/black" />
+                android:text="@string/on"/>
 
             <CheckBox
                 android:id="@+id/inPersonCheckBox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/pres"
-                android:textColor="@android:color/black" />
+                android:text="@string/pres"/>
         </LinearLayout>
 
         <!-- Buttons -->
@@ -167,7 +159,7 @@
                 android:layout_weight="1"
                 android:backgroundTint="@color/coloreSecondario"
                 android:text="@string/reset"
-                android:textColor="@android:color/white"
+                android:textColor="@color/colorBackground"
                 android:padding="8dp" />
 
             <Button
@@ -177,7 +169,7 @@
                 android:layout_weight="1"
                 android:backgroundTint="@color/coloreSecondario"
                 android:text="@string/applica"
-                android:textColor="@android:color/white"
+                android:textColor="@color/colorBackground"
                 android:padding="8dp" />
         </LinearLayout>
     </LinearLayout>
@@ -190,7 +182,7 @@
         android:layout_margin="16dp"
         android:elevation="8dp"
         android:visibility="gone"
-        app:cardBackgroundColor="@color/markerBackgroundColor"
+        app:cardBackgroundColor="@color/colorBackground"
         app:cardCornerRadius="12dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="@+id/searchParamsLayout"
@@ -220,7 +212,6 @@
                         android:id="@+id/tvFeedbackMedia"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="@android:color/black"
                         android:textSize="15sp"
                         android:text="@string/feedback" />
 
@@ -246,7 +237,6 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:layout_marginBottom="8dp"
-                        android:textColor="@color/black"
                         android:textSize="20sp"
                         android:textStyle="bold" />
 
@@ -254,21 +244,18 @@
                         android:id="@+id/tv_materia"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="@android:color/black"
                         android:textSize="15sp" />
 
                     <TextView
                         android:id="@+id/tv_prezzo"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/black"
                         android:textSize="15sp" />
 
                     <TextView
                         android:id="@+id/tv_description"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="@android:color/black"
                         android:textSize="15sp" />
 
                     <Button
@@ -278,7 +265,7 @@
                         android:layout_marginTop="12dp"
                         android:backgroundTint="@color/coloreSecondario"
                         android:text="@string/inviaMSG"
-                        android:textColor="@android:color/white" />
+                        android:textColor="@color/colorBackground"/>
 
                     <Button
                         android:id="@+id/btn_prenota"
@@ -286,7 +273,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:backgroundTint="@color/coloreSecondario"
-                        android:textColor="@android:color/white"
+                        android:textColor="@color/colorBackground"
                         android:text="@string/prenLezione" />
 
                     <Button
@@ -295,7 +282,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:backgroundTint="@color/coloreSecondario"
-                        android:textColor="@android:color/white"
+                        android:textColor="@color/colorBackground"
                         android:text="@string/chiudi" />
 
                 </LinearLayout>

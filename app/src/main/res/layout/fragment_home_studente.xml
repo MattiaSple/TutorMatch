@@ -72,7 +72,7 @@
                         android:gravity="center"
                         android:padding="10dp"
                         android:text="@string/comeFunziona"
-                        android:textColor="@android:color/white"
+                        android:textColor="@color/colorBackground"
                         android:textSize="16sp"
                         android:textStyle="bold" />
                 </androidx.cardview.widget.CardView>
@@ -130,7 +130,7 @@
                         android:gravity="center"
                         android:padding="10dp"
                         android:text="@string/mieLezioni"
-                        android:textColor="@android:color/white"
+                        android:textColor="@color/colorBackground"
                         android:textSize="18sp"
                         android:textStyle="bold" />
                 </androidx.cardview.widget.CardView>

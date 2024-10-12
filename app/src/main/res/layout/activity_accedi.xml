@@ -105,7 +105,8 @@
                 android:layout_marginTop="60px"
                 android:backgroundTint="@color/coloreSecondario"
                 android:onClick="@{() -> viewModel.onLoginClick()}"
-                android:text="@string/accedi" />
+                android:text="@string/accedi"
+                android:textColor="@color/colorBackground" />
 
             <Button
                 android:id="@+id/back"

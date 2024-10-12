@@ -171,7 +171,7 @@
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/coloreSecondario"
                 android:text="@string/salva"
-                android:textColor="#FFFFFF" />
+                android:textColor="@color/colorBackground"/>
 
             <Button
                 android:id="@+id/eliminaAccount"
@@ -179,7 +179,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:backgroundTint="@color/coloreSecondario"
-                android:text="@string/eliminaAccount" />
+                android:text="@string/eliminaAccount"
+                android:textColor="@color/colorBackground"/>
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

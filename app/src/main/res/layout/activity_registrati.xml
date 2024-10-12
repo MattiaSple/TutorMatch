@@ -217,7 +217,7 @@
                         android:backgroundTint="@color/coloreSecondario"
                         android:onClick="@{() -> viewModel.onRegisterClick()}"
                         android:text="@string/crea_un_account_tutor"
-                        android:textColor="#FFFFFF" />
+                        android:textColor="@color/colorBackground"/>
 
                     <Button
                         android:id="@+id/back"

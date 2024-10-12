@@ -26,7 +26,6 @@
                 android:layout_weight="1"
                 android:text="@{chat.participantsNames.size() > 0 ? chat.participantsNames[0] : `Partecipante non disponibile`}"
                 android:textSize="14sp"
-                android:textColor="@android:color/black"
                 android:ellipsize="end"
                 android:maxLines="1" />
 
@@ -36,7 +35,6 @@
                 android:layout_height="wrap_content"
                 android:text='@{chat.subject}'
                 android:textSize="14sp"
-                android:textColor="@android:color/black"
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:layout_gravity="end" />
@@ -48,7 +46,6 @@
             android:layout_height="wrap_content"
             android:text='@{chat.lastMessage != null ? chat.lastMessage.text : "Nessun messaggio"}'
             android:textSize="16sp"
-            android:textColor="@android:color/black"
             android:ellipsize="end"
             android:maxLines="1" />
 

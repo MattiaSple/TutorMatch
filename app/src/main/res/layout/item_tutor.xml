@@ -21,7 +21,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Nome Cognome"
+            android:text="@string/nomeCognome"
             android:textSize="18sp"
             android:textStyle="bold" />
 
@@ -43,6 +43,7 @@
             android:layout_height="wrap_content"
             android:backgroundTint="@color/coloreSecondario"
             android:text="@string/valuta"
+            android:textColor="@color/colorBackground"
             android:minWidth="48dp"
             android:minHeight="48dp"
             android:layout_marginStart="16dp" />

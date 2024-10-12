@@ -80,6 +80,8 @@
     <string name="valuta">Valuta</string>
     <string name="mieLezioni">Valuta le mie lezioni</string>
     <string name="feedback">Feedback: 0.0</string>
+
+    <string name="nomeCognome">Nome cognome</string>
     <!-- tag della pagina Homefragment "studente" (fragment_home_studente) -->
     <string name="tutorial">
     Benvenuto su TutorMatch, la tua soluzione ideale per trovare il tutor perfetto!
