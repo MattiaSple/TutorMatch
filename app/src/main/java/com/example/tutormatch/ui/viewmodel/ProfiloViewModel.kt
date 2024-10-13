@@ -52,6 +52,10 @@ class ProfiloViewModel(application: Application) : AndroidViewModel(application)
                         val media = it.feedback.average()
                         mediaValutazioni.postValue("Valutazioni: %.1f".format(media))
                     }
+                    else
+                    {
+                        mediaValutazioni.postValue("Valutazione: 0")
+                    }
                 }
             } catch (e: Exception) {
                 message.postValue("Errore nel caricamento del profilo utente.")
