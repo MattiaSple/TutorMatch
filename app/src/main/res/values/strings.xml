@@ -25,7 +25,7 @@
     <string name="creaAnnuncio">Crea il tuo annuncio</string>
     <string name="materia">Materia:</string>
     <string name="prezzo">Prezzo:</string>
-    <string name="insPrezzo">Inserire prezzo</string>
+    <string name="insPrezzo">(0..99)</string>
     <string name="descrizione">Descrizione</string>
     <string name="insDesc">Inserire descrizione</string>
     <string name="mod">Modalità</string>

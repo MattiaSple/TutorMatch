@@ -44,8 +44,10 @@
             android:id="@+id/imageView4"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:contentDescription="Ragazzo seduto con un pc sulle gambe"
             android:maxHeight="200dp"
 
+            android:scaleType="fitCenter"
             app:layout_constraintBottom_toTopOf="@+id/linearLayout"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
