@@ -3,18 +3,16 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     id("kotlin-kapt")
     id("com.google.gms.google-services")
-
 }
 
 android {
     namespace = "com.example.tutormatch"
-    compileSdk = 32
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.example.tutormatch"
         minSdk = 24
-        //noinspection ExpiredTargetSdkVersion
-        targetSdk = 32
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -67,13 +65,10 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.auth)
 
-
-
     ////////////////////////////////////////////////////////////////////////////////
     implementation (libs.google.firebase.database.ktx)
     implementation(platform(libs.firebase.bom.v3102))
     implementation (libs.com.google.firebase.firebase.database.ktx)
-    implementation (libs.firebase.messaging)
     ////////////////////////////////////////////////////////////////////////////////
     implementation(libs.firebase.firestore.ktx)
     implementation(libs.androidx.recyclerview)
@@ -86,7 +81,7 @@ dependencies {
     implementation (libs.retrofit)
     implementation (libs.converter.gson)
     //per la localizzazione dello studente
-    implementation ("com.google.android.gms:play-services-location:21.0.1")
+    implementation (libs.play.services.location)
 
     // Dipendenza per OkHttp Logging Interceptor
     implementation ("com.squareup.okhttp3:logging-interceptor:4.9.3")
@@ -95,7 +90,6 @@ dependencies {
     implementation ("org.osmdroid:osmdroid-android:6.1.11")
     implementation(libs.androidx.preference.ktx)
     implementation(libs.firebase.database.ktx)
-    implementation(libs.firebase.messaging.ktx)
     //implementation(libs.osmdroid.android)
     //implementation(libs.osmbonuspack)
     //implementation(libs.androidx.preference.ktx)

@@ -20,23 +20,39 @@ class HomeFragmentTutor : Fragment() {
     private lateinit var annunciViewModel: AnnunciViewModel
     private lateinit var annuncioAdapter: AnnuncioAdapter
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        // Inizializzazione del ViewModel in onCreate (non è legato alla vista)
+        annunciViewModel = ViewModelProvider(this).get(AnnunciViewModel::class.java)
+
+        // Se c'è un userId, passarlo al ViewModel
+        val userId = arguments?.getString("userId")
+        userId?.let {
+            annunciViewModel.setTutorReference(it)
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
+        // Inflaziona il layout con il binding
         _binding = FragmentHomeTutorBinding.inflate(inflater, container, false)
 
-        binding.lifecycleOwner = viewLifecycleOwner
-        annunciViewModel = ViewModelProvider(this).get(AnnunciViewModel::class.java)
+        // Ritorna la vista associata al Fragment
+        return binding.root
+    }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        // Imposta il lifecycleOwner per il data binding
+        binding.lifecycleOwner = viewLifecycleOwner
+
+        // Configura la RecyclerView dopo che la vista è stata creata
         setupRecyclerView()
 
-        val userId = arguments?.getString("userId")
-        userId?.let {
-            val firestore = FirebaseFirestore.getInstance()
-            val tutorRef = firestore.collection("utenti").document(it)
-            annunciViewModel.setTutorReference(tutorRef)
-        }
-
+        // Imposta il listener per il bottone "Salva"
         binding.buttonSalva.setOnClickListener {
             val materia = binding.spinnerMateria.selectedItem.toString()
             val prezzo = binding.editTextNumber.text.toString()
@@ -44,24 +60,29 @@ class HomeFragmentTutor : Fragment() {
             val online = binding.checkBoxOnline.isChecked
             val presenza = binding.checkBoxPresenza.isChecked
 
-            annunciViewModel.salvaAnnuncio(userId!!, materia, prezzo, descrizione, online, presenza)
+            // Chiama il ViewModel per salvare l'annuncio
+            val userId = arguments?.getString("userId")
+            userId?.let {
+                annunciViewModel.salvaAnnuncio(it, materia, prezzo, descrizione, online, presenza)
+            }
         }
 
+        // Osserva la lista di annunci dal ViewModel
         annunciViewModel.listaAnnunciTutor.observe(viewLifecycleOwner) { listaAnnunci ->
             annuncioAdapter.setAnnunci(listaAnnunci)
             annuncioAdapter.notifyDataSetChanged()
         }
 
+        // Osserva i messaggi dal ViewModel per mostrare i Toast
         annunciViewModel.message.observe(viewLifecycleOwner) { message ->
             message?.let {
                 Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
             }
         }
-
-        return binding.root
     }
 
     private fun setupRecyclerView() {
+        // Inizializza l'adapter per la RecyclerView
         annuncioAdapter = AnnuncioAdapter { annuncio ->
             annunciViewModel.eliminaAnnuncio(annuncio)
         }
@@ -69,3 +90,5 @@ class HomeFragmentTutor : Fragment() {
         binding.recyclerViewAnnunci.adapter = annuncioAdapter
     }
 }
+
+

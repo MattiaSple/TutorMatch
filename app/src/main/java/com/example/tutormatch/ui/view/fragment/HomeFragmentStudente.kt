@@ -14,60 +14,69 @@ import com.example.tutormatch.util.FirebaseUtil
 
 class HomeFragmentStudente : Fragment() {
 
+    // ViewModel e binding per il fragment
     private lateinit var homeViewModel: HomeViewModel
     private lateinit var _binding: FragmentHomeStudenteBinding
     private val binding get() = _binding
     private lateinit var adapter: ValutaTutorAdapter
 
+    // Metodo onCreate: Inizializza elementi non legati alla vista (come il ViewModel)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        // Inizializza il ViewModel legato al ciclo di vita del Fragment
+        homeViewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
+    }
+
+    // Metodo onCreateView: Inflazione del layout con il binding
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        // Inflaziona il layout con il ViewBinding
         _binding = FragmentHomeStudenteBinding.inflate(inflater, container, false)
-        val root: View = binding.root
+        return binding.root  // Restituisce la root della vista
+    }
 
-        homeViewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
+    // Metodo onViewCreated: Configura gli elementi della UI e imposta osservatori
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
+        // Associa il ViewModel e il ciclo di vita al binding
         binding.viewModel = homeViewModel
         binding.lifecycleOwner = viewLifecycleOwner
 
-        // Configura la RecyclerView
+        // Configura la RecyclerView dopo che la vista è stata creata
         val recyclerView = binding.recyclerViewTutors
         recyclerView.layoutManager = LinearLayoutManager(context)
 
-        // Inizializza l'adattatore
+        // Inizializza l'adattatore per la lista dei tutor e gestisci il rating
         adapter = ValutaTutorAdapter(emptyList()) { tutor, rating ->
-            // Quando un tutor viene valutato, rimuovilo dalla lista e aggiorna la valutazione
             val userId = arguments?.getString("userId")
             if (userId != null) {
+                // Quando un tutor viene valutato, rimuovilo dalla lista e aggiorna la valutazione
                 homeViewModel.rateTutorAndRemoveFromList(userId, tutor, rating)
             }
         }
         recyclerView.adapter = adapter
 
-        // Osserva il LiveData tutorRefs e carica i tutor quando cambia
+        // Osserva i riferimenti dei tutor nel ViewModel
         homeViewModel.tutorRefs.observe(viewLifecycleOwner) { tutorRefs ->
+            // Quando cambia la lista di riferimenti ai tutor, carica i tutor
             homeViewModel.loadTutors()
         }
 
-        // Osserva il LiveData dei tutor e aggiorna la RecyclerView quando la lista dei tutor cambia
+        // Osserva i dati dei tutor e aggiorna la RecyclerView quando la lista cambia
         homeViewModel.tutors.observe(viewLifecycleOwner) { tutors ->
             adapter.updateData(tutors)
         }
 
-        // Carica l'utente e i riferimenti ai tutor
+        // Carica l'utente e i riferimenti ai tutor da valutare se l'userId è presente
         val userId = arguments?.getString("userId")
         if (userId != null) {
-            FirebaseUtil.getUserFromFirestore(userId) { utente ->
-                val lista = utente?.tutorDaValutare
-                lista?.let {
-                    // Carica i riferimenti dei tutor nell'utente
-                    homeViewModel.loadTutorRefs(it)
-                }
-            }
+            // Ottiene l'utente da Firestore tramite FirebaseUtil
+            homeViewModel.getListaTutorDaValutare(userId)
         }
-
-        return root
     }
 }

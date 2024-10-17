@@ -1,6 +1,5 @@
 package com.example.tutormatch.ui.view.activity
 
-
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -16,38 +15,47 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class HomeActivity : AppCompatActivity() {
 
+    // Variabile per il ViewModel
     private lateinit var homeViewModel: HomeViewModel
+    // Variabili per il binding dell'interfaccia utente per tutor e studente
     private lateinit var bindingStudente: ActivityHomeStudenteBinding
     private lateinit var bindingTutor: ActivityHomeTutorBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Inizializza il ViewModel con AndroidViewModelFactory
         homeViewModel = ViewModelProvider(
             this,
             ViewModelProvider.AndroidViewModelFactory.getInstance(application)
         )[HomeViewModel::class.java]
 
+        // Ottiene i dati passati tramite l'intent (ruolo, userId, nome, cognome)
         val ruolo = intent.getBooleanExtra("ruolo", false)
         val userId = intent.getStringExtra("userId")!!
         val nome = intent.getStringExtra("nome")!!
         val cognome = intent.getStringExtra("cognome")!!
 
+        // Se il ruolo è tutor, inflaziona il layout per tutor e imposta il bottom navigation appropriato
         if (ruolo) {
             bindingTutor = ActivityHomeTutorBinding.inflate(layoutInflater)
             setContentView(bindingTutor.root)
             setupBottomNavigationTutor(bindingTutor.navView, userId, nome, cognome, ruolo)
         } else {
+            // Se il ruolo è studente, inflaziona il layout per studente e imposta il bottom navigation appropriato
             bindingStudente = ActivityHomeStudenteBinding.inflate(layoutInflater)
             setContentView(bindingStudente.root)
             setupBottomNavigationStudente(bindingStudente.navView, userId, nome, cognome, ruolo)
         }
     }
 
+    // Configura la bottom navigation per il tutor
     private fun setupBottomNavigationTutor(navView: BottomNavigationView, userId: String, nome: String, cognome: String, ruolo: Boolean) {
+        // Gestisce la selezione dei vari item nella bottom navigation
         navView.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.navigation_home -> {
+                    // Sostituisce il fragment con HomeFragmentTutor quando si seleziona la home
                     replaceFragment(HomeFragmentTutor(), userId, nome, cognome, ruolo)
                     true
                 }
@@ -70,15 +78,18 @@ class HomeActivity : AppCompatActivity() {
                 else -> false
             }
         }
-        // Imposta il fragment iniziale
+        // Imposta il fragment iniziale come HomeFragmentTutor
         replaceFragment(HomeFragmentTutor(), userId, nome, cognome, ruolo)
         navView.selectedItemId = R.id.navigation_home
     }
 
+    // Configura la bottom navigation per lo studente
     private fun setupBottomNavigationStudente(navView: BottomNavigationView, userId: String, nome: String, cognome: String, ruolo: Boolean) {
+        // Gestisce la selezione dei vari item nella bottom navigation
         navView.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.navigation_home -> {
+                    // Sostituisce il fragment con HomeFragmentStudente quando si seleziona la home
                     replaceFragment(HomeFragmentStudente(), userId, nome, cognome, ruolo)
                     true
                 }
@@ -101,18 +112,19 @@ class HomeActivity : AppCompatActivity() {
                 else -> false
             }
         }
-        // Imposta il fragment iniziale
+        // Imposta il fragment iniziale come HomeFragmentStudente
         replaceFragment(HomeFragmentStudente(), userId, nome, cognome, ruolo)
         navView.selectedItemId = R.id.navigation_home
     }
 
+    // Funzione per sostituire i fragment, passando parametri come userId, nome, cognome e ruolo
     fun replaceFragment(fragment: Fragment, userId: String, nome: String? = "", cognome: String? = "", ruolo: Boolean, annuncioId: String? = null) {
-        // Ottieni il Fragment attualmente visualizzato
+        // Ottiene il fragment attualmente visualizzato
         val currentFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment_activity_main)
 
-        // Verifica se il Fragment corrente è diverso dal Fragment che si vuole mostrare
+        // Verifica se il fragment attuale è diverso dal fragment che si vuole visualizzare
         if (currentFragment?.javaClass != fragment.javaClass) {
-            // Esegui la sostituzione solo se il Fragment corrente è diverso da quello selezionato
+            // Se il fragment è diverso, crea un bundle con i dati e li passa al fragment
             val bundle = Bundle().apply {
                 putString("userId", userId)
                 nome?.let { putString("nome", it) }
@@ -122,30 +134,31 @@ class HomeActivity : AppCompatActivity() {
             }
             fragment.arguments = bundle
 
-            // Sostituisci il Fragment
+            // Sostituisce il fragment visualizzato con il nuovo
             supportFragmentManager.commit {
                 replace(R.id.nav_host_fragment_activity_main, fragment)
-                // Rimuovi addToBackStack(null) se non hai bisogno di gestire il back stack
+                // Non aggiunge alla back stack per evitare comportamenti non desiderati nel back button
             }
         }
     }
 
+    // Funzione specifica per sostituire il fragment della chat, passando chatId ed email
     fun replaceFragmentChat(fragment: Fragment, chatId: String, email: String) {
-        // Crea il bundle con i dati
+        // Crea un bundle con chatId ed email e lo imposta nel fragment
         val bundle = Bundle().apply {
             putString("chatId", chatId)
             putString("email", email)
         }
-        // Imposta il bundle nel fragment
         fragment.arguments = bundle
 
-        // Avvia la transizione al nuovo fragment
+        // Avvia la transizione verso il nuovo fragment e lo aggiunge alla back stack
         supportFragmentManager.beginTransaction()
             .replace(R.id.nav_host_fragment_activity_main, fragment)
             .addToBackStack(null)
             .commit()
     }
 
+    // Gestisce la navigazione quando viene premuto il tasto "indietro" dell'app
     override fun onSupportNavigateUp(): Boolean {
         return findNavController(R.id.nav_host_fragment_activity_main).navigateUp() || super.onSupportNavigateUp()
     }

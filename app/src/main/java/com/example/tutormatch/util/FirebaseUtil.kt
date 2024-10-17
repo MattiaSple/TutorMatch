@@ -386,7 +386,71 @@ object FirebaseUtil {
         // Commetti il batch per applicare sia le eliminazioni che gli aggiornamenti
         batch.commit().await()  // Attendi il commit del batch
     }
+    fun getDocumentRefById(userId: String): DocumentReference {
+        return db.collection("utenti").document(userId)
+    }
+    // Funzione per caricare i tutor associati da una lista di tutorRef
+    fun loadTutors(tutorRefs: List<String>, callback: (List<Utente>) -> Unit) {
+        val tutorList = mutableListOf<Utente>()
 
+        tutorRefs.forEach { tutorRef ->
+            db.collection("utenti").document(tutorRef).get()
+                .addOnSuccessListener { documentSnapshot ->
+                    if (documentSnapshot.exists()) {
+                        val tutor = documentSnapshot.toObject(Utente::class.java)
+                        tutor?.let { tutorList.add(it) }
+                    }
+                    // Quando abbiamo caricato tutti i tutor, chiama il callback
+                    if (tutorList.size == tutorRefs.size) {
+                        callback(tutorList)
+                    }
+                }
+                .addOnFailureListener {
+                    callback(emptyList()) // Restituisce una lista vuota in caso di errore
+                }
+        }
+    }
+
+    // Funzione atomica per valutare il tutor e rimuoverlo dalla lista tutorDaValutare dello studente
+    fun rateTutorAndRemoveFromList(studentRef: String, tutorRef: String, rating: Int, callback: (Boolean) -> Unit) {
+        val tutorDocRef = db.collection("utenti").document(tutorRef)
+        val studentDocRef = db.collection("utenti").document(studentRef)
+
+        // Inizia una transazione Firestore per assicurare che le operazioni siano atomiche
+        db.runTransaction { transaction ->
+            // Recupera il documento del tutor
+            val tutorSnapshot = transaction.get(tutorDocRef)
+            val tutor = tutorSnapshot.toObject(Utente::class.java)
+
+            // Aggiorna la valutazione del tutor
+            tutor?.let {
+                val updatedRatings = it.feedback.toMutableList().apply {
+                    add(rating)
+                }
+                // Aggiorna il feedback del tutor
+                transaction.update(tutorDocRef, "feedback", updatedRatings)
+            }
+
+            // Recupera il documento dello studente
+            val studentSnapshot = transaction.get(studentDocRef)
+            val student = studentSnapshot.toObject(Utente::class.java)
+
+            // Rimuovi il tutor dalla lista tutorDaValutare dello studente
+            student?.let {
+                val updatedTutorRefs = it.tutorDaValutare.toMutableList()
+                if (updatedTutorRefs.contains(tutorRef)) {
+                    updatedTutorRefs.remove(tutorRef)
+                    // Aggiorna il campo tutorDaValutare dello studente
+                    transaction.update(studentDocRef, "tutorDaValutare", updatedTutorRefs)
+                }
+            }
+
+        }.addOnSuccessListener {
+            callback(true) // Operazione completata con successo
+        }.addOnFailureListener {
+            callback(false) // Operazione fallita
+        }
+    }
 
 
 }

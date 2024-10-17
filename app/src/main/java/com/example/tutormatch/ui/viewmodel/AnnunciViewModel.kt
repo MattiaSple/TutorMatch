@@ -45,8 +45,8 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
 
     private lateinit var _tutorRef: DocumentReference
 
-    fun setTutorReference(tutorRef: DocumentReference) {
-        _tutorRef = tutorRef
+    fun setTutorReference(tutorRef: String) {
+        _tutorRef = FirebaseUtil.getDocumentRefById(tutorRef)
         loadAnnunci()
     }
 
