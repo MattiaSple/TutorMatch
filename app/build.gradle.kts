@@ -8,12 +8,13 @@ plugins {
 
 android {
     namespace = "com.example.tutormatch"
-    compileSdk = 34
+    compileSdk = 32
 
     defaultConfig {
         applicationId = "com.example.tutormatch"
         minSdk = 24
-        targetSdk = 34
+        //noinspection ExpiredTargetSdkVersion
+        targetSdk = 32
         versionCode = 1
         versionName = "1.0"
 
@@ -46,7 +47,6 @@ android {
         jvmTarget = "1.8"
     }
 }
-
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
@@ -100,9 +100,21 @@ dependencies {
     //implementation(libs.osmbonuspack)
     //implementation(libs.androidx.preference.ktx)
 
-    // Testing dependencies
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
+    // JUnit per i test unitari
+    testImplementation (libs.junit)
+
+    // Per testare LiveData
+    testImplementation (libs.androidx.core.testing)
+
+    // Coroutine test (per testare le coroutine)
+    testImplementation (libs.kotlinx.coroutines.test)
+    testImplementation (libs.mockito.kotlin)
+    // Libreria MockK per mocking (opzione 1)
+    testImplementation (libs.mockk)
+    testImplementation (libs.robolectric)
+    testImplementation (libs.robolectric.v49)
+    // Strumentazione dei test (solo se fai test su emulatore/dispositivo)
+    androidTestImplementation (libs.androidx.junit.v121)
+    androidTestImplementation (libs.androidx.espresso.core.v361)
 }
 

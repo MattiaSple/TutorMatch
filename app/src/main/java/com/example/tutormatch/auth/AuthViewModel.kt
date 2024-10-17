@@ -15,7 +15,7 @@ import kotlinx.coroutines.withContext
 
 class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val _firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
+    var _firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
 
     // LiveData per i campi di input
     val email = MutableLiveData<String>()
@@ -31,7 +31,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
     val passwordResetMessage: LiveData<String?> = _passwordResetMessage
 
     // LiveData per mostrare messaggi all'utente
-    private val _showMessage = MutableLiveData<String?>()
+    val _showMessage = MutableLiveData<String?>()
     val showMessage: LiveData<String?> = _showMessage
 
     private val _navigateBack = MutableLiveData<Boolean>()
@@ -70,7 +70,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private suspend fun verificaIndirizzo(indirizzo: String, indirizzoSenzaVia: String): Boolean {
+    suspend fun verificaIndirizzo(indirizzo: String, indirizzoSenzaVia: String): Boolean {
         return withContext(Dispatchers.IO) {
             val callCompleto = RetrofitInstance.api.getLocation(indirizzo)
             try {
@@ -131,7 +131,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
 
     // Funzione per registrare l'utente su Firebase
-    private fun registraUtente(email: String, password: String) {
+    fun registraUtente(email: String, password: String) {
         _firebaseAuth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {

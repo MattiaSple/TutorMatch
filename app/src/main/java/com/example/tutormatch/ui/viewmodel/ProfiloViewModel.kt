@@ -15,7 +15,7 @@ import kotlinx.coroutines.withContext
 
 class ProfiloViewModel(application: Application) : AndroidViewModel(application) {
     private val firestore = FirebaseFirestore.getInstance()
-    private val utentiCollection = firestore.collection("utenti")
+    var utentiCollection = firestore.collection("utenti")
 
     val nome = MutableLiveData<String>()
     val cognome = MutableLiveData<String>()
@@ -111,7 +111,7 @@ class ProfiloViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    private suspend fun verificaIndirizzo(indirizzo: String): Boolean {
+    suspend fun verificaIndirizzo(indirizzo: String): Boolean {
         return withContext(Dispatchers.IO) {
             val call = RetrofitInstance.api.getLocation(indirizzo)
             try {

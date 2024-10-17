@@ -1,6 +1,9 @@
 [versions]
 agp = "8.5.0"
+androidxJunit = "1.2.1"
 converterGson = "2.11.0"
+coreTesting = "2.2.0"
+espressoCoreVersion = "3.6.1"
 firebaseAuth = "23.0.0"
 firebaseBom = "33.1.2"
 firebaseMessaging = "24.0.1"
@@ -13,18 +16,23 @@ junit = "4.13.2"
 junitVersion = "1.1.5"
 espressoCore = "3.5.1"
 appcompat = "1.6.1"
+kotlinxCoroutinesTest = "1.7.3"
 material = "1.10.0"
 activity = "1.9.0"
 constraintlayout = "2.1.4"
 lifecycleLivedataKtx = "2.8.2"
 lifecycleViewmodelKtx = "2.8.2"
 materialVersion = "1.9.0"
+mockitoKotlin = "4.0.0"
+mockk = "1.13.7"
 navigationFragmentKtx = "2.7.7"
 navigationUiKtx = "2.7.7"
 onesignal = "[5.0.0,5.0.0)"
 osmbonuspack = "6.9.1"
 osmdroidAndroid = "6.1.10"
 retrofit = "2.11.0"
+robolectric = "4.10.3"
+robolectricVersion = "4.9"
 roomCommon = "2.6.1"
 roomRuntime = "2.6.1"
 roomKtx = "2.6.1"
@@ -39,6 +47,9 @@ playServicesAwareness = "19.1.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-core-testing = { module = "androidx.arch.core:core-testing", version.ref = "coreTesting" }
+androidx-espresso-core-v361 = { module = "androidx.test.espresso:espresso-core", version.ref = "espressoCoreVersion" }
+androidx-junit-v121 = { module = "androidx.test.ext:junit", version.ref = "androidxJunit" }
 androidx-navigation-safe-args-gradle-plugin = { module = "androidx.navigation:navigation-safe-args-gradle-plugin", version.ref = "navigationFragmentKtx" }
 com-google-firebase-firebase-database-ktx = { module = "com.google.firebase:firebase-database-ktx" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
@@ -55,6 +66,7 @@ junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
@@ -70,6 +82,8 @@ androidx-ui-desktop = { group = "androidx.compose.ui", name = "ui-desktop", vers
 firebase-firestore-ktx = { group = "com.google.firebase", name = "firebase-firestore-ktx", version.ref = "firebaseFirestoreKtx" }
 androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
 material-v190 = { module = "com.google.android.material:material", version.ref = "materialVersion" }
+mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockitoKotlin" }
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 osmbonuspack = { module = "org.osmdroid:osmbonuspack", version.ref = "osmbonuspack" }
 osmdroid-android = { module = "org.osmdroid:osmdroid-android", version.ref = "osmdroidAndroid" }
 androidx-preference-ktx = { group = "androidx.preference", name = "preference-ktx", version.ref = "preferenceKtx" }
@@ -77,6 +91,8 @@ retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit
 firebase-database-ktx = { group = "com.google.firebase", name = "firebase-database-ktx", version.ref = "firebaseDatabaseKtx" }
 firebase-messaging-ktx = { group = "com.google.firebase", name = "firebase-messaging-ktx", version.ref = "firebaseMessagingKtx" }
 play-services-awareness = { group = "com.google.android.gms", name = "play-services-awareness", version.ref = "playServicesAwareness" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
+robolectric-v49 = { module = "org.robolectric:robolectric", version.ref = "robolectricVersion" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
