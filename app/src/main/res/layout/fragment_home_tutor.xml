@@ -125,11 +125,13 @@
                         <EditText
                             android:id="@+id/editTextNumber"
                             android:layout_width="0dp"
-                            android:layout_height="48dp"
+                            android:layout_height="wrap_content"
                             android:layout_weight="2"
-                            android:ems="10"
                             android:hint="@string/insPrezzo"
-                            android:inputType="number" />
+                            android:importantForAutofill="no"
+                            android:inputType="number"
+                            android:maxLength="2"
+                            android:minHeight="48dp" />
                     </LinearLayout>
 
                     <!-- Campo per la descrizione -->

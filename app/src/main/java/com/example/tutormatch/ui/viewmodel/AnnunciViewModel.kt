@@ -41,11 +41,7 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
     private val _message = MutableLiveData<String>()
     val message: LiveData<String> get() = _message
 
-    val descrizione = MutableLiveData<String>()
     val materia = MutableLiveData<String>()
-    val online = MutableLiveData<Boolean>()
-    val presenza = MutableLiveData<Boolean>()
-    val prezzo = MutableLiveData<String>()
 
     private lateinit var _tutorRef: DocumentReference
 
