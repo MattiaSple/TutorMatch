@@ -14,7 +14,6 @@ import com.example.tutormatch.databinding.FragmentPrenotazioniBinding
 import com.example.tutormatch.ui.adapter.PrenotazioneAdapter
 import com.example.tutormatch.ui.viewmodel.ChatViewModel
 import com.example.tutormatch.ui.viewmodel.PrenotazioneViewModel
-import com.example.tutormatch.util.FirebaseUtil
 
 class PrenotazioniFragment : Fragment() {
 

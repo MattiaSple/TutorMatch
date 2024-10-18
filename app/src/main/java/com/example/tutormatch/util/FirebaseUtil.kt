@@ -42,7 +42,6 @@ object FirebaseUtil {
         }
     }
 
-
     fun osservaModificheAnnunciSuFirestore(
         onAnnunciUpdated: () -> Unit,  // Callback da eseguire quando ci sono modifiche
         onError: (Exception) -> Unit   // Callback per gestire gli errori

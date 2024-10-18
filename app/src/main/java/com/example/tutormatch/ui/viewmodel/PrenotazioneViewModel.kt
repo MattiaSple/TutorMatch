@@ -106,8 +106,5 @@ class PrenotazioneViewModel : ViewModel() {
             }
         }
     }
-
-
-
 }
 
