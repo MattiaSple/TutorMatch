@@ -491,32 +491,42 @@ object FirebaseUtil {
         tutorRef: DocumentReference
     ): Boolean {
         return try {
-            // Crea l'oggetto Annuncio senza l'id
-            val nuovoAnnuncio = Annuncio(
-                descrizione = descrizione.trim().replace("\\s+".toRegex(), " "),
-                materia = materia,
-                mod_on = online,
-                mod_pres = presenza,
-                posizione = geoPoint,
-                prezzo = prezzo,
-                tutor = tutorRef
-            )
+            val db = FirebaseFirestore.getInstance()
 
-            // Aggiungi l'annuncio a Firestore e ottieni il riferimento del documento
-            val documentReference = FirebaseFirestore.getInstance().collection("annunci")
-                .add(nuovoAnnuncio).await()
+            // Inizia la transazione
+            db.runTransaction { transaction ->
 
-            // Ottieni l'id generato da Firestore
-            val documentId = documentReference.id
+                // Crea l'oggetto Annuncio senza l'id
+                val nuovoAnnuncio = Annuncio(
+                    descrizione = descrizione.trim().replace("\\s+".toRegex(), " "),
+                    materia = materia,
+                    mod_on = online,
+                    mod_pres = presenza,
+                    posizione = geoPoint,
+                    prezzo = prezzo,
+                    tutor = tutorRef
+                )
 
-            // Aggiorna il documento con l'id generato
-            documentReference.update("id", documentId).await()
+                // Aggiungi l'annuncio alla collezione e ottieni il riferimento del documento
+                val documentReference = db.collection("annunci").document()
 
-            true
+                // Usa la transazione per impostare i dati dell'annuncio nel documento
+                transaction.set(documentReference, nuovoAnnuncio)
+
+                // Ottieni l'id generato dal documento e aggiorna il campo id nell'annuncio
+                val documentId = documentReference.id
+                transaction.update(documentReference, "id", documentId)
+
+                // Ritorna null per indicare successo
+                null
+            }.await()
+
+            true // Successo
         } catch (e: Exception) {
-            false
+            false // Fallimento
         }
     }
+
 
 
     // Funzione per ottenere il GeoPoint (usa una chiamata REST esterna)
