@@ -24,7 +24,7 @@ class AuthActivity : AppCompatActivity() {
         authViewModel = ViewModelProvider(
             this,
             ViewModelProvider.AndroidViewModelFactory.getInstance(application)
-        ).get(AuthViewModel::class.java)
+        )[AuthViewModel::class.java]
 
         // Ottieni il binding
         val binding: ActivityRegistratiBinding = DataBindingUtil.setContentView(

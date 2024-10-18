@@ -190,7 +190,7 @@ object FirebaseUtil {
                 // Se è il tutor che visualizza, recupera lo studente, altrimenti recupera il tutor
                 val utenteTask = if (isTutor) {
                     // Recupera lo studente dalla collezione utenti usando l'userId
-                    FirebaseFirestore.getInstance().collection("utenti").document(studenteId).get()
+                    db.collection("utenti").document(studenteId).get()
                 } else {
                     // Recupera il tutor tramite DocumentReference
                     annuncio.tutor!!.get()
@@ -236,7 +236,6 @@ object FirebaseUtil {
         onSuccess: (List<Prenotazione>) -> Unit,
         onFailure: (Exception) -> Unit
     ) {
-        val db = FirebaseFirestore.getInstance()
         val query = if (isTutor) {
             db.collection("prenotazioni").whereEqualTo("tutorRef", userId)
         } else {
@@ -283,7 +282,6 @@ object FirebaseUtil {
 
     suspend fun eliminaPrenotazioneF(prenotazione: Prenotazione): Boolean {
         return try {
-            val db = FirebaseFirestore.getInstance()
 
             // Inizializza un batch
             val batch = db.batch()
@@ -465,7 +463,7 @@ object FirebaseUtil {
         tutorRef: DocumentReference
     ): Boolean {
         return try {
-            val querySnapshot = FirebaseFirestore.getInstance()
+            val querySnapshot = db
                 .collection("annunci")
                 .whereEqualTo("materia", materia)
                 .whereEqualTo("prezzo", prezzo)
@@ -491,7 +489,6 @@ object FirebaseUtil {
         tutorRef: DocumentReference
     ): Boolean {
         return try {
-            val db = FirebaseFirestore.getInstance()
 
             // Inizia la transazione
             db.runTransaction { transaction ->
@@ -541,6 +538,16 @@ object FirebaseUtil {
             }
         } catch (e: Exception) {
             null
+        }
+    }
+
+    // Funzione per caricare i dati del profilo utente
+    suspend fun getUserProfile(userId: String): Utente? {
+        return try {
+            val documentSnapshot = db.collection("utenti").document(userId).get().await()
+            documentSnapshot.toObject(Utente::class.java)
+        } catch (e: Exception) {
+            null // Se c'è un errore restituiamo null
         }
     }
 

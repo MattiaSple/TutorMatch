@@ -38,11 +38,9 @@ class CalendarioFragment : Fragment() {
             updateOrariFineSpinner(selectedDate)
         }
 
-        val userId = arguments?.getString("userId")
-        userId?.let {
-            val firestore = FirebaseFirestore.getInstance()
-            val tutorRef = firestore.collection("utenti").document(it)
-            calendarioViewModel.setTutorReference(tutorRef)
+        val userIdTutor = arguments?.getString("userId")
+        userIdTutor?.let {
+            calendarioViewModel.setTutorReference(userIdTutor)
         }
 
         setupRecyclerView()

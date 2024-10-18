@@ -2,10 +2,12 @@ package com.example.tutormatch.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.tutormatch.data.model.Utente
 import com.example.tutormatch.network.RetrofitInstance
+import com.example.tutormatch.util.FirebaseUtil
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.Dispatchers
@@ -28,14 +30,17 @@ class ProfiloViewModel(application: Application) : AndroidViewModel(application)
     val isTutor = MutableLiveData<Boolean>()
     val addressVerified = MutableLiveData<Boolean>() // Nuovo LiveData per la verifica dell'indirizzo
 
+    // LiveData per mostrare messaggi all'utente
+    private val _showMessage = MutableLiveData<String?>()
+    val showMessage: LiveData<String?> = _showMessage
+
     private var ruolo: Boolean = false
 
     // Carica i dati del profilo utente
     fun loadUserProfile(userId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val documentSnapshot = utentiCollection.document(userId).get().await()
-                val utente = documentSnapshot.toObject(Utente::class.java)
+                val utente = FirebaseUtil.getUserProfile(userId)
                 utente?.let {
                     nome.postValue(it.nome)
                     cognome.postValue(it.cognome)
@@ -51,17 +56,18 @@ class ProfiloViewModel(application: Application) : AndroidViewModel(application)
                         // Calcola la media delle valutazioni
                         val media = it.feedback.average()
                         mediaValutazioni.postValue("Valutazioni: %.1f".format(media))
-                    }
-                    else
-                    {
+                    } else {
                         mediaValutazioni.postValue("Valutazione: 0")
                     }
+                } ?: run {
+                    message.postValue("Errore nel caricamento del profilo utente.")
                 }
             } catch (e: Exception) {
                 message.postValue("Errore nel caricamento del profilo utente.")
             }
         }
     }
+
 
     // Controlla che tutti i campi non siano vuoti
     private fun areFieldsValid(): Boolean {
@@ -85,7 +91,8 @@ class ProfiloViewModel(application: Application) : AndroidViewModel(application)
 
                     // Prima di modificare l'utente, controlla la validità dell'indirizzo
                     val indirizzoSenzaVia = "${cap.value}, ${residenza.value}"
-                    val isAddressValid = verificaIndirizzo(indirizzoSenzaVia)
+                    val indirizzoCompleto = "${cap.value}, ${residenza.value}, ${via.value}"
+                    val isAddressValid = verificaIndirizzo(indirizzoCompleto,indirizzoSenzaVia)
 
                     if (isAddressValid) {
                         residenza.value?.let { updates["residenza"] = it }
@@ -111,7 +118,61 @@ class ProfiloViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    suspend fun verificaIndirizzo(indirizzo: String): Boolean {
+    private suspend fun verificaIndirizzo(indirizzo: String, indirizzoSenzaVia: String): Boolean {
+        return withContext(Dispatchers.IO) {
+            val callCompleto = RetrofitInstance.api.getLocation(indirizzo)
+            try {
+                val responseCompleto = callCompleto.execute()
+                if (responseCompleto.isSuccessful && responseCompleto.body()?.isNotEmpty() == true) {
+                    val location = responseCompleto.body()!!
+                    for(localita in location)
+                    {
+                        val address = localita.address
+                        // Verifica che CAP, città e via siano validi
+                        val capValido = address?.postcode?.equals(cap.value, ignoreCase = true) ?: false
+                        val cittaValida = address?.city?.equals(residenza.value, ignoreCase = true)
+                            ?: address?.town?.equals(residenza.value, ignoreCase = true)
+                            ?: address?.village?.equals(residenza.value, ignoreCase = true)
+                            ?: false
+                        val viaValida = address?.road?.contains(via.value!!, ignoreCase = true) ?: false
+
+                        // Se tutti e tre i parametri corrispondono, l'indirizzo è valido
+                        if (capValido && cittaValida && viaValida) {
+                            return@withContext true
+                        }
+                    }
+                }
+
+                // Se l'indirizzo completo non è valido, prova con l'indirizzo senza via
+                val callSenzaVia = RetrofitInstance.api.getLocation(indirizzoSenzaVia)
+                val responseSenzaVia = callSenzaVia.execute()
+                if (responseSenzaVia.isSuccessful && responseSenzaVia.body()?.isNotEmpty() == true) {
+
+                    val locationSenzaVia = responseSenzaVia.body()!!
+                    for(localita in locationSenzaVia)
+                    {
+                        val addressSenzaVia = localita.address
+                        val capValidoSenzaVia = addressSenzaVia?.postcode?.equals(cap.value, ignoreCase = true) ?: false
+                        val residenzaValidaSenzaVia = addressSenzaVia?.city?.equals(residenza.value, ignoreCase = true)
+                            ?: addressSenzaVia?.town?.equals(residenza.value, ignoreCase = true)
+                            ?: addressSenzaVia?.village?.equals(residenza.value, ignoreCase = true)
+                            ?: false
+
+                        // Se CAP e residenza corrispondono, ritorna true e informa che la via non è stata trovata
+                        if (capValidoSenzaVia && residenzaValidaSenzaVia) {
+                            _showMessage.postValue("Via non trovata, registrazione con indirizzo senza via")
+                            return@withContext true
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            return@withContext false
+        }
+    }
+
+    private suspend fun verificaIndirizzo(indirizzo: String): Boolean {
         return withContext(Dispatchers.IO) {
             val call = RetrofitInstance.api.getLocation(indirizzo)
             try {

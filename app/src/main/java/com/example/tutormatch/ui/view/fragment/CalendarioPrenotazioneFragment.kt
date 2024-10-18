@@ -46,7 +46,7 @@ class CalendarioPrenotazioneFragment : Fragment() {
         // Ottieni l'ID del tutor usando il callback
         calendarioViewModel.getTutorDaAnnuncio(annuncioIdSel) { tutorRef ->
             if (tutorRef != null) {
-                calendarioViewModel.setTutorReference(tutorRef)
+                //calendarioViewModel.setTutorReference(tutorRef)
                 setupRecyclerView() // Configura il RecyclerView
             } else {
                 Toast.makeText(context, "Errore: Tutor non trovato", Toast.LENGTH_SHORT).show()

@@ -41,9 +41,19 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
     }
 
 
-    fun setTutorReference(tutorRef: DocumentReference) {
-        _tutorRef = tutorRef
-        loadDisponibilita()
+    fun setTutorReference(tutorRef: String) {
+        viewModelScope.launch {
+            try {
+                // Recupera il tutor dall'ID
+                _tutorRef = FirebaseUtil.getDocumentRefById(tutorRef)
+
+                // Se il tutor viene recuperato con successo, carica le disponibilità
+                loadDisponibilita()
+            } catch (e: Exception) {
+                // Gestisci eccezioni o errori imprevisti
+                _message.postValue("Errore nel recupero del tutor: ${e.message}")
+            }
+        }
     }
 
     fun loadDisponibilita() {

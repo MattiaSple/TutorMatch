@@ -2,6 +2,8 @@ package com.example.tutormatch.ui.view.fragment
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,37 +22,21 @@ class ProfiloFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var profiloViewModel: ProfiloViewModel
 
-    private var initialResidenza: String? = null
-    private var initialVia: String? = null
-    private var initialCap: String? = null
 
+    // Metodo onCreateView: Inflazione del layout e setup ViewModel
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View? {
-        profiloViewModel = ViewModelProvider(this).get(ProfiloViewModel::class.java)
-
+    ): View {
         _binding = FragmentProfiloBinding.inflate(inflater, container, false)
+
+        profiloViewModel = ViewModelProvider(this)[ProfiloViewModel::class.java]
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = profiloViewModel
-
-        val userId = arguments?.getString("userId")
-        userId?.let {
-            profiloViewModel.loadUserProfile(it)
-        }
 
         return binding.root
     }
 
-    private fun showResidenceChangedDialog() {
-        AlertDialog.Builder(requireContext())
-            .setTitle("RICORDA")
-            .setMessage("Hai modificato la tua residenza, ti ricordiamo di modificare i tuoi annunci!")
-            .setPositiveButton("Ok") { dialog, _ ->
-                dialog.dismiss()
-            }
-            .show()
-    }
-
+    // Metodo onViewCreated: Imposta gli osservatori e gli eventi
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -59,82 +45,61 @@ class ProfiloFragment : Fragment() {
             profiloViewModel.loadUserProfile(it)
         }
 
-        profiloViewModel.residenza.observe(viewLifecycleOwner, Observer { newValue ->
-            if (initialResidenza == null) {
-                initialResidenza = newValue
-            }
-        })
-
-        profiloViewModel.via.observe(viewLifecycleOwner, Observer { newValue ->
-            if (initialVia == null) {
-                initialVia = newValue
-            }
-        })
-
-        profiloViewModel.cap.observe(viewLifecycleOwner, Observer { newValue ->
-            if (initialCap == null) {
-                initialCap = newValue
-            }
-        })
-
+        // Listener per il bottone "Salva"
         binding.salva.setOnClickListener {
             userId?.let {
-                if (isAddressChanged()) {
-                    profiloViewModel.saveUserProfile(it)
-                }
+                profiloViewModel.saveUserProfile(it)
             }
         }
 
+        // Osserva il LiveData showMessage per mostrare il Toast
+        profiloViewModel.showMessage.observe(viewLifecycleOwner, Observer { message ->
+            message?.let {
+                // Mostra il Toast con il messaggio
+                Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+            }
+        })
+
+        // Listener per il bottone "Elimina Account"
         binding.eliminaAccount.setOnClickListener {
             userId?.let {
-                val builder = AlertDialog.Builder(requireContext())
-                builder.setTitle("Conferma eliminazione")
-                builder.setMessage("Sei sicuro di voler eliminare il tuo account?\nQuesta operazione è irreversibile.")
-                builder.setPositiveButton("Si") { dialog, _ ->
-                    profiloViewModel.eliminaDatiUtenteDaFirestore(userId)
-                    dialog.dismiss()
-                }
-                builder.setNegativeButton("No") { dialog, _ ->
-                    dialog.dismiss()
-                }
-                builder.create().show()
+                showDeleteAccountDialog(it)
             }
         }
 
-        profiloViewModel.message.observe(viewLifecycleOwner, Observer { text ->
+        // Osserva i messaggi dal ViewModel
+        profiloViewModel.message.observe(viewLifecycleOwner) { text ->
             text?.let {
                 Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
                 if (it == "Account e dati associati eliminati con successo.") {
-                    val intent = Intent(activity, MainActivity::class.java)
-                    startActivity(intent)
-                    activity?.finish()
+                    navigateToMainActivity()
                 }
             }
-        })
+        }
 
-        // Osserva la validazione dell'indirizzo per mostrare il dialog
-        profiloViewModel.addressVerified.observe(viewLifecycleOwner, Observer { isVerified ->
-            if (isVerified == true && isAddressChanged() && profiloViewModel.isTutor.value == true) {
-                showResidenceChangedDialog()
-                updateInitialAddressValues() // Aggiorna i valori iniziali con i nuovi
+    }
+
+    // Mostra il dialog di conferma per l'eliminazione dell'account
+    private fun showDeleteAccountDialog(userId: String) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Conferma eliminazione")
+            .setMessage("Sei sicuro di voler eliminare il tuo account?\nQuesta operazione è irreversibile.")
+            .setPositiveButton("Si") { dialog, _ ->
+                profiloViewModel.eliminaDatiUtenteDaFirestore(userId)
+                dialog.dismiss()
             }
-        })
+            .setNegativeButton("No") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .create()
+            .show()
     }
 
-    private fun isAddressChanged(): Boolean {
-        val currentResidenza = profiloViewModel.residenza.value
-        val currentVia = profiloViewModel.via.value
-        val currentCap = profiloViewModel.cap.value
-
-        return currentResidenza != initialResidenza ||
-                currentVia != initialVia ||
-                currentCap != initialCap
-    }
-
-    private fun updateInitialAddressValues() {
-        initialResidenza = profiloViewModel.residenza.value
-        initialVia = profiloViewModel.via.value
-        initialCap = profiloViewModel.cap.value
+    // Naviga alla MainActivity dopo l'eliminazione dell'account
+    private fun navigateToMainActivity() {
+        val intent = Intent(activity, MainActivity::class.java)
+        startActivity(intent)
+        activity?.finish()
     }
 
     override fun onDestroyView() {

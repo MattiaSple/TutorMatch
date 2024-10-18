@@ -24,7 +24,7 @@ class HomeViewModel : ViewModel() {
     val tutors: LiveData<List<Utente>> get() = _tutors
 
     // Funzione per caricare i riferimenti ai tutor dell'utente
-    fun loadTutorRefs(tutorRefs: List<String>) {
+    private fun loadTutorRefs(tutorRefs: List<String>) {
         _tutorRefs.value = tutorRefs
         loadTutors() // Carica i tutor automaticamente quando i riferimenti cambiano
     }
@@ -37,10 +37,7 @@ class HomeViewModel : ViewModel() {
 
                 utente?.let {
                     val listaTutorRefs = it.tutorDaValutare
-                    listaTutorRefs?.let { refs ->
-                        // Aggiorna la LiveData con i riferimenti ai tutor
-                        loadTutorRefs(refs)
-                    }
+                    loadTutorRefs(listaTutorRefs)
                 }
             } catch (e: Exception) {
                 // Gestisci l'errore

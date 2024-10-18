@@ -32,7 +32,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
     val passwordResetMessage: LiveData<String?> = _passwordResetMessage
 
     // LiveData per mostrare messaggi all'utente
-    val _showMessage = MutableLiveData<String?>()
+    private val _showMessage = MutableLiveData<String?>()
     val showMessage: LiveData<String?> = _showMessage
 
     private val _navigateBack = MutableLiveData<Boolean>()
@@ -71,7 +71,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    suspend fun verificaIndirizzo(indirizzo: String, indirizzoSenzaVia: String): Boolean {
+    private suspend fun verificaIndirizzo(indirizzo: String, indirizzoSenzaVia: String): Boolean {
         return withContext(Dispatchers.IO) {
             val callCompleto = RetrofitInstance.api.getLocation(indirizzo)
             try {
@@ -132,7 +132,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
 
     // Funzione per registrare l'utente su Firebase
-    fun registraUtente(email: String, password: String) {
+    private fun registraUtente(email: String, password: String) {
         _firebaseAuth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
@@ -158,7 +158,6 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             }
     }
 
-    // Metodo chiamato quando l'utente preme il pulsante di login
     // Metodo chiamato quando l'utente preme il pulsante di login
     fun onLoginClick() {
 

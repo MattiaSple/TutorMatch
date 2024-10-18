@@ -22,7 +22,7 @@ class LoginActivity : AppCompatActivity() {
         authViewModel = ViewModelProvider(
             this,
             ViewModelProvider.AndroidViewModelFactory.getInstance(application)
-        ).get(AuthViewModel::class.java)
+        )[AuthViewModel::class.java]
 
         val binding: ActivityAccediBinding = DataBindingUtil.setContentView(
             this, R.layout.activity_accedi

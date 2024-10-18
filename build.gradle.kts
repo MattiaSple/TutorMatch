@@ -13,8 +13,5 @@ buildscript {
         // Aggiungi questa linea per il plugin Google Services
         classpath(libs.google.services)
         /////////////////////////////////////////////////////
-        //classpath (libs.google.services.v4310)
-        /////////////////////////////////////////////////////
-
     }
 }

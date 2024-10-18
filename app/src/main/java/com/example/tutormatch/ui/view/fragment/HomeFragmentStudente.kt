@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.tutormatch.databinding.FragmentHomeStudenteBinding
 import com.example.tutormatch.ui.adapter.ValutaTutorAdapter
 import com.example.tutormatch.ui.viewmodel.HomeViewModel
-import com.example.tutormatch.util.FirebaseUtil
 
 class HomeFragmentStudente : Fragment() {
 

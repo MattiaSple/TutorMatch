@@ -6,9 +6,7 @@ coreTesting = "2.2.0"
 espressoCoreVersion = "3.6.1"
 firebaseAuth = "23.0.0"
 firebaseBom = "33.4.0"
-googleFirebaseBom = "33.4.0"
 googleServices = "4.4.2"
-googleServicesVersion = "4.4.2"
 kotlin = "1.9.0"
 coreKtx = "1.13.1"
 junit = "4.13.2"
@@ -26,7 +24,6 @@ navigationUiKtx = "2.8.3"
 playServicesLocation = "21.3.0"
 retrofit = "2.11.0"
 robolectric = "4.10.3"
-robolectricVersion = "4.10.3"
 roomCommon = "2.6.1"
 roomRuntime = "2.6.1"
 roomKtx = "2.6.1"
@@ -47,11 +44,9 @@ converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 firebase-auth = { module = "com.google.firebase:firebase-auth", version.ref = "firebaseAuth" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
-firebase-bom-v3102 = { module = "com.google.firebase:firebase-bom", version.ref = "googleFirebaseBom" }
 firebase-firestore = { module = "com.google.firebase:firebase-firestore" }
 google-firebase-database-ktx = { module = "com.google.firebase:firebase-database-ktx" }
 google-services = { module = "com.google.gms:google-services", version.ref = "googleServices" }
-google-services-v4310 = { module = "com.google.gms:google-services", version.ref = "googleServicesVersion" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
@@ -76,7 +71,6 @@ play-services-location = { module = "com.google.android.gms:play-services-locati
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 firebase-database-ktx = { group = "com.google.firebase", name = "firebase-database-ktx", version.ref = "firebaseDatabaseKtx" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
-robolectric-v49 = { module = "org.robolectric:robolectric", version.ref = "robolectricVersion" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

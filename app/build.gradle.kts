@@ -67,7 +67,6 @@ dependencies {
 
     ////////////////////////////////////////////////////////////////////////////////
     implementation (libs.google.firebase.database.ktx)
-    implementation(platform(libs.firebase.bom.v3102))
     implementation (libs.com.google.firebase.firebase.database.ktx)
     ////////////////////////////////////////////////////////////////////////////////
     implementation(libs.firebase.firestore.ktx)
@@ -82,6 +81,7 @@ dependencies {
     implementation (libs.converter.gson)
     //per la localizzazione dello studente
     implementation (libs.play.services.location)
+
 
     // Dipendenza per OkHttp Logging Interceptor
     implementation ("com.squareup.okhttp3:logging-interceptor:4.9.3")
@@ -106,7 +106,6 @@ dependencies {
     // Libreria MockK per mocking (opzione 1)
     testImplementation (libs.mockk)
     testImplementation (libs.robolectric)
-    testImplementation (libs.robolectric.v49)
     // Strumentazione dei test (solo se fai test su emulatore/dispositivo)
     androidTestImplementation (libs.androidx.junit.v121)
     androidTestImplementation (libs.androidx.espresso.core.v361)
