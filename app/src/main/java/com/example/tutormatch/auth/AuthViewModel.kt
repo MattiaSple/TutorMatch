@@ -11,6 +11,7 @@ import com.example.tutormatch.util.FirebaseUtil
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
 class AuthViewModel(application: Application) : AndroidViewModel(application) {
@@ -158,6 +159,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     // Metodo chiamato quando l'utente preme il pulsante di login
+    // Metodo chiamato quando l'utente preme il pulsante di login
     fun onLoginClick() {
 
         // Controllo dei campi obbligatori
@@ -166,21 +168,31 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             return
         }
 
-        _firebaseAuth.signInWithEmailAndPassword(email.value!!, password.value!!)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val user = _firebaseAuth.currentUser
-                    user?.let {
-                        FirebaseUtil.getUserFromFirestore(it.uid) { utente ->
-                            this.utente.value = utente
-                            _showMessage.value = "Login riuscito!"
-                        }
-                    }
+        // Avvia una coroutine per eseguire le operazioni asincrone
+        viewModelScope.launch {
+            try {
+                // Effettua il login in modo asincrono
+                val result = _firebaseAuth.signInWithEmailAndPassword(email.value!!, password.value!!).await()
+
+                if (result.user != null) {
+                    val user = result.user
+
+                    // Usa la funzione suspend per ottenere l'utente da Firestore
+                    val utente = FirebaseUtil.getUserFromFirestore(user!!.uid)
+
+                    // Aggiorna il LiveData con l'utente
+                    this@AuthViewModel.utente.value = utente
+                    _showMessage.value = "Login riuscito!"
                 } else {
-                    _showMessage.value = task.exception?.message ?: "Login fallito"
+                    _showMessage.value = "Login fallito"
                 }
+            } catch (e: Exception) {
+                // Gestisci eventuali errori
+                _showMessage.value = e.message ?: "Login fallito"
             }
+        }
     }
+
 
     fun onForgotPasswordClick() {
         val emailValue = email.value

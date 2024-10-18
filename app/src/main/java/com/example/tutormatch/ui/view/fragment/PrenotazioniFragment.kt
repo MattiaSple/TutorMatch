@@ -26,8 +26,8 @@ class PrenotazioniFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        prenotazioneViewModel = ViewModelProvider(this).get(PrenotazioneViewModel::class.java)
-        chatViewModel = ViewModelProvider(this).get(ChatViewModel::class.java)
+        prenotazioneViewModel = ViewModelProvider(this)[PrenotazioneViewModel::class.java]
+        chatViewModel = ViewModelProvider(this)[ChatViewModel::class.java]
 
     }
     override fun onCreateView(
@@ -52,10 +52,37 @@ class PrenotazioniFragment : Fragment() {
 
         val userId = arguments?.getString("userId")
         val ruolo = arguments?.getBoolean("ruolo")
+
         // Osserva il messaggio di creazione della chat
         chatViewModel.chatCreationMessage.observe(viewLifecycleOwner, Observer { message ->
             Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
         })
+
+        // Osserva i dati della chat (annuncio, studente, tutor)
+        prenotazioneViewModel.datiChat.observe(viewLifecycleOwner) { (annuncio, studente, tutor) ->
+            if (annuncio != null && studente != null && tutor != null) {
+                // Crea la chat utilizzando i dati
+                chatViewModel.creaChatConTutor(
+                    tutorEmail = tutor.email,
+                    tutorName = tutor.nome,
+                    tutorSurname = tutor.cognome,
+                    userName = studente.nome,
+                    userSurname = studente.cognome,
+                    materia = annuncio.materia,
+                    onSuccess = {
+                        Toast.makeText(requireContext(), "Chat creata con successo!", Toast.LENGTH_SHORT).show()
+                    },
+                    onFailure = { errorMessage ->
+                        Toast.makeText(requireContext(), "Errore: $errorMessage", Toast.LENGTH_SHORT).show()
+                    },
+                    onConfirm = { message, onConfirmAction ->
+                        showConfirmationDialog(message, onConfirmAction)
+                    }
+                )
+            } else {
+                Toast.makeText(requireContext(), "Errore nel recupero dei dettagli", Toast.LENGTH_LONG).show()
+            }
+        }
 
         adapterPrenotazione = PrenotazioneAdapter(
             emptyList(),
@@ -64,38 +91,8 @@ class PrenotazioniFragment : Fragment() {
                 prenotazioneViewModel.eliminaPrenotazione(prenotazione)
             },
             onChatClick = { prenotazione ->
-                // Prima recuperiamo i dettagli dell'annuncio per ottenere la materia e il tutor
-                FirebaseUtil.getAnnuncio(prenotazione.annuncioRef!!) { annuncio ->
-                    FirebaseUtil.getUserFromFirestore(prenotazione.studenteRef) { studente ->
-                        if (annuncio != null) {
-                            FirebaseUtil.getUserFromFirestore(annuncio.tutor?.id ?: "") { tutor ->
-                                if (studente != null && tutor != null) {
-                                    if (annuncio != null) {
-                                        chatViewModel.creaChatConTutor(
-                                            tutorEmail = tutor.email,
-                                            tutorName = tutor.nome,
-                                            tutorSurname = tutor.cognome,
-                                            userName = studente.nome,
-                                            userSurname = studente.cognome,
-                                            materia = annuncio.materia,
-                                            onSuccess = {
-                                            },
-                                            onFailure = { errorMessage ->
-                                                Toast.makeText(context, "Errore: $errorMessage", Toast.LENGTH_SHORT).show()
-                                            },
-                                            onConfirm = { message, onConfirmAction ->
-                                                // Mostra un dialogo di conferma all'utente
-                                                showConfirmationDialog(message, onConfirmAction)
-                                            }
-                                        )
-                                    }
-                                } else {
-                                    Toast.makeText(requireContext(), "Errore nel recupero dei dettagli", Toast.LENGTH_LONG).show()
-                                }
-                            }
-                        }
-                    }
-                }
+                // Chiedi al ViewModel di recuperare i dati per la chat
+                prenotazioneViewModel.recuperaDatiChat(prenotazione)
             }
         )
 

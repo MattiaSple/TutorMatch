@@ -30,16 +30,18 @@ object FirebaseUtil {
     }
 
     // Recupera i dati di un utente da Firestore
-    fun getUserFromFirestore(userId: String, callback: (Utente?) -> Unit) {
-        db.collection("utenti").document(userId).get()
-            .addOnSuccessListener { document ->
-                val utente = document.toObject(Utente::class.java)
-                callback(utente)
-            }
-            .addOnFailureListener {
-                callback(null)
-            }
+    suspend fun getUserFromFirestore(userId: String): Utente? {
+        return try {
+            val documentSnapshot = db.collection("utenti")
+                .document(userId)
+                .get()
+                .await()  // Sospende finché Firebase non restituisce il risultato
+            documentSnapshot.toObject(Utente::class.java)
+        } catch (e: Exception) {
+            null // Gestione dell'errore
+        }
     }
+
 
     fun osservaModificheAnnunciSuFirestore(
         onAnnunciUpdated: () -> Unit,  // Callback da eseguire quando ci sono modifiche
@@ -58,19 +60,15 @@ object FirebaseUtil {
         }
     }
 
-    fun getAnnuncio(
-        annuncioRef: DocumentReference,
-        callback: (Annuncio?) -> Unit
-    ) {
-        annuncioRef.get()
-            .addOnSuccessListener { documentSnapshot ->
-                val annuncio = documentSnapshot.toObject(Annuncio::class.java)
-                callback(annuncio)
-            }
-            .addOnFailureListener {
-                callback(null)
-            }
+    suspend fun getAnnuncio(annuncioRef: DocumentReference): Annuncio? {
+        return try {
+            val documentSnapshot = annuncioRef.get().await()  // Usa await per sospendere fino al completamento della chiamata
+            documentSnapshot.toObject(Annuncio::class.java)   // Restituisce l'oggetto Annuncio o null
+        } catch (e: Exception) {
+            null  // Gestisci il fallimento restituendo null o gestisci l'eccezione come preferisci
+        }
     }
+
 
     // Funzione per ottenere il tutorRef dall'annuncio
     fun getTutorDaAnnuncioF(
@@ -282,52 +280,50 @@ object FirebaseUtil {
 
 
 
-    fun eliminaPrenotazioneF(prenotazione: Prenotazione, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
-        val db = FirebaseFirestore.getInstance()
+    suspend fun eliminaPrenotazioneF(prenotazione: Prenotazione): Boolean {
+        return try {
+            val db = FirebaseFirestore.getInstance()
 
-        // Inizializza un batch
-        val batch = db.batch()
+            // Inizializza un batch
+            val batch = db.batch()
 
-        // 1. Recupera il riferimento alla fascia oraria associata alla prenotazione
-        val fasciaCalendarioRef = prenotazione.fasciaCalendarioRef
+            // 1. Recupera il riferimento alla fascia oraria associata alla prenotazione
+            val fasciaCalendarioRef = prenotazione.fasciaCalendarioRef
 
-        // 2. Aggiorna lo stato della fascia oraria a 'false'
-        batch.update(fasciaCalendarioRef!!, "statoPren", false)
+            // 2. Aggiorna lo stato della fascia oraria a 'false'
+            batch.update(fasciaCalendarioRef!!, "statoPren", false)
 
-        // 3. Trova il documento della prenotazione
-        db.collection("prenotazioni")
-            .whereEqualTo("tutorRef", prenotazione.tutorRef)
-            .whereEqualTo("fasciaCalendarioRef", prenotazione.fasciaCalendarioRef)
-            .get()
-            .addOnSuccessListener { querySnapshot ->
-                if (!querySnapshot.isEmpty) {
-                    // 4. Ottieni il riferimento del documento della prenotazione
-                    val prenotazioneDoc = querySnapshot.documents.first()
-                    val prenotazioneRef = prenotazioneDoc.reference
+            // 3. Trova il documento della prenotazione
+            val querySnapshot = db.collection("prenotazioni")
+                .whereEqualTo("tutorRef", prenotazione.tutorRef)
+                .whereEqualTo("fasciaCalendarioRef", prenotazione.fasciaCalendarioRef)
+                .get()
+                .await()  // Usa await per sospendere fino al completamento dell'operazione
 
-                    // 5. Aggiungi l'operazione di eliminazione al batch
-                    batch.delete(prenotazioneRef)
+            if (!querySnapshot.isEmpty) {
+                // 4. Ottieni il riferimento del documento della prenotazione
+                val prenotazioneDoc = querySnapshot.documents.first()
+                val prenotazioneRef = prenotazioneDoc.reference
 
-                    // 6. Commetti il batch solo se entrambe le operazioni sono pronte
-                    batch.commit()
-                        .addOnSuccessListener {
-                            // Se entrambe le operazioni sono eseguite con successo
-                            onSuccess()
-                        }
-                        .addOnFailureListener { exception ->
-                            // Se il batch fallisce
-                            onFailure(exception)
-                        }
-                } else {
-                    // Se la prenotazione non è stata trovata
-                    onFailure(Exception("Prenotazione non trovata"))
-                }
+                // 5. Aggiungi l'operazione di eliminazione al batch
+                batch.delete(prenotazioneRef)
+
+                // 6. Commetti il batch solo se entrambe le operazioni sono pronte
+                batch.commit().await()  // Usa await per attendere il completamento del batch
+
+                // Se tutto ha avuto successo, restituisci true
+                return true
+            } else {
+                // Se la prenotazione non è stata trovata
+                throw Exception("Prenotazione non trovata")
             }
-            .addOnFailureListener { exception ->
-                // Fallimento nel trovare la prenotazione
-                onFailure(exception)
-            }
+        } catch (e: Exception) {
+            // Se c'è stato un errore, gestiscilo e restituisci false
+            e.printStackTrace()
+            false
+        }
     }
+
 
     suspend fun eliminaFasceOrarieScadute(dataCorrente: String, oraCorrente: String) {
 
@@ -386,71 +382,75 @@ object FirebaseUtil {
         // Commetti il batch per applicare sia le eliminazioni che gli aggiornamenti
         batch.commit().await()  // Attendi il commit del batch
     }
+
+
     fun getDocumentRefById(userId: String): DocumentReference {
         return db.collection("utenti").document(userId)
     }
+
+
     // Funzione per caricare i tutor associati da una lista di tutorRef
-    fun loadTutors(tutorRefs: List<String>, callback: (List<Utente>) -> Unit) {
+    suspend fun loadTutors(tutorRefs: List<String>): List<Utente> {
         val tutorList = mutableListOf<Utente>()
 
-        tutorRefs.forEach { tutorRef ->
-            db.collection("utenti").document(tutorRef).get()
-                .addOnSuccessListener { documentSnapshot ->
-                    if (documentSnapshot.exists()) {
-                        val tutor = documentSnapshot.toObject(Utente::class.java)
-                        tutor?.let { tutorList.add(it) }
-                    }
-                    // Quando abbiamo caricato tutti i tutor, chiama il callback
-                    if (tutorList.size == tutorRefs.size) {
-                        callback(tutorList)
-                    }
-                }
-                .addOnFailureListener {
-                    callback(emptyList()) // Restituisce una lista vuota in caso di errore
-                }
+        try {
+            for (tutorRef in tutorRefs) {
+                val documentSnapshot = db.collection("utenti")
+                    .document(tutorRef)
+                    .get()
+                    .await()  // Sospende finché non ottiene il risultato
+
+                val tutor = documentSnapshot.toObject(Utente::class.java)
+                tutor?.let { tutorList.add(it) }
+            }
+        } catch (e: Exception) {
+            // Puoi gestire l'errore qui (ad esempio, ritornando una lista vuota)
         }
+
+        return tutorList
     }
 
+
     // Funzione atomica per valutare il tutor e rimuoverlo dalla lista tutorDaValutare dello studente
-    fun rateTutorAndRemoveFromList(studentRef: String, tutorRef: String, rating: Int, callback: (Boolean) -> Unit) {
-        val tutorDocRef = db.collection("utenti").document(tutorRef)
-        val studentDocRef = db.collection("utenti").document(studentRef)
+    suspend fun rateTutorAndRemoveFromListBatch(studentRef: String, tutorRef: String, rating: Int): Boolean {
+        return try {
 
-        // Inizia una transazione Firestore per assicurare che le operazioni siano atomiche
-        db.runTransaction { transaction ->
-            // Recupera il documento del tutor
-            val tutorSnapshot = transaction.get(tutorDocRef)
+            val batch = db.batch()
+
+            val tutorDocRef = db.collection("utenti").document(tutorRef)
+            val studentDocRef = db.collection("utenti").document(studentRef)
+
+            // Recupera i documenti del tutor e dello studente
+            val tutorSnapshot = tutorDocRef.get()
+                .await() // Operazione asincrona per ottenere il documento del tutor
+            val studentSnapshot = studentDocRef.get()
+                .await() // Operazione asincrona per ottenere il documento dello studente
+
+            // Aggiorna il feedback del tutor se esiste
             val tutor = tutorSnapshot.toObject(Utente::class.java)
-
-            // Aggiorna la valutazione del tutor
             tutor?.let {
                 val updatedRatings = it.feedback.toMutableList().apply {
                     add(rating)
                 }
-                // Aggiorna il feedback del tutor
-                transaction.update(tutorDocRef, "feedback", updatedRatings)
+                // Prepara l'aggiornamento del feedback nel batch
+                batch.update(tutorDocRef, "feedback", updatedRatings)
             }
 
-            // Recupera il documento dello studente
-            val studentSnapshot = transaction.get(studentDocRef)
+            // Aggiorna la lista tutorDaValutare dello studente se esiste
             val student = studentSnapshot.toObject(Utente::class.java)
-
-            // Rimuovi il tutor dalla lista tutorDaValutare dello studente
             student?.let {
                 val updatedTutorRefs = it.tutorDaValutare.toMutableList()
                 if (updatedTutorRefs.contains(tutorRef)) {
                     updatedTutorRefs.remove(tutorRef)
-                    // Aggiorna il campo tutorDaValutare dello studente
-                    transaction.update(studentDocRef, "tutorDaValutare", updatedTutorRefs)
+                    // Prepara l'aggiornamento nel batch
+                    batch.update(studentDocRef, "tutorDaValutare", updatedTutorRefs)
                 }
             }
-
-        }.addOnSuccessListener {
-            callback(true) // Operazione completata con successo
-        }.addOnFailureListener {
-            callback(false) // Operazione fallita
+            // Esegui il batch
+            batch.commit().await() // Operazione atomica e asincrona
+            true
+        } catch (e: Exception) {
+            false
         }
     }
-
-
 }

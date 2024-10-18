@@ -24,7 +24,7 @@ class HomeFragmentTutor : Fragment() {
         super.onCreate(savedInstanceState)
 
         // Inizializzazione del ViewModel in onCreate (non è legato alla vista)
-        annunciViewModel = ViewModelProvider(this).get(AnnunciViewModel::class.java)
+        annunciViewModel = ViewModelProvider(this)[AnnunciViewModel::class.java]
 
         // Se c'è un userId, passarlo al ViewModel
         val userId = arguments?.getString("userId")

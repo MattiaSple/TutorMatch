@@ -96,14 +96,6 @@
                         android:padding="16dp">
 
                         <TextView
-                            android:id="@+id/saluto"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@{viewModel.saluto}"
-                            android:textSize="16sp"
-                            android:textStyle="bold" />
-
-                        <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:background="@android:color/transparent"

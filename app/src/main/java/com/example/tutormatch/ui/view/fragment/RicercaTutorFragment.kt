@@ -65,9 +65,9 @@ class RicercaTutorFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        ricercaTutorViewModel = ViewModelProvider(this).get(RicercaTutorViewModel::class.java)
-        annunciViewModel = ViewModelProvider(this).get(AnnunciViewModel::class.java)
-        chatViewModel = ViewModelProvider(this).get(ChatViewModel::class.java)
+        ricercaTutorViewModel = ViewModelProvider(this)[RicercaTutorViewModel::class.java]
+        annunciViewModel = ViewModelProvider(this)[AnnunciViewModel::class.java]
+        chatViewModel = ViewModelProvider(this)[ChatViewModel::class.java]
         // Inizializza il launcher per gestire il risultato delle impostazioni di localizzazione
         locationSettingsLauncher = registerForActivityResult(
             ActivityResultContracts.StartIntentSenderForResult()

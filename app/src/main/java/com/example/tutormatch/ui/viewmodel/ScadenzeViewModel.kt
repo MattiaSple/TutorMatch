@@ -9,6 +9,8 @@ import android.os.Handler
 import android.os.Looper
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -58,25 +60,25 @@ class ScadenzeViewModel : ViewModel() {
     private fun eseguiOperazioniPeriodiche() {
         viewModelScope.launch {
             try {
-                val calendarRome = Calendar.getInstance(TimeZone.getTimeZone("Europe/Rome"))
-                val nowRome = calendarRome.time
+                // Sposta le operazioni di I/O su un thread dedicato
+                withContext(Dispatchers.IO) {
+                    val calendarRome = Calendar.getInstance(TimeZone.getTimeZone("Europe/Rome"))
+                    val nowRome = calendarRome.time
 
-                // Formattazione per ottenere la sola data e ora
-                val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ITALY).apply {
-                    timeZone = TimeZone.getTimeZone("Europe/Rome")
+                    // Formattazione per ottenere la sola data e ora
+                    val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ITALY).apply {
+                        timeZone = TimeZone.getTimeZone("Europe/Rome")
+                    }
+                    val timeFormat = SimpleDateFormat("HH:mm", Locale.ITALY).apply {
+                        timeZone = TimeZone.getTimeZone("Europe/Rome")
+                    }
+                    val dataCorrente = dateFormat.format(nowRome)
+                    val oraCorrente = timeFormat.format(nowRome)
+
+                    // Esecuzione sequenziale delle funzioni suspend
+                    eliminaFasceOrarieScadute(dataCorrente, oraCorrente)  // Prima funzione
+                    eliminaPrenotazioniScadute()  // Seconda funzione, eseguita solo dopo che la prima è terminata
                 }
-                val timeFormat = SimpleDateFormat("HH:mm", Locale.ITALY).apply {
-                    timeZone = TimeZone.getTimeZone("Europe/Rome")
-                }
-                val dataCorrente = dateFormat.format(nowRome)
-                val oraCorrente = timeFormat.format(nowRome)
-
-                // 1. Elimina le fasce orarie scadute
-                eliminaFasceOrarieScadute(dataCorrente, oraCorrente)
-
-                // 2. Elimina le prenotazioni scadute
-                eliminaPrenotazioniScadute()
-
             } catch (e: Exception) {
                 // Invia un messaggio pop-up di errore
                 _popupMessage.postValue("Errore durante l'operazione: ${e.message}")
