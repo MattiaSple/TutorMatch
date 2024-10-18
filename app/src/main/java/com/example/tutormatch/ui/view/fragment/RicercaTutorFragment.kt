@@ -29,6 +29,7 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import android.widget.SeekBar
+import androidx.annotation.Nullable
 
 import androidx.lifecycle.ViewModelProvider
 

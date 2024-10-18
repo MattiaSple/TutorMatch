@@ -63,6 +63,7 @@ class PrenotazioniFragment : Fragment() {
                 // Crea la chat utilizzando i dati
                 chatViewModel.creaChatConTutor(
                     tutorEmail = tutor.email,
+                    studenteEmail = studente.email,
                     tutorName = tutor.nome,
                     tutorSurname = tutor.cognome,
                     userName = studente.nome,

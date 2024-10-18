@@ -73,6 +73,7 @@ class ChatViewModel : ViewModel() {
     // Funzione per creare una chat con un tutor
     fun creaChatConTutor(
         tutorEmail: String,
+        studenteEmail: String?="",
         tutorName: String,
         tutorSurname: String,
         userName: String,
@@ -82,8 +83,14 @@ class ChatViewModel : ViewModel() {
         onFailure: (String) -> Unit,
         onConfirm: (String, () -> Unit) -> Unit  // Callback per conferma
     ) {
-        val currentUser = FirebaseAuth.getInstance().currentUser
-        val userEmail = currentUser?.email ?: return
+        val userEmail = if (studenteEmail.isNullOrEmpty()) {
+            val currentUser = FirebaseAuth.getInstance().currentUser
+            currentUser?.email ?: run {
+                return
+            }
+        } else {
+            studenteEmail
+        }
 
         // Controlla se esiste già una chat con il tutor per la stessa materia
         chatRef.orderByChild("participants")
