@@ -5,11 +5,13 @@ import com.example.tutormatch.data.model.Annuncio
 import com.example.tutormatch.data.model.Calendario
 import com.example.tutormatch.data.model.Prenotazione
 import com.example.tutormatch.data.model.Utente
+import com.example.tutormatch.network.RetrofitInstance
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import kotlinx.coroutines.tasks.await
+import com.google.firebase.firestore.GeoPoint
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -452,4 +454,85 @@ object FirebaseUtil {
             false
         }
     }
+
+    // Funzione per verificare se esiste un annuncio con i criteri specificati
+    suspend fun verificaAnnuncioEsistente(
+        materia: String,
+        prezzo: String,
+        descrizione: String,
+        online: Boolean,
+        presenza: Boolean,
+        tutorRef: DocumentReference
+    ): Boolean {
+        return try {
+            val querySnapshot = FirebaseFirestore.getInstance()
+                .collection("annunci")
+                .whereEqualTo("materia", materia)
+                .whereEqualTo("prezzo", prezzo)
+                .whereEqualTo("descrizione", descrizione)
+                .whereEqualTo("mod_on", online)
+                .whereEqualTo("mod_pres", presenza)
+                .whereEqualTo("tutor", tutorRef)
+                .get().await()
+
+            querySnapshot.documents.isNotEmpty()
+        } catch (e: Exception) {
+            false // Se c'è un errore, restituisce false
+        }
+    }
+
+    suspend fun salvaAnnuncioConGeoPoint(
+        geoPoint: GeoPoint,
+        materia: String,
+        prezzo: String,
+        descrizione: String,
+        online: Boolean,
+        presenza: Boolean,
+        tutorRef: DocumentReference
+    ): Boolean {
+        return try {
+            // Crea l'oggetto Annuncio senza l'id
+            val nuovoAnnuncio = Annuncio(
+                descrizione = descrizione.trim().replace("\\s+".toRegex(), " "),
+                materia = materia,
+                mod_on = online,
+                mod_pres = presenza,
+                posizione = geoPoint,
+                prezzo = prezzo,
+                tutor = tutorRef
+            )
+
+            // Aggiungi l'annuncio a Firestore e ottieni il riferimento del documento
+            val documentReference = FirebaseFirestore.getInstance().collection("annunci")
+                .add(nuovoAnnuncio).await()
+
+            // Ottieni l'id generato da Firestore
+            val documentId = documentReference.id
+
+            // Aggiorna il documento con l'id generato
+            documentReference.update("id", documentId).await()
+
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+
+    // Funzione per ottenere il GeoPoint (usa una chiamata REST esterna)
+    fun getGeoPoint(address: String): GeoPoint? {
+        return try {
+            val response = RetrofitInstance.api.getLocation(address).execute()
+            if (response.isSuccessful && response.body()?.isNotEmpty() == true) {
+                val location = response.body()!![0]
+                GeoPoint(location.lat.toDouble(), location.lon.toDouble())
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+
 }

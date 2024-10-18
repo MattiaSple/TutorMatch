@@ -7,7 +7,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.tutormatch.data.model.Annuncio
 import com.example.tutormatch.data.model.Utente
-import com.example.tutormatch.network.LocationResponse
 import com.example.tutormatch.network.RetrofitInstance
 import com.example.tutormatch.util.FirebaseUtil
 import com.google.firebase.firestore.DocumentReference
@@ -17,9 +16,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 class AnnunciViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -110,28 +106,52 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
+                // Recupera i dati dell'utente
                 val documentSnapshot = utentiCollection.document(userId).get().await()
                 val utente = documentSnapshot.toObject(Utente::class.java)
+
                 utente?.let {
                     val indirizzoCompleto = "${it.via}, ${it.cap}, ${it.residenza}"
                     val indirizzoSenzaVia = "${it.cap}, ${it.residenza}"
 
-                    verificaAnnuncioEsistente(materia, prezzo, descrizione, online, presenza) { esiste ->
-                        if (esiste) {
-                            _message.postValue("L'annuncio è già esistente!")
+                    // Verifica se l'annuncio esiste già
+                    val esiste = FirebaseUtil.verificaAnnuncioEsistente(
+                        materia, prezzo, descrizione, online, presenza, _tutorRef
+                    )
+
+                    if (esiste) {
+                        _message.postValue("L'annuncio è già esistente!")
+                    } else {
+                        // Prova a ottenere il GeoPoint per l'indirizzo completo
+                        val geoPoint = FirebaseUtil.getGeoPoint(indirizzoCompleto)
+
+                        if (geoPoint != null) {
+                            // Salva l'annuncio con il GeoPoint
+                            val success = FirebaseUtil.salvaAnnuncioConGeoPoint(
+                                geoPoint, materia, prezzo, descrizione, online, presenza, _tutorRef
+                            )
+                            if (success) {
+                                _message.postValue("Annuncio salvato con successo")
+                                loadAnnunci()
+                            } else {
+                                _message.postValue("Errore nel salvataggio dell'annuncio")
+                            }
                         } else {
-                            getGeoPoint(indirizzoCompleto) { geoPoint ->
-                                if (geoPoint != null) {
-                                    salvaAnnuncioConGeoPoint(geoPoint, materia, prezzo, descrizione, online, presenza)
+                            // Prova con l'indirizzo senza via
+                            val geoPointSenzaVia = FirebaseUtil.getGeoPoint(indirizzoSenzaVia)
+
+                            if (geoPointSenzaVia != null) {
+                                val success = FirebaseUtil.salvaAnnuncioConGeoPoint(
+                                    geoPointSenzaVia, materia, prezzo, descrizione, online, presenza, _tutorRef
+                                )
+                                if (success) {
+                                    _message.postValue("Annuncio salvato con successo")
+                                    loadAnnunci()
                                 } else {
-                                    getGeoPoint(indirizzoSenzaVia) { geoPointSenzaVia ->
-                                        if (geoPointSenzaVia != null) {
-                                            salvaAnnuncioConGeoPoint(geoPointSenzaVia, materia, prezzo, descrizione, online, presenza)
-                                        } else {
-                                            _message.postValue("Errore nella geocodifica dell'indirizzo")
-                                        }
-                                    }
+                                    _message.postValue("Errore nel salvataggio dell'annuncio")
                                 }
+                            } else {
+                                _message.postValue("Errore nella geocodifica dell'indirizzo")
                             }
                         }
                     }
@@ -144,85 +164,6 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    private fun verificaAnnuncioEsistente(
-        materia: String,
-        prezzo: String,
-        descrizione: String,
-        online: Boolean,
-        presenza: Boolean,
-        callback: (Boolean) -> Unit
-    ) {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val querySnapshot = annunciCollection
-                    .whereEqualTo("materia", materia)
-                    .whereEqualTo("prezzo", prezzo)
-                    .whereEqualTo("descrizione", descrizione)
-                    .whereEqualTo("mod_on", online)
-                    .whereEqualTo("mod_pres", presenza)
-                    .whereEqualTo("tutor", _tutorRef)
-                    .get().await()
-
-                callback(querySnapshot.documents.isNotEmpty())
-            } catch (e: Exception) {
-                _message.postValue("Errore nella verifica dell'annuncio: ${e.message}")
-                callback(false)
-            }
-        }
-    }
-
-    private fun salvaAnnuncioConGeoPoint(
-        geoPoint: GeoPoint,
-        materia: String,
-        prezzo: String,
-        descrizione: String,
-        online: Boolean,
-        presenza: Boolean
-    ) {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val nuovoAnnuncio = Annuncio(
-                    descrizione = descrizione.trim().replace("\\s+".toRegex(), " "),
-                    materia = materia,
-                    mod_on = online,
-                    mod_pres = presenza,
-                    posizione = geoPoint,
-                    prezzo = prezzo,
-                    tutor = _tutorRef
-                )
-
-                val documentReference = annunciCollection.add(nuovoAnnuncio).await()
-                val documentId = documentReference.id
-                nuovoAnnuncio.id = documentId
-                documentReference.update("id", documentId).await()
-
-                loadAnnunci()
-                _message.postValue("Annuncio salvato con successo")
-            } catch (e: Exception) {
-                _message.postValue("Errore nel salvataggio dell'annuncio: ${e.message}")
-            }
-        }
-    }
-
-    private fun getGeoPoint(address: String, callback: (GeoPoint?) -> Unit) {
-        val call = RetrofitInstance.api.getLocation(address)
-        call.enqueue(object : Callback<List<LocationResponse>> {
-            override fun onResponse(call: Call<List<LocationResponse>>, response: Response<List<LocationResponse>>) {
-                viewModelScope.launch(Dispatchers.IO) {
-                    if (response.isSuccessful && response.body()?.isNotEmpty() == true) {
-                        val location = response.body()!![0]
-                        val geoPoint = GeoPoint(location.lat.toDouble(), location.lon.toDouble())
-                        withContext(Dispatchers.Main) { callback(geoPoint) }
-                    } else {
-                        withContext(Dispatchers.Main) { callback(null) }
-                    }
-                }
-            }
-            override fun onFailure(call: Call<List<LocationResponse>>, t: Throwable) {
-                callback(null)
-            }
-        })
-    }
 
     fun eliminaAnnuncio(annuncio: Annuncio) {
         viewModelScope.launch(Dispatchers.IO) {
