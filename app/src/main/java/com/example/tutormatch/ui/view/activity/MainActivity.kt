@@ -11,6 +11,7 @@ import com.example.tutormatch.R
 import com.example.tutormatch.auth.AuthActivity
 import com.example.tutormatch.viewmodel.ScadenzeViewModel
 
+
 class MainActivity : AppCompatActivity() {
 
     private lateinit var scadenzeViewModel: ScadenzeViewModel
