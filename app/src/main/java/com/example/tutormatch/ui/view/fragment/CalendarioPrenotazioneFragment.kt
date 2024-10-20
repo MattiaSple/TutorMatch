@@ -80,12 +80,19 @@ class CalendarioPrenotazioneFragment : Fragment() {
         // Imposta l'azione sul pulsante "Prenota"
         _binding.btnPrenota.setOnClickListener {
             if (listaFasceSelezionate.isNotEmpty()) {
-                prenotazioneViewModel.setPrenotazioni(listaFasceSelezionate, idStudente, annuncioIdSel) {
-                    Toast.makeText(requireContext(), "Prenotazioni aggiornate!", Toast.LENGTH_SHORT).show()
-                    calendarioViewModel.loadDisponibilita()
-                }
+                prenotazioneViewModel.creaPrenotazioni(listaFasceSelezionate, idStudente, annuncioIdSel)
             } else {
                 Toast.makeText(requireContext(), "Seleziona almeno una fascia oraria", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        // Osserva il risultato delle prenotazioni
+        prenotazioneViewModel.prenotazioneSuccesso.observe(viewLifecycleOwner) { successo ->
+            if (successo) {
+                Toast.makeText(requireContext(), "Prenotazioni aggiornate!", Toast.LENGTH_SHORT).show()
+                calendarioViewModel.loadDisponibilita()  // Ricarica la disponibilità
+            } else {
+                Toast.makeText(requireContext(), "Errore durante la prenotazione", Toast.LENGTH_SHORT).show()
             }
         }
 

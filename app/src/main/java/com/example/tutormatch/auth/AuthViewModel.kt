@@ -187,7 +187,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
                 }
             } catch (e: Exception) {
                 // Gestisci eventuali errori
-                _showMessage.value = e.message ?: "Login fallito"
+                _showMessage.value = "Credenziali errate"
             }
         }
     }

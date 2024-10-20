@@ -83,16 +83,16 @@ object FirebaseUtil {
     }
 
     // Funzione per gestire la prenotazione e l'aggiornamento atomico delle fasce orarie
-    fun creaPrenotazioniConBatch(
+    suspend fun creaPrenotazioniConBatch(
         listaFasceSelezionate: List<Calendario>,
         idStudente: String,
-        annuncioId: String,
-        onSuccess: () -> Unit,
-        onFailure: (Exception) -> Unit
-    ) {
-        val annuncioRef = db.collection("annunci").document(annuncioId)
+        annuncioId: String
+    ): Boolean {
+        return try {
+            val annuncioRef = db.collection("annunci").document(annuncioId)
 
-        annuncioRef.get().addOnSuccessListener { documentSnapshot ->
+            // Recupera l'annuncio come oggetto
+            val documentSnapshot = annuncioRef.get().await()
             val annuncio = documentSnapshot.toObject(Annuncio::class.java)
 
             if (annuncio != null) {
@@ -100,62 +100,57 @@ object FirebaseUtil {
 
                 // Inizializza il batch
                 val batch = db.batch()
-                var completate = 0 // Contatore delle operazioni completate
                 var operazioneFallita = false
 
                 // Itera sulle fasce orarie selezionate
                 listaFasceSelezionate.forEach { fasciaOraria ->
-                    db.collection("calendario")
+                    val querySnapshot = db.collection("calendario")
                         .whereEqualTo("tutorRef", tutorRef)
                         .whereEqualTo("data", fasciaOraria.data)
                         .whereEqualTo("oraInizio", fasciaOraria.oraInizio)
                         .get()
-                        .addOnSuccessListener { querySnapshot ->
-                            if (!querySnapshot.isEmpty) {
-                                val calendarioDocument = querySnapshot.documents.first()
-                                val calendarioRef = calendarioDocument.reference
+                        .await()
 
-                                // Aggiungi l'aggiornamento dello stato al batch
-                                batch.update(calendarioRef, "statoPren", true)
+                    if (!querySnapshot.isEmpty) {
+                        val calendarioDocument = querySnapshot.documents.first()
+                        val calendarioRef = calendarioDocument.reference
 
-                                // Crea un nuovo documento per ogni prenotazione
-                                val prenotazioneRef = db.collection("prenotazioni").document()
-                                val prenotazione = mapOf(
-                                    "annuncioRef" to annuncioRef,
-                                    "fasciaCalendarioRef" to calendarioRef,
-                                    "studenteRef" to idStudente,
-                                    "tutorRef" to tutorRef!!.id
-                                )
+                        // Aggiungi l'aggiornamento dello stato al batch
+                        batch.update(calendarioRef, "statoPren", true)
 
-                                // Aggiungi la prenotazione al batch
-                                batch.set(prenotazioneRef, prenotazione)
-                            } else {
-                                operazioneFallita = true
-                                onFailure(Exception("Fascia oraria non trovata"))
-                            }
+                        // Crea un nuovo documento per ogni prenotazione
+                        val prenotazioneRef = db.collection("prenotazioni").document()
+                        val prenotazione = mapOf(
+                            "annuncioRef" to annuncioRef,
+                            "fasciaCalendarioRef" to calendarioRef,
+                            "studenteRef" to idStudente,
+                            "tutorRef" to tutorRef!!.id
+                        )
 
-                            completate++
-
-                            // Se tutte le operazioni sono completate, committa il batch
-                            if (completate == listaFasceSelezionate.size && !operazioneFallita) {
-                                batch.commit().addOnSuccessListener {
-                                    onSuccess()
-                                }.addOnFailureListener { exception ->
-                                    onFailure(exception)
-                                }
-                            }
-                        }.addOnFailureListener { exception ->
-                            operazioneFallita = true
-                            onFailure(exception)
-                        }
+                        // Aggiungi la prenotazione al batch
+                        batch.set(prenotazioneRef, prenotazione)
+                    } else {
+                        operazioneFallita = true
+                        throw Exception("Fascia oraria non trovata")
+                    }
                 }
+
+                // Commit del batch solo se non ci sono errori
+                if (!operazioneFallita) {
+                    batch.commit().await() // Attende il commit del batch
+                    true // Operazione completata con successo
+                } else {
+                    false // Operazione fallita
+                }
+
             } else {
-                onFailure(Exception("Annuncio non trovato"))
+                throw Exception("Annuncio non trovato")
             }
-        }.addOnFailureListener { exception ->
-            onFailure(exception)
+        } catch (e: Exception) {
+            false // Fallimento dell'operazione
         }
     }
+
 
 
 

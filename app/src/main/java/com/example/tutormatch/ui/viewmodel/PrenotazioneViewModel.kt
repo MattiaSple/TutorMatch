@@ -30,21 +30,28 @@ class PrenotazioneViewModel : ViewModel() {
     private val _listaPrenotazioni = MutableLiveData<List<Prenotazione>>()
     val listaPrenotazioni: LiveData<List<Prenotazione>> get() = _listaPrenotazioni
 
-    fun setPrenotazioni(prenotazioniSelezionate: List<Calendario>, studenteRef: String, annuncioRef: String, onComplete: () -> Unit) {
-        listaCreaPrenotazioni = prenotazioniSelezionate
+    private val _prenotazioneSuccesso = MutableLiveData<Boolean>()
+    val prenotazioneSuccesso: LiveData<Boolean> get() = _prenotazioneSuccesso
 
-        // Chiamata a FirebaseUtil per salvare le prenotazioni su Firestore
-        FirebaseUtil.creaPrenotazioniConBatch(
-            listaFasceSelezionate = prenotazioniSelezionate,
-            idStudente = studenteRef,
-            annuncioId = annuncioRef,
-            onSuccess = {
-                caricaPrenotazioni(false, studenteRef)
-                onComplete()
-            },
-            onFailure = {
+    fun creaPrenotazioni(prenotazioniSelezionate: List<Calendario>, studenteRef: String, annuncioRef: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                // Chiamata a FirebaseUtil per salvare le prenotazioni su Firestore
+                val risultato = FirebaseUtil.creaPrenotazioniConBatch(
+                    listaFasceSelezionate = prenotazioniSelezionate,
+                    idStudente = studenteRef,
+                    annuncioId = annuncioRef
+                )
+
+                if (risultato) {
+                    _prenotazioneSuccesso.postValue(true)  // Successo
+                } else {
+                    _prenotazioneSuccesso.postValue(false)  // Fallimento
+                }
+            } catch (e: Exception) {
+                _prenotazioneSuccesso.postValue(false)  // Fallimento
             }
-        )
+        }
     }
 
     // Funzione unica per caricare le prenotazioni in base al ruolo
