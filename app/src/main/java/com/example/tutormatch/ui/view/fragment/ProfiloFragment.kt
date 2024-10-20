@@ -45,6 +45,9 @@ class ProfiloFragment : Fragment() {
             profiloViewModel.loadUserProfile(it)
         }
 
+        val ruolo = arguments?.getBoolean("ruolo")!!
+
+
         // Listener per il bottone "Salva"
         binding.salva.setOnClickListener {
             userId?.let {
@@ -63,7 +66,7 @@ class ProfiloFragment : Fragment() {
         // Listener per il bottone "Elimina Account"
         binding.eliminaAccount.setOnClickListener {
             userId?.let {
-                showDeleteAccountDialog(it)
+                showDeleteAccountDialog(it, ruolo)
             }
         }
 
@@ -80,12 +83,12 @@ class ProfiloFragment : Fragment() {
     }
 
     // Mostra il dialog di conferma per l'eliminazione dell'account
-    private fun showDeleteAccountDialog(userId: String) {
+    private fun showDeleteAccountDialog(userId: String, ruolo: Boolean) {
         AlertDialog.Builder(requireContext())
             .setTitle("Conferma eliminazione")
             .setMessage("Sei sicuro di voler eliminare il tuo account?\nQuesta operazione è irreversibile.")
             .setPositiveButton("Si") { dialog, _ ->
-                profiloViewModel.eliminaDatiUtenteDaFirestore(userId)
+                profiloViewModel.eliminaDatiUtenteDaFirestore(ruolo)
                 dialog.dismiss()
             }
             .setNegativeButton("No") { dialog, _ ->

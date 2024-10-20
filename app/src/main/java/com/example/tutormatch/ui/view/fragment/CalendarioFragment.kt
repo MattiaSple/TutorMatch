@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.tutormatch.databinding.FragmentCalendarioTutorBinding
 import com.example.tutormatch.ui.adapter.CalendarioAdapter
 import com.example.tutormatch.ui.viewmodel.CalendarioViewModel
-import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -23,8 +22,24 @@ class CalendarioFragment : Fragment() {
 
     private lateinit var calendarioViewModel: CalendarioViewModel
     private lateinit var calendarioAdapter: CalendarioAdapter
+    private lateinit var selectedDate: String
 
-    private var selectedDate: String? = null
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        // Inizializzazione del ViewModel
+        calendarioViewModel = ViewModelProvider(this)[CalendarioViewModel::class.java]
+
+        val userIdTutor = arguments?.getString("userId")
+        userIdTutor?.let {
+            calendarioViewModel.setTutorReference(userIdTutor)
+        }
+
+    }
+
+
+
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -36,11 +51,6 @@ class CalendarioFragment : Fragment() {
         calendarioViewModel.setUpdateOrariInizioCallback {
             updateOrariInizioSpinner(selectedDate)
             updateOrariFineSpinner(selectedDate)
-        }
-
-        val userIdTutor = arguments?.getString("userId")
-        userIdTutor?.let {
-            calendarioViewModel.setTutorReference(userIdTutor)
         }
 
         setupRecyclerView()
@@ -111,7 +121,7 @@ class CalendarioFragment : Fragment() {
         _binding.recyclerViewDisponibilita.adapter = calendarioAdapter
     }
 
-    private fun updateOrariInizioSpinner(selectedDate: String?) {
+    private fun updateOrariInizioSpinner(selectedDate: String) {
         calendarioViewModel.caricaDisponibilitaPerData(selectedDate) { existingOrari ->
             val orari = calendarioViewModel.generateOrari(selectedDate, existingOrari)
             val adapterInizio = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, orari)
@@ -120,7 +130,7 @@ class CalendarioFragment : Fragment() {
         }
     }
 
-    private fun updateOrariFineSpinner(selectedDate: String?) {
+    private fun updateOrariFineSpinner(selectedDate: String) {
         calendarioViewModel.caricaDisponibilitaPerData(selectedDate) { existingOrari ->
             val dateFormat = SimpleDateFormat("HH:mm")
             val incrementedOrari = existingOrari.map {

@@ -172,69 +172,128 @@ class ProfiloViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    private suspend fun verificaIndirizzo(indirizzo: String): Boolean {
-        return withContext(Dispatchers.IO) {
-            val call = RetrofitInstance.api.getLocation(indirizzo)
-            try {
-                val response = call.execute()
-                if (response.isSuccessful && response.body()?.isNotEmpty() == true) {
-                    val location = response.body()!![0]
-                    val displayName = location.display_name.lowercase()
-                    val capValido = displayName.contains(cap.value!!)
-                    val residenzaValida = displayName.contains(residenza.value!!.lowercase())
+    fun eliminaDatiUtenteDaFirestore(isTutor: Boolean) {
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        currentUser?.let { user ->
+            // Avvia la coroutine
+            viewModelScope.launch(Dispatchers.IO) {
+                try {
+                    // 1. Recupera i dati dell'utente per poter eseguire un rollback se necessario
+                    val datiUtente = FirebaseUtil.getDatiUtentePerRollback(user.uid, isTutor)
 
-                    return@withContext capValido && residenzaValida
+                    // 2. Elimina i dati relativi all'utente da Firestore
+                    val firestoreSuccess = FirebaseUtil.eliminaDatiUtente(user.uid, isTutor)
+
+                    if (firestoreSuccess) {
+                        try {
+                            // 3. Se l'eliminazione su Firestore è riuscita, elimina l'utente da Firebase Authentication
+                            user.delete().await()
+
+                            // 4. Successo completo: invia un messaggio di successo
+                            withContext(Dispatchers.Main) {
+                                message.postValue("Account e dati associati eliminati con successo.")
+                            }
+
+                        } catch (authException: Exception) {
+                            // 5. Se l'eliminazione da Firebase Authentication fallisce, esegui il rollback su Firestore
+                            FirebaseUtil.ripristinaDatiUtente(user.uid, datiUtente, isTutor)
+
+                            // 6. Notifica che l'eliminazione non è andata a buon fine
+                            withContext(Dispatchers.Main) {
+                                message.postValue("Errore durante l'eliminazione da Firebase Authentication. I dati su Firestore sono stati ripristinati.")
+                            }
+                        }
+
+                    } else {
+                        // Se l'eliminazione su Firestore fallisce, non fare nulla su Firebase Authentication
+                        withContext(Dispatchers.Main) {
+                            message.postValue("Errore durante l'eliminazione dei dati utente su Firestore.")
+                        }
+                    }
+                } catch (e: Exception) {
+                    // In caso di errore imprevisto, notifica l'utente
+                    withContext(Dispatchers.Main) {
+                        message.postValue("Errore durante l'eliminazione dell'account: ${e.message}")
+                    }
                 }
-            } catch (e: Exception) {
-                e.printStackTrace()
             }
-            return@withContext false
         }
     }
 
-    fun eliminaDatiUtenteDaFirestore(userId: String) {
+
+    fun eliminaDatiUtenteDaFirestore(userId: String, ruolo: Boolean) {
         val currentUser = FirebaseAuth.getInstance().currentUser
         currentUser?.let { user ->
             viewModelScope.launch(Dispatchers.IO) {
                 try {
-                    val db = FirebaseFirestore.getInstance()
-                    val batch = db.batch()
+                    // 1. Chiama FirebaseUtil per eliminare i dati dell'utente atomicamente
+                    val success = FirebaseUtil.eliminaDatiUtente(userId, ruolo)
 
-                    val userDocRef = db.collection("utenti").document(userId)
-                    batch.delete(userDocRef)
+                    if (success) {
+                        // 2. Elimina l'account dell'utente da Firebase Authentication
+                        user.delete().await()
 
-                    if (ruolo) {
-                        val annunci = db.collection("annunci")
-                            .whereEqualTo("tutor", db.document("utenti/$userId")).get().await()
-                        for (annuncio in annunci.documents) {
-                            batch.delete(annuncio.reference)
-                        }
-
-                        val prenotazioni = db.collection("prenotazioni")
-                            .whereEqualTo("tutor", db.document("utenti/$userId")).get().await()
-                        for (prenotazione in prenotazioni.documents) {
-                            batch.delete(prenotazione.reference)
-                        }
-
-                        val calendario = db.collection("calendario")
-                            .whereEqualTo("tutorRef", db.document("utenti/$userId")).get().await()
-                        for (fascia in calendario.documents) {
-                            batch.delete(fascia.reference)
+                        withContext(Dispatchers.Main) {
+                            message.postValue("Account e dati associati eliminati con successo.")
                         }
                     } else {
-                        message.postValue("ANCORA DA IMPLEMENTARE")
+                        withContext(Dispatchers.Main) {
+                            message.postValue("Errore durante l'eliminazione dei dati utente.")
+                        }
                     }
-
-                    batch.commit().await()
-
-                    user.delete().await()
-
-                    message.postValue("Account e dati associati eliminati con successo.")
-
                 } catch (e: Exception) {
-                    message.postValue("Errore durante l'eliminazione dell'account: ${e.message}")
+                    withContext(Dispatchers.Main) {
+                        message.postValue("Errore durante l'eliminazione dell'account: ${e.message}")
+                    }
                 }
             }
         }
     }
+
+
+//    fun eliminaDatiUtenteDaFirestore(userId: String, ruolo: String) {
+//        val currentUser = FirebaseAuth.getInstance().currentUser
+//        currentUser?.let { user ->
+//            viewModelScope.launch(Dispatchers.IO) {
+//                try {
+//                    val db = FirebaseFirestore.getInstance()
+//                    val batch = db.batch()
+//
+//                    val userDocRef = db.collection("utenti").document(userId)
+//                    batch.delete(userDocRef)
+//
+//                    if (ruolo) {
+//                        val annunci = db.collection("annunci")
+//                            .whereEqualTo("tutor", db.document("utenti/$userId")).get().await()
+//                        for (annuncio in annunci.documents) {
+//                            batch.delete(annuncio.reference)
+//                        }
+//
+//                        val prenotazioni = db.collection("prenotazioni")
+//                            .whereEqualTo("tutor", db.document("utenti/$userId")).get().await()
+//                        for (prenotazione in prenotazioni.documents) {
+//                            batch.delete(prenotazione.reference)
+//                        }
+//
+//                        val calendario = db.collection("calendario")
+//                            .whereEqualTo("tutorRef", db.document("utenti/$userId")).get().await()
+//                        for (fascia in calendario.documents) {
+//                            batch.delete(fascia.reference)
+//                        }
+//                    } else {
+//                        message.postValue("ANCORA DA IMPLEMENTARE")
+//                    }
+//
+//                    batch.commit().await()
+//
+//                    user.delete().await()
+//
+//                    message.postValue("Account e dati associati eliminati con successo.")
+//
+//                } catch (e: Exception) {
+//                    message.postValue("Errore durante l'eliminazione dell'account: ${e.message}")
+//                }
+//            }
+//        }
+//    }
 }

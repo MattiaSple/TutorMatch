@@ -18,9 +18,6 @@ import java.util.*
 
 class CalendarioViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val firestore = FirebaseFirestore.getInstance()
-    private val disponibilitaCollection = firestore.collection("calendario")
-
     private val _lista_disponibilita = MutableLiveData<List<Calendario>>()
     val lista_disponibilita: LiveData<List<Calendario>> get() = _lista_disponibilita
 
@@ -57,16 +54,9 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     fun loadDisponibilita() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch{
             try {
-                val querySnapshot = disponibilitaCollection.whereEqualTo("tutorRef", _tutorRef).get().await()
-                val loadedDisponibilita = querySnapshot.documents.mapNotNull { document ->
-                    try {
-                        document.toObject(Calendario::class.java)
-                    } catch (e: Exception) {
-                        null
-                    }
-                }
+                val loadedDisponibilita = FirebaseUtil.loadDisponibilita(_tutorRef)
                 withContext(Dispatchers.Main) {
                     _lista_disponibilita.value = loadedDisponibilita
                     updateOrariInizioCallback?.invoke()
@@ -79,24 +69,11 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-    fun caricaDisponibilitaPerData(data: String?, callback: (List<String>) -> Unit) {
-        data?.let {
-            viewModelScope.launch(Dispatchers.IO) {
+    fun caricaDisponibilitaPerData(data: String, callback: (List<String>) -> Unit) {
+        data.let {
+            viewModelScope.launch{
                 try {
-                    val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ITALY)
-                    val dataParsed = dateFormat.parse(data)
-                    val querySnapshot = disponibilitaCollection
-                        .whereEqualTo("tutorRef", _tutorRef)
-                        .whereEqualTo("data", dataParsed)
-                        .get().await()
-                    val existingOrari = querySnapshot.documents.mapNotNull { document ->
-                        try {
-                            val calendario = document.toObject(Calendario::class.java)
-                            calendario?.oraInizio
-                        } catch (e: Exception) {
-                            null
-                        }
-                    }
+                    val existingOrari = FirebaseUtil.caricaDisponibilitaPerData(_tutorRef, data)
                     withContext(Dispatchers.Main) {
                         callback(existingOrari)
                     }
@@ -106,7 +83,7 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
                     }
                 }
             }
-        } ?: callback(emptyList())
+        }
     }
 
     fun generateOrari(selectedDate: String?, existingOrari: List<String>): List<String> {
@@ -165,13 +142,16 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
         val disponibilitaList = mutableListOf<Calendario>()
         val calendar = Calendar.getInstance().apply { time = inizioParsed }
 
-        if (fineParsed.before(inizioParsed)) {
+
+
+        if (fineParsed.before(inizioParsed) || fineParsed == inizioParsed) {
             val calendarFine = Calendar.getInstance().apply {
                 time = fineParsed
                 add(Calendar.DAY_OF_MONTH, 1)
             }
             fineParsed.time = calendarFine.timeInMillis
         }
+
 
         while (calendar.time.before(fineParsed)) {
             val oraInizioStr = timeFormat.format(calendar.time)
@@ -193,18 +173,8 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                for (disponibilita in disponibilitaList) {
-                    val existingSnapshot = disponibilitaCollection
-                        .whereEqualTo("tutorRef", disponibilita.tutorRef)
-                        .whereEqualTo("data", disponibilita.data)
-                        .whereEqualTo("oraInizio", disponibilita.oraInizio)
-                        .get()
-                        .await()
-
-                    if (existingSnapshot.isEmpty) {
-                        disponibilitaCollection.add(disponibilita).await()
-                    }
-                }
+                // Spostiamo la logica di salvataggio in FirebaseUtil
+                FirebaseUtil.salvaDisponibilita(disponibilitaList)
                 withContext(Dispatchers.Main) {
                     _message.value = "Disponibilità salvate con successo"
                 }
@@ -220,22 +190,19 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
 
 
 
+
     fun eliminaDisponibilita(calendario: Calendario) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val querySnapshot = disponibilitaCollection
-                    .whereEqualTo("tutorRef", calendario.tutorRef)
-                    .whereEqualTo("data", calendario.data)
-                    .whereEqualTo("oraInizio", calendario.oraInizio)
-                    .whereEqualTo("oraFine", calendario.oraFine)
-                    .get().await()
-                for (document in querySnapshot.documents) {
-                    disponibilitaCollection.document(document.id).delete().await()
-                }
+                val success = FirebaseUtil.eliminaDisponibilita(calendario)
                 withContext(Dispatchers.Main) {
-                    _message.value = "Disponibilità eliminata con successo"
+                    if (success) {
+                        _message.value = "Disponibilità eliminata con successo"
+                    } else {
+                        _message.value = "Errore nell'eliminazione della disponibilità"
+                    }
                 }
-                loadDisponibilita()
+                loadDisponibilita() // Ricarica le disponibilità dopo l'eliminazione
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     _message.value = "Errore nell'eliminazione della disponibilità: ${e.message}"
@@ -245,18 +212,28 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
     }
 
 
-    fun getTutorDaAnnuncio(annuncioId: String, callback: (DocumentReference?) -> Unit) {
-        FirebaseUtil.getTutorDaAnnuncioF(
-            annuncioId,
-            onSuccess = { tutorPrelevatoDaAnnuncio ->
-                callback(tutorPrelevatoDaAnnuncio)  // Restituisci il tutorRef tramite il callback
-            },
-            onFailure = { exception ->
-                _message.value = "Errore nel recupero del tutor: ${exception.message}"
-                callback(null)  // Restituisci null in caso di errore
+    fun getTutorDaAnnuncio(annuncioId: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                // Chiamata a FirebaseUtil per ottenere il tutorRef
+                val tutorRef = FirebaseUtil.getTutorDaAnnuncioF(annuncioId)
+                withContext(Dispatchers.Main) {
+                    if (tutorRef != null) {
+                        _tutorRef = tutorRef
+                        loadDisponibilita()
+                    }else{
+                        _message.value = "Tutor non trovato"
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    _message.value = "Errore nel recupero del tutor: ${e.message}"
+                }
             }
-        )
+        }
     }
+
+
 
     fun ordinaFasceOrarie(fasceOrarie: List<Calendario>): List<Calendario> {
         return fasceOrarie.sortedBy { it.oraInizio }

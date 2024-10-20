@@ -43,15 +43,8 @@ class CalendarioPrenotazioneFragment : Fragment() {
         annuncioIdSel = arguments?.getString("annuncioId").toString()
 
 
-        // Ottieni l'ID del tutor usando il callback
-        calendarioViewModel.getTutorDaAnnuncio(annuncioIdSel) { tutorRef ->
-            if (tutorRef != null) {
-                //calendarioViewModel.setTutorReference(tutorRef)
-                setupRecyclerView() // Configura il RecyclerView
-            } else {
-                Toast.makeText(context, "Errore: Tutor non trovato", Toast.LENGTH_SHORT).show()
-            }
-        }
+        calendarioViewModel.getTutorDaAnnuncio(annuncioIdSel)
+        setupRecyclerView() // Configura il RecyclerView
 
         // Imposta la data di domani come predefinita (perchè non si possono prenotare il giorno stesso)
         val data = Calendar.getInstance()
