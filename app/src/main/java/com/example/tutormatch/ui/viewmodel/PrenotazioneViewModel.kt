@@ -16,9 +16,6 @@ import kotlinx.coroutines.withContext
 
 class PrenotazioneViewModel : ViewModel() {
 
-    // Cambia da LiveData a una semplice variabile privata non osservata
-    private var listaCreaPrenotazioni: List<Calendario> = emptyList()
-
     // LiveData per annuncio, studente e tutor
     private val _datiChat = MutableLiveData<Triple<Annuncio?, Utente?, Utente?>>()
     val datiChat: LiveData<Triple<Annuncio?, Utente?, Utente?>> get() = _datiChat
@@ -106,10 +103,9 @@ class PrenotazioneViewModel : ViewModel() {
                 // Recupera l'annuncio
                 val annuncio = FirebaseUtil.getAnnuncio(prenotazione.annuncioRef!!)
                 val studente = FirebaseUtil.getUserFromFirestore(prenotazione.studenteRef)
-                val tutor = annuncio?.tutor?.id?.let { tutorId ->
+                val tutor = annuncio!!.tutor!!.id.let { tutorId ->
                     FirebaseUtil.getUserFromFirestore(tutorId)
                 }
-
                 // Aggiorna il LiveData con i dati
                 _datiChat.postValue(Triple(annuncio, studente, tutor))
             } catch (e: Exception) {

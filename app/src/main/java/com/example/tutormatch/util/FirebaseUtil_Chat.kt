@@ -142,7 +142,7 @@ object FirebaseUtil_Chat {
 
         loadChatDetails(chatId) { chat, participants ->
             // Trova tutti i partecipanti escluso il mittente
-            val unreadByEmail = chat?.participants?.filter { it != senderEmail } ?: emptyList()
+            val unreadByEmail = chat!!.participants.filter { it != senderEmail }
 
             // Crea il messaggio
             val message = mapOf(
