@@ -34,7 +34,7 @@ class ChatViewModel : ViewModel() {
 
     fun creaChatConTutor(
         tutorEmail: String,
-        studenteEmail: String? = "",
+        studenteEmail: String? = null,
         tutorName: String,
         tutorSurname: String,
         userName: String,
@@ -68,7 +68,6 @@ class ChatViewModel : ViewModel() {
         onFailure: (String) -> Unit
     ) {
         val chatData = Chat(
-            id = "",
             participants = listOf(userEmail, tutorEmail),
             participantsNames = listOf("$userName $userSurname", "$tutorName $tutorSurname"),
             subject = materia,

@@ -89,6 +89,7 @@ object FirebaseUtil_Chat {
         onFailure: (String) -> Unit
     ) {
         val chatId = chatRef.push().key ?: return
+        chatData.id = chatId
         chatRef.child(chatId).setValue(chatData)
             .addOnSuccessListener { onSuccess(chatId) }
             .addOnFailureListener { e -> onFailure(e.message ?: "Errore durante la creazione della chat") }
