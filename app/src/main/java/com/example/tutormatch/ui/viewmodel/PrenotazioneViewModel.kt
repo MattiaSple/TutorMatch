@@ -56,16 +56,20 @@ class PrenotazioneViewModel : ViewModel() {
 
     // Funzione unica per caricare le prenotazioni in base al ruolo
     fun caricaPrenotazioni(ruolo: Boolean, userId: String) {
-        FirebaseUtil.getPrenotazioniPerRuolo(
-            userId = userId,
-            isTutor = ruolo,
-            onSuccess = { prenotazioniList ->
-                _listaPrenotazioni.value = prenotazioniList
-            },
-            onFailure = {
+        viewModelScope.launch {
+            try {
+                // Chiamata a FirebaseUtil per ottenere la lista di prenotazioni ordinate
+                val prenotazioniList = FirebaseUtil.getPrenotazioniPerRuolo(userId, ruolo)
+                _listaPrenotazioni.postValue(prenotazioniList)
+            } catch (e: Exception) {
+                // Gestione dell'errore, ad esempio mostrando un messaggio
+                _notificaPrenotazione.postValue("Errore durante il caricamento delle prenotazioni.")
+                _listaPrenotazioni.postValue(emptyList())
             }
-        )
+        }
     }
+
+
 
     fun eliminaPrenotazione(prenotazione: Prenotazione) {
         // Avvia una coroutine nel ViewModel

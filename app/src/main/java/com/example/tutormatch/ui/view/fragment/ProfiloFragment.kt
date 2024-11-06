@@ -70,13 +70,19 @@ class ProfiloFragment : Fragment() {
             }
         }
 
+
+
+        profiloViewModel.navigateToMain.observe(viewLifecycleOwner, Observer { navigate ->
+            if (navigate == true) {
+                navigateToMainActivity()
+            }
+        })
+
+
         // Osserva i messaggi dal ViewModel
         profiloViewModel.message.observe(viewLifecycleOwner) { text ->
             text?.let {
                 Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
-                if (it == "Account e dati associati eliminati con successo.") {
-                    navigateToMainActivity()
-                }
             }
         }
 

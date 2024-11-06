@@ -7,6 +7,7 @@ import com.example.tutormatch.data.model.Prenotazione
 import com.example.tutormatch.data.model.Utente
 import com.example.tutormatch.network.RetrofitInstance
 import com.google.android.gms.tasks.Tasks
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
@@ -20,6 +21,7 @@ import java.util.Locale
 // Oggetto per gestire le operazioni Firestore
 object FirebaseUtil {
     private val db = FirebaseFirestore.getInstance() // Istanza di Firestore
+    private val realtimeDb = FirebaseDatabase.getInstance()
 
     // Aggiunge un nuovo utente a Firestore
     fun addUserToFirestore(utente: Utente) {
@@ -213,53 +215,35 @@ object FirebaseUtil {
     }
 
 
-    fun getPrenotazioniPerRuolo(
-        userId: String,
-        isTutor: Boolean,
-        onSuccess: (List<Prenotazione>) -> Unit,
-        onFailure: (Exception) -> Unit
-    ) {
+    suspend fun getPrenotazioniPerRuolo(userId: String, isTutor: Boolean): List<Prenotazione> {
         val query = if (isTutor) {
             db.collection("prenotazioni").whereEqualTo("tutorRef", userId)
         } else {
             db.collection("prenotazioni").whereEqualTo("studenteRef", userId)
         }
 
-        query.get()
-            .addOnSuccessListener { querySnapshot ->
-                val prenotazioni = querySnapshot.toObjects(Prenotazione::class.java)
+        return try {
+            val querySnapshot = query.get().await()
+            val prenotazioni = querySnapshot.toObjects(Prenotazione::class.java)
 
-                // Lista per conservare le prenotazioni con informazioni sul calendario
-                val prenotazioniConCalendario = mutableListOf<Pair<Prenotazione, Calendario>>()
-
-                // Recupera i dettagli del Calendario per ciascuna prenotazione
-                val tasks = prenotazioni.map { prenotazione ->
-                    prenotazione.fasciaCalendarioRef?.get()?.addOnSuccessListener { calendarioSnapshot ->
-                        val calendario = calendarioSnapshot.toObject(Calendario::class.java)
-                        if (calendario != null) {
-                            prenotazioniConCalendario.add(Pair(prenotazione, calendario))
-                        }
-                    }
-                }
-
-                // Esegui tutto in modo atomico e ordina dopo aver recuperato tutte le informazioni
-                Tasks.whenAllSuccess<Any>(tasks).addOnSuccessListener {
-                    // Ordina per data e oraInizio
-                    val prenotazioniOrdinate = prenotazioniConCalendario.sortedWith(compareBy(
-                        { it.second.data },  // Ordina per data
-                        { it.second.oraInizio }  // Ordina per ora di inizio
-                    ))
-
-                    // Restituisci la lista delle prenotazioni ordinate (senza il calendario)
-                    onSuccess(prenotazioniOrdinate.map { it.first })
-                }.addOnFailureListener { exception ->
-                    onFailure(exception)
-                }
+            // Recupera dettagli del Calendario per ciascuna prenotazione
+            val prenotazioniConCalendario = prenotazioni.mapNotNull { prenotazione ->
+                val calendarioSnapshot = prenotazione.fasciaCalendarioRef?.get()?.await()
+                val calendario = calendarioSnapshot?.toObject(Calendario::class.java)
+                calendario?.let { Pair(prenotazione, it) }
             }
-            .addOnFailureListener { exception ->
-                onFailure(exception)
-            }
+
+            // Ordina per data e ora di inizio
+            prenotazioniConCalendario.sortedWith(compareBy(
+                { it.second.data },
+                { it.second.oraInizio }
+            )).map { it.first }  // Restituisce solo le prenotazioni senza il calendario
+
+        } catch (e: Exception) {
+            emptyList()  // In caso di errore, restituisci una lista vuota
+        }
     }
+
 
 
 
@@ -617,150 +601,78 @@ object FirebaseUtil {
 
 
 
-    private val realtimeDb = FirebaseDatabase.getInstance()
 
-    // Funzione per recuperare i dati utente per un possibile rollback
-    suspend fun getDatiUtentePerRollback(userId: String, isTutor: Boolean): Map<String, Any> {
-        val dati = mutableMapOf<String, Any>()
 
-        // Recupera i dati utente da Firestore
-        val userSnapshot = db.collection("utenti").document(userId).get().await()
-        dati["utente"] = userSnapshot.data ?: emptyMap<String, Any>()
 
-        if (isTutor) {
-            val annunciSnapshot = db.collection("annunci")
-                .whereEqualTo("tutor", db.document("utenti/$userId")).get().await()
-            dati["annunci"] = annunciSnapshot.documents.map { it.data ?: emptyMap<String, Any>() }
 
-            val prenotazioniSnapshot = db.collection("prenotazioni")
-                .whereEqualTo("tutorRef", userId).get().await()
-            dati["prenotazioni"] = prenotazioniSnapshot.documents.map { it.data ?: emptyMap<String, Any>() }
 
-            val calendarioSnapshot = db.collection("calendario")
-                .whereEqualTo("tutorRef", db.document("utenti/$userId")).get().await()
-            dati["calendario"] = calendarioSnapshot.documents.map { it.data ?: emptyMap<String, Any>() }
-        } else {
-            val prenotazioniSnapshot = db.collection("prenotazioni")
-                .whereEqualTo("studenteRef", userId).get().await()
-            dati["prenotazioni"] = prenotazioniSnapshot.documents.map { it.data ?: emptyMap<String, Any>() }
-        }
+    suspend fun eliminaUtenteCompletamente(isTutor: Boolean): Boolean {
+        val currentUser = FirebaseAuth.getInstance().currentUser
+            ?: throw Exception("Utente non autenticato") // Controllo di nullità
 
-        // Recupera le chat da Firebase Realtime Database
-        val chatSnapshot = realtimeDb.getReference("chats")
-            .orderByChild("participants/$userId").equalTo(true).get().await()
-        dati["chatsRealtime"] = chatSnapshot.children.map { it.key to it.value }
+        val userId = currentUser.uid
+        val userEmail = currentUser.email!!
 
-        return dati
-    }
+//        var datiUtente: Map<String, Any> = emptyMap()
 
-    // Funzione per eliminare i dati dell'utente
-    suspend fun eliminaDatiUtente(userId: String, isTutor: Boolean): Boolean {
         return try {
-            val batch = db.batch()
+            // 1. Recupera i dati per il rollback
+//            datiUtente = getDatiUtentePerRollback(userId, userEmail, isTutor)
 
-            // Elimina i dati da Firestore
-            val userDocRef = db.collection("utenti").document(userId)
-            batch.delete(userDocRef)
+            // 2. Elimina i dati utente (Firestore, Realtime Database e chat)
+            val success = eliminaDatiUtente(userId, isTutor, userEmail)
+            if (!success) throw Exception("Errore durante l'eliminazione dei dati")
 
-            if (isTutor) {
-                val annunci = db.collection("annunci")
-                    .whereEqualTo("tutor", db.document("utenti/$userId")).get().await()
-                for (annuncio in annunci.documents) {
-                    batch.delete(annuncio.reference)
-                }
+            // 3. Elimina l'utente da Firebase Authentication
+            currentUser.delete().await()
 
-                val prenotazioni = db.collection("prenotazioni")
-                    .whereEqualTo("tutorRef", userId).get().await()
-                for (prenotazione in prenotazioni.documents) {
-                    batch.delete(prenotazione.reference)
-                }
-
-                val calendario = db.collection("calendario")
-                    .whereEqualTo("tutorRef", db.document("utenti/$userId")).get().await()
-                for (fascia in calendario.documents) {
-                    batch.delete(fascia.reference)
-                }
-
-            } else {
-                val prenotazioni = db.collection("prenotazioni")
-                    .whereEqualTo("studenteRef", userId).get().await()
-                for (prenotazione in prenotazioni.documents) {
-                    batch.delete(prenotazione.reference)
-                }
-            }
-
-            // Commit del batch per eliminare i dati su Firestore
-            batch.commit().await()
-
-            // Elimina le chat su Firebase Realtime Database
-            val chatRef = realtimeDb.getReference("chats")
-            val chatSnapshot = chatRef.orderByChild("participants/$userId").equalTo(true).get().await()
-            for (chat in chatSnapshot.children) {
-                chatRef.child(chat.key!!).removeValue().await() // Elimina l'intera chat
-            }
-            
-
-
-            true  // Restituisce true se tutto è stato eliminato con successo
-
+            true // Successo completo
         } catch (e: Exception) {
-            false  // In caso di errore restituisce false
+//            rollbackDatiUtente(userId, datiUtente)
+            false // Errore durante l'operazione
         }
     }
 
-    // Funzione per ripristinare i dati utente in caso di rollback
-    suspend fun ripristinaDatiUtente(userId: String, datiUtente: Map<String, Any>, isTutor: Boolean) {
-        val batch = db.batch()
-
-        // Ripristina i dati utente su Firestore
-        val userDocRef = db.collection("utenti").document(userId)
-        batch.set(userDocRef, datiUtente["utente"] as Map<String, Any>)
-
-        if (isTutor) {
-            val annunci = datiUtente["annunci"] as List<Map<String, Any>>
-            annunci.forEach { annuncio ->
-                val annuncioDocRef = db.collection("annunci").document()
-                batch.set(annuncioDocRef, annuncio)
-            }
-
-            val prenotazioni = datiUtente["prenotazioni"] as List<Map<String, Any>>
-            prenotazioni.forEach { prenotazione ->
-                val prenotazioneDocRef = db.collection("prenotazioni").document()
-                batch.set(prenotazioneDocRef, prenotazione)
-            }
-
-            val calendario = datiUtente["calendario"] as List<Map<String, Any>>
-            calendario.forEach { fascia ->
-                val fasciaDocRef = db.collection("calendario").document()
-                batch.set(fasciaDocRef, fascia)
-            }
-
-        } else {
-            val prenotazioni = datiUtente["prenotazioni"] as List<Map<String, Any>>
-            prenotazioni.forEach { prenotazione ->
-                val prenotazioneDocRef = db.collection("prenotazioni").document()
-                batch.set(prenotazioneDocRef, prenotazione)
-            }
-        }
-
-        // Ripristina le chat su Realtime Database
-        val chatRef = realtimeDb.getReference("chats")
-        val chatRealtime = datiUtente["chatsRealtime"] as List<Pair<String?, Any?>>
-        chatRealtime.forEach { (key, value) ->
-            chatRef.child(key!!).setValue(value).await() // Ripristina l'intera chat
-        }
-
-        // Commit del batch per ripristinare su Firestore
-        batch.commit().await()
-    }
-
-//    private val realtimeDb = FirebaseDatabase.getInstance()
+//    private suspend fun rollbackDatiUtente(userId: String, dati: Map<String, Any>) {
+//        // Ripristina i dati su Firestore
+//        val userData = dati["utente"] as? Map<String, Any>
+//        userData?.let { db.collection("utenti").document(userId).set(it).await() }
 //
-//    // Funzione per recuperare i dati utente per un possibile rollback
-//    suspend fun getDatiUtentePerRollback(userId: String, isTutor: Boolean): Map<String, Any> {
+//        val annunciData = dati["annunci"] as? List<Map<String, Any>>
+//        annunciData?.forEach { annuncio ->
+//            db.collection("annunci").add(annuncio).await()
+//        }
+//
+//        val prenotazioniData = dati["prenotazioni"] as? List<Map<String, Any>>
+//        prenotazioniData?.forEach { prenotazione ->
+//            db.collection("prenotazioni").add(prenotazione).await()
+//        }
+//
+//        val calendarioData = dati["calendario"] as? List<Map<String, Any>>
+//        calendarioData?.forEach { calendario ->
+//            db.collection("calendario").add(calendario).await()
+//        }
+//
+//        // Ripristina le chat nel Realtime Database
+//        val chatsData = dati["chatsRealtime"] as? List<Pair<String?, Any?>>
+//        chatsData?.forEach { (key, value) ->
+//            key?.let { chatKey ->
+//                realtimeDb.getReference("chats").child(chatKey).setValue(value).await()
+//            }
+//        }
+//
+//        // Ripristina il nodo utente in Realtime Database
+//        if (userData != null) {
+//            realtimeDb.getReference("utenti").child(userId).setValue(userData).await()
+//        }
+//    }
+
+
+
+//    suspend fun getDatiUtentePerRollback(userId: String, userEmail: String, isTutor: Boolean): Map<String, Any> {
 //        val dati = mutableMapOf<String, Any>()
 //
-//        // Recupera i dati utente da Firestore
+//        // Ottiene i dati utente da Firestore
 //        val userSnapshot = db.collection("utenti").document(userId).get().await()
 //        dati["utente"] = userSnapshot.data ?: emptyMap<String, Any>()
 //
@@ -782,113 +694,81 @@ object FirebaseUtil {
 //            dati["prenotazioni"] = prenotazioniSnapshot.documents.map { it.data ?: emptyMap<String, Any>() }
 //        }
 //
-//        // Recupera le chat da Firebase Realtime Database
-//        val chatSnapshot = realtimeDb.getReference("chats")
-//            .orderByChild("participants/$userId").equalTo(true).get().await()
-//        dati["chatsRealtime"] = chatSnapshot.children.map { it.key to it.value }
+//        // Recupera tutte le chat dall'Realtime Database in cui l'utente è un partecipante
+//        val chatSnapshot = realtimeDb.getReference("chats").get().await()
+//        val userChats = chatSnapshot.children
+//            .filter { chat ->
+//                val participants = chat.child("participants").children.map { it.value as? String }
+//                participants.contains(userEmail)
+//            }
+//            .map { it.key to it.value } // Trasforma ogni chat in una coppia (chiave, valore)
+//
+//        dati["chatsRealtime"] = userChats
 //
 //        return dati
 //    }
-//
-//    // Funzione per eliminare i dati dell'utente
-//    suspend fun eliminaDatiUtente(userId: String, isTutor: Boolean): Boolean {
-//        return try {
-//            val batch = db.batch()
-//
-//            // Elimina i dati da Firestore
-//            val userDocRef = db.collection("utenti").document(userId)
-//            batch.delete(userDocRef)
-//
-//            if (isTutor) {
-//                val annunci = db.collection("annunci")
-//                    .whereEqualTo("tutor", db.document("utenti/$userId")).get().await()
-//                for (annuncio in annunci.documents) {
-//                    batch.delete(annuncio.reference)
-//                }
-//
-//                val prenotazioni = db.collection("prenotazioni")
-//                    .whereEqualTo("tutorRef", userId).get().await()
-//                for (prenotazione in prenotazioni.documents) {
-//                    batch.delete(prenotazione.reference)
-//                }
-//
-//                val calendario = db.collection("calendario")
-//                    .whereEqualTo("tutorRef", db.document("utenti/$userId")).get().await()
-//                for (fascia in calendario.documents) {
-//                    batch.delete(fascia.reference)
-//                }
-//
-//            } else {
-//                val prenotazioni = db.collection("prenotazioni")
-//                    .whereEqualTo("studenteRef", userId).get().await()
-//                for (prenotazione in prenotazioni.documents) {
-//                    batch.delete(prenotazione.reference)
-//                }
-//            }
-//
-//            // Commit del batch per eliminare i dati su Firestore
-//            batch.commit().await()
-//
-//            // Elimina le chat su Firebase Realtime Database
-//            val chatRef = realtimeDb.getReference("chats")
-//            val chatSnapshot = chatRef.orderByChild("participants/$userId").equalTo(true).get().await()
-//            for (chat in chatSnapshot.children) {
-//                chatRef.child(chat.key!!).removeValue().await() // Elimina l'intera chat
-//            }
-//
-//            true  // Restituisce true se tutto è stato eliminato con successo
-//
-//        } catch (e: Exception) {
-//            false  // In caso di errore restituisce false
-//        }
-//    }
-//
-//    // Funzione per ripristinare i dati utente in caso di rollback
-//    suspend fun ripristinaDatiUtente(userId: String, datiUtente: Map<String, Any>, isTutor: Boolean) {
-//        val batch = db.batch()
-//
-//        // Ripristina i dati utente su Firestore
-//        val userDocRef = db.collection("utenti").document(userId)
-//        batch.set(userDocRef, datiUtente["utente"] as Map<String, Any>)
-//
-//        if (isTutor) {
-//            val annunci = datiUtente["annunci"] as List<Map<String, Any>>
-//            annunci.forEach { annuncio ->
-//                val annuncioDocRef = db.collection("annunci").document()
-//                batch.set(annuncioDocRef, annuncio)
-//            }
-//
-//            val prenotazioni = datiUtente["prenotazioni"] as List<Map<String, Any>>
-//            prenotazioni.forEach { prenotazione ->
-//                val prenotazioneDocRef = db.collection("prenotazioni").document()
-//                batch.set(prenotazioneDocRef, prenotazione)
-//            }
-//
-//            val calendario = datiUtente["calendario"] as List<Map<String, Any>>
-//            calendario.forEach { fascia ->
-//                val fasciaDocRef = db.collection("calendario").document()
-//                batch.set(fasciaDocRef, fascia)
-//            }
-//
-//        } else {
-//            val prenotazioni = datiUtente["prenotazioni"] as List<Map<String, Any>>
-//            prenotazioni.forEach { prenotazione ->
-//                val prenotazioneDocRef = db.collection("prenotazioni").document()
-//                batch.set(prenotazioneDocRef, prenotazione)
-//            }
-//        }
-//
-//        // Ripristina le chat su Realtime Database
-//        val chatRef = realtimeDb.getReference("chats")
-//        val chatRealtime = datiUtente["chatsRealtime"] as List<Pair<String?, Any?>>
-//        chatRealtime.forEach { (key, value) ->
-//            chatRef.child(key!!).setValue(value).await() // Ripristina l'intera chat
-//        }
-//
-//        // Commit del batch per ripristinare su Firestore
-//        batch.commit().await()
-//    }
 
+
+
+
+    suspend fun eliminaDatiUtente(userId: String, isTutor: Boolean, email: String): Boolean {
+        return try {
+            val batch = db.batch()
+            val userDocRef = db.collection("utenti").document(userId)
+            batch.delete(userDocRef)
+
+            // Elimina annunci, prenotazioni e calendario su Firestore
+            if (isTutor) {
+                val annunci = db.collection("annunci")
+                    .whereEqualTo("tutor", db.document("utenti/$userId")).get().await()
+                for (annuncio in annunci.documents) {
+                    batch.delete(annuncio.reference)
+                }
+
+                val calendario = db.collection("calendario")
+                    .whereEqualTo("tutorRef", db.document("utenti/$userId")).get().await()
+                for (fascia in calendario.documents) {
+                    batch.delete(fascia.reference)
+                }
+            }
+
+            // Esegue il commit per Firestore
+            batch.commit().await()
+
+            // Elimina le chat nel Realtime Database in cui l'utente è partecipante
+            val userEmail = email
+            val chatSnapshot = realtimeDb.getReference("chats").get().await()
+            for (chat in chatSnapshot.children) {
+                val participants = chat.child("participants").children.map { it.value as? String }
+                if (participants.contains(userEmail)) {
+                    chat.ref.removeValue().await() // Elimina solo la chat specifica dell'utente
+                }
+            }
+
+            // Elimina il nodo dell'utente nel Realtime Database
+            realtimeDb.getReference("utenti").child(userId).removeValue().await()
+
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    // Funzione che controlla se ci sono prenotazioni per un utente specifico
+    suspend fun hasReservations(userId: String, isTutor: Boolean): Boolean {
+        return try {
+            val query = if (isTutor) {
+                db.collection("prenotazioni").whereEqualTo("tutorRef", userId)
+            } else {
+                db.collection("prenotazioni").whereEqualTo("studenteRef", userId)
+            }
+
+            val snapshot = query.get().await()
+            !snapshot.isEmpty // Restituisce true se ci sono prenotazioni, false altrimenti
+        } catch (e: Exception) {
+            true
+        }
+    }
 
 
 

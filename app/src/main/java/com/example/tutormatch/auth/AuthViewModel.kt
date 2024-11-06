@@ -16,7 +16,7 @@ import kotlinx.coroutines.withContext
 
 class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
-    var _firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
+    private var _firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
 
     // LiveData per i campi di input
     val email = MutableLiveData<String>()
