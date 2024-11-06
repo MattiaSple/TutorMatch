@@ -42,7 +42,6 @@ class ChatDetailFragment : Fragment() {
 
         // Recupera chatId ed email passati tramite il bundle
         val chatId = arguments?.getString("chatId")
-        val email = arguments?.getString("email")
 
         if (!chatId.isNullOrEmpty()) {
             chatDetailViewModel.setChatId(chatId)  // Usa il chatId passato

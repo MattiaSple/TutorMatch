@@ -2,6 +2,7 @@ package com.example.tutormatch.util
 
 import com.example.tutormatch.data.model.Chat
 import com.example.tutormatch.data.model.Message
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 
 object FirebaseUtil_Chat {
@@ -138,16 +139,23 @@ object FirebaseUtil_Chat {
     fun sendMessage(chatId: String, messageText: String, senderEmail: String, onComplete: () -> Unit) {
         val messagesRef = chatRef.child("$chatId/messages")
         val newMessageId = messagesRef.push().key ?: "message_${System.currentTimeMillis()}"
-        val message = mapOf(
-            "senderId" to senderEmail,
-            "text" to messageText,
-            "timestamp" to ServerValue.TIMESTAMP,
-            "unreadBy" to listOf(senderEmail)
-        )
 
+        loadChatDetails(chatId) { chat, participants ->
+            // Trova tutti i partecipanti escluso il mittente
+            val unreadByEmail = chat?.participants?.filter { it != senderEmail } ?: emptyList()
+
+            // Crea il messaggio
+            val message = mapOf(
+                "senderId" to senderEmail,
+                "text" to messageText,
+                "timestamp" to ServerValue.TIMESTAMP,
+                "unreadBy" to unreadByEmail // Lista di email che non hanno letto il messaggio
+            )
         messagesRef.child(newMessageId).setValue(message).addOnSuccessListener {
             chatRef.child(chatId).child("lastMessage").setValue(message)
             onComplete()
         }
+      }
     }
 }
+
