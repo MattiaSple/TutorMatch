@@ -8,10 +8,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.tutormatch.data.model.Calendario
 import com.example.tutormatch.util.FirebaseUtil
 import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.*
@@ -86,27 +84,29 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-    fun generateOrari(selectedDate: String?, existingOrari: List<String>): List<String> {
+    fun generateOrari(existingOrari: List<String>): List<String> {
         val orari = mutableListOf<String>()
         val calendar = Calendar.getInstance(TimeZone.getTimeZone("Europe/Rome"))  // Imposta il fuso orario di Roma
         val dateFormat = SimpleDateFormat("HH:mm", Locale.ITALY).apply {
             timeZone = TimeZone.getTimeZone("Europe/Rome")  // Usa il fuso orario italiano
         }
-        val oggi = SimpleDateFormat("yyyy-MM-dd", Locale.ITALY).apply {
-            timeZone = TimeZone.getTimeZone("Europe/Rome")  // Usa il fuso orario italiano
-        }.format(Date())
+//        val oggi = SimpleDateFormat("yyyy-MM-dd", Locale.ITALY).apply {
+//            timeZone = TimeZone.getTimeZone("Europe/Rome")  // Usa il fuso orario italiano
+//        }.format(Date())
 
         var oreRimanenti = 24
+        calendar.set(Calendar.HOUR_OF_DAY, 0)
+        calendar.set(Calendar.MINUTE, 0)
 
-        if (selectedDate == oggi) {
-            val currentTime = Calendar.getInstance(TimeZone.getTimeZone("Europe/Rome"))  // Ora corrente in Italia
-            currentTime.add(Calendar.MINUTE, 60 - (currentTime.get(Calendar.MINUTE) % 60))
-            calendar.time = currentTime.time
-            oreRimanenti = 24 - currentTime.get(Calendar.HOUR_OF_DAY)
-        } else {
-            calendar.set(Calendar.HOUR_OF_DAY, 0)
-            calendar.set(Calendar.MINUTE, 0)
-        }
+//        if (selectedDate == oggi) {
+//            val currentTime = Calendar.getInstance(TimeZone.getTimeZone("Europe/Rome"))  // Ora corrente in Italia
+//            currentTime.add(Calendar.MINUTE, 60 - (currentTime.get(Calendar.MINUTE) % 60))
+//            calendar.time = currentTime.time
+//            oreRimanenti = 24 - currentTime.get(Calendar.HOUR_OF_DAY)
+//        } else {
+//            calendar.set(Calendar.HOUR_OF_DAY, 0)
+//            calendar.set(Calendar.MINUTE, 0)
+//        }
 
         var counter = 0
         while (counter < oreRimanenti) {
@@ -121,7 +121,7 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
     }
 
 
-    fun salvaDisponibilita(): Boolean {
+    suspend fun salvaDisponibilita(): Boolean {
         val dataVal = data.value?.trim() ?: ""
         val oraInizioVal = oraInizio.value ?: ""
         val oraFineVal = oraFine.value ?: ""
@@ -135,14 +135,11 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
         val dataParsed = dateFormat.parse(dataVal)
-
         val inizioParsed = timeFormat.parse(oraInizioVal)
         val fineParsed = timeFormat.parse(oraFineVal)
 
         val disponibilitaList = mutableListOf<Calendario>()
         val calendar = Calendar.getInstance().apply { time = inizioParsed }
-
-
 
         if (fineParsed.before(inizioParsed) || fineParsed == inizioParsed) {
             val calendarFine = Calendar.getInstance().apply {
@@ -151,7 +148,6 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
             }
             fineParsed.time = calendarFine.timeInMillis
         }
-
 
         while (calendar.time.before(fineParsed)) {
             val oraInizioStr = timeFormat.format(calendar.time)
@@ -162,31 +158,34 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
                 break
             }
 
-            disponibilitaList.add(Calendario(
-                tutorRef = _tutorRef,
-                data = dataParsed,
-                oraInizio = oraInizioStr,
-                oraFine = oraFineStr,
-                statoPren = statoPrenVal
-            ))
+            disponibilitaList.add(
+                Calendario(
+                    tutorRef = _tutorRef,
+                    data = dataParsed,
+                    oraInizio = oraInizioStr,
+                    oraFine = oraFineStr,
+                    statoPren = statoPrenVal
+                )
+            )
         }
 
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                // Spostiamo la logica di salvataggio in FirebaseUtil
+        return try {
+            withContext(Dispatchers.IO) {
                 FirebaseUtil.salvaDisponibilita(disponibilitaList)
-                withContext(Dispatchers.Main) {
-                    _message.value = "Disponibilità salvate con successo"
-                }
-                loadDisponibilita()
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    _message.value = "Errore nel salvataggio della disponibilità: ${e.message}"
-                }
             }
+            withContext(Dispatchers.Main) {
+                _message.value = "Disponibilità salvate con successo"
+                loadDisponibilita()
+            }
+            true
+        } catch (e: Exception) {
+            withContext(Dispatchers.Main) {
+                _message.value = "Errore nel salvataggio della disponibilità: ${e.message}"
+            }
+            false
         }
-        return true
     }
+
 
 
 

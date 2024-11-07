@@ -9,10 +9,12 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.tutormatch.databinding.FragmentCalendarioTutorBinding
 import com.example.tutormatch.ui.adapter.CalendarioAdapter
 import com.example.tutormatch.ui.viewmodel.CalendarioViewModel
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -39,8 +41,6 @@ class CalendarioFragment : Fragment() {
 
 
 
-
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
@@ -55,13 +55,16 @@ class CalendarioFragment : Fragment() {
 
         setupRecyclerView()
 
+        // Imposta la data di domani come la data minima selezionabile
+        val domani = Calendar.getInstance().apply {
+            add(Calendar.DAY_OF_YEAR, 1) // Aggiungi un giorno per impostare domani
+        }.time
 
-        val oggi = Calendar.getInstance().time
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ITALY).apply {
             timeZone = TimeZone.getTimeZone("Europe/Rome")  // Usa il fuso orario italiano
         }
-        selectedDate = dateFormat.format(oggi)
-        _binding.calendarView.minDate = oggi.time
+        selectedDate = dateFormat.format(domani)
+        _binding.calendarView.minDate = domani.time
 
         _binding.calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
             selectedDate = String.format(Locale.getDefault(), "%04d-%02d-%02d", year, month + 1, dayOfMonth)
@@ -90,13 +93,25 @@ class CalendarioFragment : Fragment() {
                 calendarioViewModel.oraInizio.value = oraInizioSelezionata
                 calendarioViewModel.oraFine.value = oraFineSelezionata
                 calendarioViewModel.data.value = selectedDate
-                if (calendarioViewModel.salvaDisponibilita()) {
-                    updateOrariInizioSpinner(selectedDate)
-                } else {
-                    Toast.makeText(context, "Errore: tutti i campi devono essere compilati", Toast.LENGTH_SHORT).show()
+
+                // Disabilita il bottone
+                _binding.buttonAggiungiDisponibilita.isEnabled = false
+
+                lifecycleScope.launch {
+                    val success = calendarioViewModel.salvaDisponibilita()
+
+                    // Riabilita il bottone solo dopo che l'operazione è conclusa
+                    _binding.buttonAggiungiDisponibilita.isEnabled = true
+
+                    if (success) {
+                        updateOrariInizioSpinner(selectedDate)
+                    } else {
+                        Toast.makeText(context, "Errore: tutti i campi devono essere compilati", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         }
+
 
         calendarioViewModel.lista_disponibilita.observe(viewLifecycleOwner) { listaDisponibilita ->
             val filteredList = listaDisponibilita.filter { dateFormat.format(it.data) == selectedDate }
@@ -123,7 +138,7 @@ class CalendarioFragment : Fragment() {
 
     private fun updateOrariInizioSpinner(selectedDate: String) {
         calendarioViewModel.caricaDisponibilitaPerData(selectedDate) { existingOrari ->
-            val orari = calendarioViewModel.generateOrari(selectedDate, existingOrari)
+            val orari = calendarioViewModel.generateOrari( existingOrari)
             val adapterInizio = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, orari)
             adapterInizio.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             _binding.spinnerOrariInizio.adapter = adapterInizio
@@ -143,7 +158,7 @@ class CalendarioFragment : Fragment() {
             val orarioInizioSelezionato = _binding.spinnerOrariInizio.selectedItem as? String
 
             if (orarioInizioSelezionato != null) {
-                val orari = calendarioViewModel.generateOrari(selectedDate, incrementedOrari)
+                val orari = calendarioViewModel.generateOrari( incrementedOrari)
                 val orariFiltrati = orari.filter { it > orarioInizioSelezionato }.toMutableList()
 
                 if (!existingOrari.contains("23:00")) {
