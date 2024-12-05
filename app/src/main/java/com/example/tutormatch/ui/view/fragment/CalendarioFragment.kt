@@ -40,7 +40,6 @@ class CalendarioFragment : Fragment() {
     }
 
 
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
@@ -100,13 +99,14 @@ class CalendarioFragment : Fragment() {
                 lifecycleScope.launch {
                     val success = calendarioViewModel.salvaDisponibilita()
 
-                    // Riabilita il bottone solo dopo che l'operazione è conclusa
-                    _binding.buttonAggiungiDisponibilita.isEnabled = true
-
                     if (success) {
                         updateOrariInizioSpinner(selectedDate)
+                        // Riabilita il bottone solo dopo che l'operazione è conclusa
+                        _binding.buttonAggiungiDisponibilita.isEnabled = true
                     } else {
                         Toast.makeText(context, "Errore: tutti i campi devono essere compilati", Toast.LENGTH_SHORT).show()
+                        // Riabilita il bottone solo dopo che l'operazione è conclusa
+                        _binding.buttonAggiungiDisponibilita.isEnabled = true
                     }
                 }
             }

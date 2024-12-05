@@ -7,11 +7,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.tutormatch.data.model.Annuncio
 import com.example.tutormatch.data.model.Utente
-import com.example.tutormatch.network.RetrofitInstance
 import com.example.tutormatch.util.FirebaseUtil
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.GeoPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -47,17 +45,14 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
     }
 
     private fun loadAnnunci() {
-        _tutorRef.let { tutorRef ->
-            viewModelScope.launch(Dispatchers.IO) {
-                try {
-                    val querySnapshot = annunciCollection.whereEqualTo("tutor", tutorRef).get().await()
-                    val lista = querySnapshot.documents.mapNotNull { document ->
-                        document.toObject(Annuncio::class.java)
-                    }
-                    _listaAnnunciTutor.postValue(lista)
-                } catch (e: Exception) {
-                    _message.postValue("Errore nel caricamento dei tuoi annunci: ${e.message}")
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val listaAnnunci = FirebaseUtil.getAnnunciDelTutor(_tutorRef)
+                withContext(Dispatchers.Main) {
+                    _listaAnnunciTutor.value = listaAnnunci
                 }
+            } catch (e: Exception) {
+                _message.postValue("Errore nel caricamento dei tuoi annunci: ${e.message}")
             }
         }
     }
@@ -70,7 +65,7 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
                 getAllAnnunci()
             },
             onError = { exception ->
-                _message.postValue("Errore durante l'ascolto degli annunci: ${exception.message}")
+                _message.value = "Errore durante l'ascolto degli annunci: ${exception.message}"
             }
         )
     }
@@ -78,12 +73,9 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
     private fun getAllAnnunci() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val querySnapshot = annunciCollection.get().await()
-                val lista = querySnapshot.documents.mapNotNull { documentSnapshot ->
-                    documentSnapshot.toObject(Annuncio::class.java)
-                }
+                val listaAnnunci = FirebaseUtil.getAllAnnunci()
                 withContext(Dispatchers.Main) {
-                    _listaAnnunci.value = lista
+                    _listaAnnunci.value = listaAnnunci
                 }
             } catch (e: Exception) {
                 _message.postValue("Errore nel caricamento degli annunci: ${e.message}")
@@ -91,8 +83,7 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    fun salvaAnnuncio(
-        userId: String,
+    suspend fun salvaAnnuncio(
         materia: String,
         prezzo: String,
         descrizione: String,
@@ -100,66 +91,46 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
         presenza: Boolean
     ) {
         if (materia.isBlank() || prezzo.isBlank() || (!online && !presenza)) {
-            _message.value = "Prezzo e Modalità sono obbligatori!"
+            withContext(Dispatchers.Main) {
+                _message.value = "Prezzo e Modalità sono obbligatori!"
+            }
             return
         }
 
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                // Recupera i dati dell'utente
-                val documentSnapshot = utentiCollection.document(userId).get().await()
-                val utente = documentSnapshot.toObject(Utente::class.java)
-
-                utente?.let {
-                    val indirizzoCompleto = "${it.via}, ${it.cap}, ${it.residenza}"
-                    val indirizzoSenzaVia = "${it.cap}, ${it.residenza}"
-
-                    // Verifica se l'annuncio esiste già
-                    val esiste = FirebaseUtil.verificaAnnuncioEsistente(
-                        materia, prezzo, descrizione, online, presenza, _tutorRef
-                    )
-
-                    if (esiste) {
-                        _message.postValue("L'annuncio è già esistente!")
-                    } else {
-                        // Prova a ottenere il GeoPoint per l'indirizzo completo
-                        val geoPoint = FirebaseUtil.getGeoPoint(indirizzoCompleto)
-
-                        if (geoPoint != null) {
-                            // Salva l'annuncio con il GeoPoint
-                            val success = FirebaseUtil.salvaAnnuncioConGeoPoint(
-                                geoPoint, materia, prezzo, descrizione, online, presenza, _tutorRef
-                            )
-                            if (success) {
-                                _message.postValue("Annuncio salvato con successo")
-                                loadAnnunci()
-                            } else {
-                                _message.postValue("Errore nel salvataggio dell'annuncio")
-                            }
-                        } else {
-                            // Prova con l'indirizzo senza via
-                            val geoPointSenzaVia = FirebaseUtil.getGeoPoint(indirizzoSenzaVia)
-
-                            if (geoPointSenzaVia != null) {
-                                val success = FirebaseUtil.salvaAnnuncioConGeoPoint(
-                                    geoPointSenzaVia, materia, prezzo, descrizione, online, presenza, _tutorRef
-                                )
-                                if (success) {
-                                    _message.postValue("Annuncio salvato con successo")
-                                    loadAnnunci()
-                                } else {
-                                    _message.postValue("Errore nel salvataggio dell'annuncio")
-                                }
-                            } else {
-                                _message.postValue("Errore nella geocodifica dell'indirizzo")
-                            }
-                        }
+        try {
+            withContext(Dispatchers.IO) {
+                // Verifica se l'annuncio esiste già
+                val esiste = FirebaseUtil.verificaAnnuncioEsistente(
+                    materia, prezzo, descrizione, online, presenza, _tutorRef
+                )
+                if (esiste) {
+                    withContext(Dispatchers.Main) {
+                        _message.value = "L'annuncio è già esistente!"
                     }
-                } ?: run {
-                    _message.postValue("Errore nel caricamento dei dati dell'utente")
+                    return@withContext
                 }
-            } catch (e: Exception) {
-                _message.postValue("Errore nel caricamento dei dati dell'utente: ${e.message}")
+                // Prova a ottenere il GeoPoint per l'indirizzo completo
+                val geoPoint = FirebaseUtil.getGeoPoint(_tutorRef)
+
+                if (geoPoint != null) {
+                    // Salva l'annuncio con il GeoPoint
+                    FirebaseUtil.salvaAnnuncioConGeoPoint(
+                        geoPoint, materia, prezzo, descrizione, online, presenza, _tutorRef)
+                } else {
+                    withContext(Dispatchers.Main) {
+                        _message.value = "Errore nella geocodifica dell'indirizzo"
+                    }
+                    return@withContext
+                }
+                // Aggiorna la UI e carica gli annunci
+                withContext(Dispatchers.Main) {
+                    _message.value = "Annuncio salvato con successo"
+                    loadAnnunci()
+                }
+            }
+        } catch (e: Exception) {
+            withContext(Dispatchers.Main) {
+                _message.value = "Errore nel caricamento dei dati dell'utente: ${e.message}"
             }
         }
     }

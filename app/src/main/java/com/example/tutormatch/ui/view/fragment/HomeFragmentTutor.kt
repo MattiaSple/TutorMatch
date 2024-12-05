@@ -7,11 +7,15 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.tutormatch.databinding.FragmentHomeTutorBinding
 import com.example.tutormatch.ui.adapter.AnnuncioAdapter
 import com.example.tutormatch.ui.viewmodel.AnnunciViewModel
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class HomeFragmentTutor : Fragment() {
 
@@ -52,20 +56,22 @@ class HomeFragmentTutor : Fragment() {
         // Configura la RecyclerView dopo che la vista è stata creata
         setupRecyclerView()
 
-        // Imposta il listener per il bottone "Salva"
         binding.buttonSalva.setOnClickListener {
+            binding.buttonSalva.isEnabled = false
+
             val materia = binding.spinnerMateria.selectedItem.toString()
             val prezzo = binding.editTextNumber.text.toString()
             val descrizione = binding.editTextDescrizione.text.toString()
             val online = binding.checkBoxOnline.isChecked
             val presenza = binding.checkBoxPresenza.isChecked
 
-            // Chiama il ViewModel per salvare l'annuncio
-            val userId = arguments?.getString("userId")
-            userId?.let {
-                annunciViewModel.salvaAnnuncio(it, materia, prezzo, descrizione, online, presenza)
+            lifecycleScope.launch {
+                annunciViewModel.salvaAnnuncio(materia, prezzo, descrizione, online, presenza)
+                binding.buttonSalva.isEnabled = true
             }
         }
+
+
 
         // Osserva la lista di annunci dal ViewModel
         annunciViewModel.listaAnnunciTutor.observe(viewLifecycleOwner) { listaAnnunci ->

@@ -64,6 +64,17 @@ object FirebaseUtil {
         }
     }
 
+    suspend fun getAllAnnunci(): List<Annuncio>{
+        return try {
+            val querySnapshot = db.collection("annunci").get().await()
+            querySnapshot.documents.mapNotNull { document ->
+                document.toObject(Annuncio::class.java)
+            }
+        }catch (e: Exception) {
+            emptyList() // Restituisce una lista vuota in caso di errore
+        }
+    }
+
     suspend fun getAnnuncio(annuncioRef: DocumentReference): Annuncio? {
         return try {
             val documentSnapshot = annuncioRef.get().await()  // Usa await per sospendere fino al completamento della chiamata
@@ -494,14 +505,28 @@ object FirebaseUtil {
 
 
     // Funzione per ottenere il GeoPoint (usa una chiamata REST esterna)
-    fun getGeoPoint(address: String): GeoPoint? {
+    suspend fun getGeoPoint(tutorRef: DocumentReference): GeoPoint? {
         return try {
-            val response = RetrofitInstance.api.getLocation(address).execute()
-            if (response.isSuccessful && response.body()?.isNotEmpty() == true) {
-                val location = response.body()!![0]
+
+            // Recupera i dati dell'utente
+            val documentSnapshot = db.collection("utenti").document(tutorRef.id).get().await()
+            val utente = documentSnapshot.toObject(Utente::class.java)!!
+
+            val indirizzoCompleto = "${utente.via}, ${utente.cap}, ${utente.residenza}"
+            val indirizzoSenzaVia = "${utente.cap}, ${utente.residenza}"
+
+            val response1 = RetrofitInstance.api.getLocation(indirizzoCompleto).execute()
+            if (response1.isSuccessful && response1.body()?.isNotEmpty() == true) {
+                val location = response1.body()!![0]
                 GeoPoint(location.lat.toDouble(), location.lon.toDouble())
             } else {
-                null
+                val response2 = RetrofitInstance.api.getLocation(indirizzoSenzaVia).execute()
+                if (response2.isSuccessful && response2.body()?.isNotEmpty() == true) {
+                    val location = response2.body()!![0]
+                    GeoPoint(location.lat.toDouble(), location.lon.toDouble())
+                } else {
+                    null
+                }
             }
         } catch (e: Exception) {
             null
@@ -678,7 +703,20 @@ object FirebaseUtil {
         }
     }
 
+    suspend fun getAnnunciDelTutor(tutorRef: DocumentReference): List<Annuncio>
+    {
+        return try{
 
+            val annunciQueryResult = db.collection("annunci")
+                .whereEqualTo("tutor", tutorRef)
+                .get()
+                .await()
 
-
+            annunciQueryResult.documents.mapNotNull { document ->
+                document.toObject(Annuncio::class.java)
+            }
+        }catch (e: Exception) {
+            emptyList()
+        }
+    }
 }

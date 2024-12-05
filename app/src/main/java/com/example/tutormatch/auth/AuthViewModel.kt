@@ -130,7 +130,6 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
     // o in contesti di coroutine dove vuoi gestire esplicitamente il flusso di ritorno all'interno di un lambda.
 
 
-
     // Funzione per registrare l'utente su Firebase
     private fun registraUtente(email: String, password: String) {
         _firebaseAuth.createUserWithEmailAndPassword(email, password)

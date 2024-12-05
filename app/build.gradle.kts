@@ -67,7 +67,7 @@ dependencies {
 
     ////////////////////////////////////////////////////////////////////////////////
     implementation (libs.google.firebase.database.ktx)
-    implementation (libs.com.google.firebase.firebase.database.ktx)
+    //implementation (libs.com.google.firebase.firebase.database.ktx)
     ////////////////////////////////////////////////////////////////////////////////
     implementation(libs.firebase.firestore.ktx)
     implementation(libs.androidx.recyclerview)

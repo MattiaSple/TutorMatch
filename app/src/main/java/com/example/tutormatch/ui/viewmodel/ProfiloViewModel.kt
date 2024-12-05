@@ -163,7 +163,7 @@ class ProfiloViewModel(application: Application) : AndroidViewModel(application)
 
                         // Se CAP e residenza corrispondono, ritorna true e informa che la via non è stata trovata
                         if (capValidoSenzaVia && residenzaValidaSenzaVia) {
-                            _showMessage.postValue("Via non trovata, registrazione con indirizzo senza via")
+                            _showMessage.postValue("Via non trovata, salvataggio senza via")
                             return@withContext true
                         }
                     }
