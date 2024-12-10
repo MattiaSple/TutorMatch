@@ -90,23 +90,11 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
         val dateFormat = SimpleDateFormat("HH:mm", Locale.ITALY).apply {
             timeZone = TimeZone.getTimeZone("Europe/Rome")  // Usa il fuso orario italiano
         }
-//        val oggi = SimpleDateFormat("yyyy-MM-dd", Locale.ITALY).apply {
-//            timeZone = TimeZone.getTimeZone("Europe/Rome")  // Usa il fuso orario italiano
-//        }.format(Date())
 
         var oreRimanenti = 24
         calendar.set(Calendar.HOUR_OF_DAY, 0)
         calendar.set(Calendar.MINUTE, 0)
 
-//        if (selectedDate == oggi) {
-//            val currentTime = Calendar.getInstance(TimeZone.getTimeZone("Europe/Rome"))  // Ora corrente in Italia
-//            currentTime.add(Calendar.MINUTE, 60 - (currentTime.get(Calendar.MINUTE) % 60))
-//            calendar.time = currentTime.time
-//            oreRimanenti = 24 - currentTime.get(Calendar.HOUR_OF_DAY)
-//        } else {
-//            calendar.set(Calendar.HOUR_OF_DAY, 0)
-//            calendar.set(Calendar.MINUTE, 0)
-//        }
 
         var counter = 0
         while (counter < oreRimanenti) {
@@ -191,6 +179,11 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
 
 
     fun eliminaDisponibilita(calendario: Calendario) {
+        if(calendario.statoPren)
+        {
+            _message.value = "Eliminare prima la prenotazione\nIn tal caso avvisa lo studente!"
+            return
+        }
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val success = FirebaseUtil.eliminaDisponibilita(calendario)

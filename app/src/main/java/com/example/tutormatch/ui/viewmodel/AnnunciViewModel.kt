@@ -135,29 +135,26 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-
     fun eliminaAnnuncio(annuncio: Annuncio) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val querySnapshot = annunciCollection
-                    .whereEqualTo("tutor", annuncio.tutor)
-                    .whereEqualTo("materia", annuncio.materia)
-                    .whereEqualTo("prezzo", annuncio.prezzo)
-                    .whereEqualTo("descrizione", annuncio.descrizione)
-                    .whereEqualTo("mod_on", annuncio.mod_on)
-                    .whereEqualTo("mod_pres", annuncio.mod_pres)
-                    .get().await()
-
-                for (document in querySnapshot.documents) {
-                    annunciCollection.document(document.id).delete().await()
+                val successo = FirebaseUtil.eliminaAnnuncio(annuncio)
+                withContext(Dispatchers.Main) {
+                    if (successo) {
+                        loadAnnunci()
+                        _message.value = "Annuncio eliminato con successo"
+                    } else {
+                        _message.value = "Errore durante l'eliminazione dell'annuncio"
+                    }
                 }
-                loadAnnunci()
-                _message.postValue("Annuncio eliminato con successo")
             } catch (e: Exception) {
-                _message.postValue("Errore nell'eliminazione dell'annuncio: ${e.message}")
+                withContext(Dispatchers.Main) {
+                    _message.value = "Errore nell'eliminazione dell'annuncio: ${e.message}"
+                }
             }
         }
     }
+
 
     fun filtraAnnunciMappa(
         filtroMateria: String,

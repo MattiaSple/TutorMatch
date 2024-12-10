@@ -614,15 +614,14 @@ object FirebaseUtil {
                 .whereEqualTo("oraInizio", calendario.oraInizio)
                 .get().await()
 
-            for (document in querySnapshot.documents) {
-                db.collection("calendario").document(document.id).delete().await()
-            }
+            // Se il documento esiste, cancellalo
+            val document = querySnapshot.documents.first()
+            db.collection("calendario").document(document.id).delete().await()
             true
         } catch (e: Exception) {
             false
         }
     }
-
 
 
     suspend fun eliminaUtenteCompletamente(isTutor: Boolean): Boolean {
@@ -719,4 +718,14 @@ object FirebaseUtil {
             emptyList()
         }
     }
+
+    suspend fun eliminaAnnuncio(annuncio: Annuncio): Boolean {
+        return try {
+            db.collection("annunci").document(annuncio.id).delete().await()
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
 }

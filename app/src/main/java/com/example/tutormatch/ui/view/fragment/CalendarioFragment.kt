@@ -32,10 +32,9 @@ class CalendarioFragment : Fragment() {
         // Inizializzazione del ViewModel
         calendarioViewModel = ViewModelProvider(this)[CalendarioViewModel::class.java]
 
-        val userIdTutor = arguments?.getString("userId")
-        userIdTutor?.let {
-            calendarioViewModel.setTutorReference(userIdTutor)
-        }
+        val userIdTutor = requireArguments().getString("userId")!!
+        calendarioViewModel.setTutorReference(userIdTutor)
+
 
     }
 
@@ -130,7 +129,9 @@ class CalendarioFragment : Fragment() {
 
     private fun setupRecyclerView() {
         calendarioAdapter = CalendarioAdapter(
-            { calendario -> calendarioViewModel.eliminaDisponibilita(calendario) }
+            { calendario ->
+                calendarioViewModel.eliminaDisponibilita(calendario)
+            }
         )
         _binding.recyclerViewDisponibilita.layoutManager = LinearLayoutManager(context)
         _binding.recyclerViewDisponibilita.adapter = calendarioAdapter

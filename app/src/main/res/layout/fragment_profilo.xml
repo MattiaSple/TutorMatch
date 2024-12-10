@@ -55,23 +55,23 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
                     android:gravity="center"
+                    android:orientation="horizontal"
                     android:visibility="@{viewModel.isTutor ? View.VISIBLE : View.GONE}">
 
                     <TextView
                         android:id="@+id/media_valutazioni"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
                         android:text="@{viewModel.mediaValutazioni}"
                         android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:layout_marginEnd="8dp" />
+                        android:textStyle="bold" />
 
                     <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:src="@drawable/ic_star"/>
+                        android:src="@drawable/ic_star" />
                 </LinearLayout>
 
                 <TextView
@@ -176,9 +176,17 @@
                 android:id="@+id/eliminaAccount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:backgroundTint="@color/coloreSecondario"
                 android:text="@string/eliminaAccount"
+                android:textColor="@color/colorBackground" />
+
+            <Button
+                android:id="@+id/btnLogout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:backgroundTint="@color/coloreSecondario"
+                android:text="Logout"
                 android:textColor="@color/colorBackground"/>
         </LinearLayout>
 

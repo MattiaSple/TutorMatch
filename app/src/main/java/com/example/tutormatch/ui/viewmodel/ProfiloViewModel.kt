@@ -175,9 +175,8 @@ class ProfiloViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    fun eliminaDatiUtenteDaFirestore(ruolo: Boolean) {
+    fun eliminaDatiUtenteDaFirestore(userId: String, ruolo: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
-            val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return@launch
 
             // Verifica la presenza di prenotazioni
             val hasReservations = FirebaseUtil.hasReservations(userId, ruolo)
@@ -199,4 +198,10 @@ class ProfiloViewModel(application: Application) : AndroidViewModel(application)
             }
         }
     }
+
+    fun logout() {
+        FirebaseAuth.getInstance().signOut()
+        _navigateToMain.postValue(true)  // Notifica alla UI di tornare alla MainActivity
+    }
+
 }
