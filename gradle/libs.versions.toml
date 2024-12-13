@@ -19,6 +19,7 @@ lifecycleLivedataKtx = "2.8.6"
 lifecycleViewmodelKtx = "2.8.6"
 mockitoKotlin = "4.0.0"
 mockk = "1.13.7"
+mockkAndroid = "1.13.5"
 navigationFragmentKtx = "2.8.3"
 navigationUiKtx = "2.8.3"
 playServicesLocation = "21.3.0"
@@ -67,6 +68,7 @@ androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview"
 mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockitoKotlin" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 androidx-preference-ktx = { group = "androidx.preference", name = "preference-ktx", version.ref = "preferenceKtx" }
+mockk-android = { module = "io.mockk:mockk-android", version.ref = "mockkAndroid" }
 play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 firebase-database-ktx = { group = "com.google.firebase", name = "firebase-database-ktx", version.ref = "firebaseDatabaseKtx" }

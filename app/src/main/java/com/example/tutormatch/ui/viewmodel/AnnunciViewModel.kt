@@ -6,20 +6,13 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.tutormatch.data.model.Annuncio
-import com.example.tutormatch.data.model.Utente
 import com.example.tutormatch.util.FirebaseUtil
 import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
 class AnnunciViewModel(application: Application) : AndroidViewModel(application) {
-
-    private val firestore = FirebaseFirestore.getInstance()
-    private val annunciCollection = firestore.collection("annunci")
-    private val utentiCollection = firestore.collection("utenti")
 
     var flagFiltro: Boolean = false
 
@@ -37,7 +30,7 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
 
     val materia = MutableLiveData<String>()
 
-    private lateinit var _tutorRef: DocumentReference
+    lateinit var _tutorRef: DocumentReference
 
     fun setTutorReference(tutorRef: String) {
         _tutorRef = FirebaseUtil.getDocumentRefById(tutorRef)

@@ -33,8 +33,14 @@ android {
         }
     }
 
-
-
+    packaging {
+        resources {
+            excludes.add("META-INF/LICENSE.md")
+            excludes.add("META-INF/LICENSE")
+            excludes.add("META-INF/NOTICE")
+            excludes.add("META-INF/LICENSE-notice.md")
+        }
+    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -109,5 +115,11 @@ dependencies {
     // Strumentazione dei test (solo se fai test su emulatore/dispositivo)
     androidTestImplementation (libs.androidx.junit.v121)
     androidTestImplementation (libs.androidx.espresso.core.v361)
+
+    androidTestImplementation (libs.mockk.android)
+
+    testImplementation("org.junit.jupiter:junit-jupiter:5.8.2") {
+        exclude(group = "org.junit.platform", module = "junit-platform-commons")
+    }
 }
 
