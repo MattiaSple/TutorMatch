@@ -175,13 +175,10 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
     }
 
 
-
-
-
     fun eliminaDisponibilita(calendario: Calendario) {
         if(calendario.statoPren)
         {
-            _message.value = "Eliminare prima la prenotazione\nIn tal caso avvisa lo studente!"
+            _message.value = "Eliminare prima la prenotazione\nAvvisa lo studente!"
             return
         }
         viewModelScope.launch(Dispatchers.IO) {
