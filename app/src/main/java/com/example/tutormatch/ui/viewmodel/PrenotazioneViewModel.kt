@@ -34,7 +34,7 @@ class PrenotazioneViewModel : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 // Chiamata a FirebaseUtil per salvare le prenotazioni su Firestore
-                val risultato = FirebaseUtil.creaPrenotazioniConTransazione(
+                val risultato = FirebaseUtil.creaPrenotazioniConBatch(
                     listaFasceSelezionate = prenotazioniSelezionate,
                     idStudente = studenteRef,
                     annuncioId = annuncioRef
