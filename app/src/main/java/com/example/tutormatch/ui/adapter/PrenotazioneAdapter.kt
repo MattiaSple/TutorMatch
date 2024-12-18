@@ -37,7 +37,11 @@ class PrenotazioneAdapter(
                     val formattedDate = dateFormat.format(calendario.data)
                     binding.tvData.text = "Data: ${formattedDate}"
                     binding.tvOrarioLezione.text = "Orario: ${calendario.oraInizio} - ${calendario.oraFine}"
-                    binding.tvModalita.text = "${annuncio.getModalita()}"
+                    binding.tvModalita.text = when {
+                        annuncio.mod_on && annuncio.mod_pres -> "Modalità: Sia online che in presenza"
+                        annuncio.mod_on -> "Modalità: Online"
+                        else -> "Modalità: Presenza"
+                    }
                 },
                 onFailure = {
                 }

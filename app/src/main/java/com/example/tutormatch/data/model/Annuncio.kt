@@ -16,13 +16,4 @@ data class Annuncio(
     // Costruttore senza argomenti richiesto per la deserializzazione di Firestore
     constructor() : this("","", "", false, false, GeoPoint(0.0, 0.0), "", null)
 
-    // Funzione per calcolare la modalità da mostrare
-    fun getModalita(): String {
-        return when {
-            mod_on && mod_pres -> "Modalità: Online e Presenza"
-            mod_on -> "Modalità: Online"
-            mod_pres -> "Modalità: Presenza"
-            else -> "Modalità: Non specificata" // Non si verifica mai perchè c'è il controllo.
-        }
-    }
 }

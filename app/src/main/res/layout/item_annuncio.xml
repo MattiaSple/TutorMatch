@@ -51,7 +51,7 @@
                 android:id="@+id/tvModalita"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text='@{annuncio.getModalita()}'
+                android:text='@{"Modalità: " + (annuncio.mod_on &amp;&amp; annuncio.mod_pres ? "Sia online che in presenza" : annuncio.mod_on ? "Online" : "Presenza")}'
                 android:textColor="@color/colorBackground"
                 android:textSize="16sp" />
 

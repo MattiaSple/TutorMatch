@@ -137,7 +137,7 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
                         loadAnnunci()
                         _message.value = "Annuncio eliminato con successo"
                     } else {
-                        _message.value = "Errore durante l'eliminazione dell'annuncio"
+                        _message.value = "Prima elimina le prenotazioni associate a questo annuncio!"
                     }
                 }
             } catch (e: Exception) {
@@ -145,7 +145,6 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
                     _message.value = "Errore nell'eliminazione dell'annuncio: ${e.message}"
                 }
             }
-
         }
     }
 

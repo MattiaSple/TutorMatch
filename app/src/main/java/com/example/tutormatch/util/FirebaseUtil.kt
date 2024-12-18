@@ -722,6 +722,18 @@ object FirebaseUtil {
 
     suspend fun eliminaAnnuncio(annuncio: Annuncio): Boolean {
         return try {
+            // Controlla se ci sono prenotazioni associate all'annuncio
+            val prenotazioni = db.collection("prenotazioni")
+                .whereEqualTo("annuncioRef", db.collection("annunci").document(annuncio.id))
+                .get()
+                .await()
+
+            if (!prenotazioni.isEmpty) {
+                // Ci sono prenotazioni per questo annuncio, non può essere eliminato
+                return false
+            }
+
+            // Se non ci sono prenotazioni, elimina l'annuncio
             db.collection("annunci").document(annuncio.id).delete().await()
             true
         } catch (e: Exception) {
