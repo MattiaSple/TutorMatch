@@ -19,7 +19,7 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
     private val _listaAnnunciTutor = MutableLiveData<List<Annuncio>>()
     val listaAnnunciTutor: LiveData<List<Annuncio>> get() = _listaAnnunciTutor
 
-    private val _listaAnnunci = MutableLiveData<List<Annuncio>>()
+    val _listaAnnunci = MutableLiveData<List<Annuncio>>()
     val listaAnnunci: LiveData<List<Annuncio>> get() = _listaAnnunci
 
     private val _listaAnnunciFiltrati = MutableLiveData<List<Annuncio>>()

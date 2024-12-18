@@ -24,6 +24,10 @@ class ScadenzeViewModel : ViewModel() {
     private val _popupMessage = MutableLiveData<String>()
     val popupMessage: LiveData<String> = _popupMessage
 
+    var operazioneEseguita = false
+        private set
+
+
     fun gestisciScadenze() {
         viewModelScope.launch {
             eseguiOperazioneAlleProssimaOra()
@@ -31,7 +35,7 @@ class ScadenzeViewModel : ViewModel() {
     }
 
     // Funzione per eseguire le operazioni alla prossima ora
-    private fun eseguiOperazioneAlleProssimaOra() {
+    fun eseguiOperazioneAlleProssimaOra() {
         val calendarRome = Calendar.getInstance(TimeZone.getTimeZone("Europe/Rome"))
         val minutiCorrenti = calendarRome.get(Calendar.MINUTE)
         val secondiCorrenti = calendarRome.get(Calendar.SECOND)
@@ -60,6 +64,7 @@ class ScadenzeViewModel : ViewModel() {
     private fun eseguiOperazioniPeriodiche() {
         viewModelScope.launch {
             try {
+                operazioneEseguita = true
                 // Sposta le operazioni di I/O su un thread dedicato
                 withContext(Dispatchers.IO) {
                     val calendarRome = Calendar.getInstance(TimeZone.getTimeZone("Europe/Rome"))

@@ -13,10 +13,10 @@
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="AnnunciViewModelInstrumentedTest">
+      <SelectionState runConfigName="simulationSingIn()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="salvaAnnuncioSalvaCorrettiDatiInFirebase()">
+      <SelectionState runConfigName="simulation()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

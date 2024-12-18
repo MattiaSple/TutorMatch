@@ -96,6 +96,7 @@ dependencies {
     implementation ("org.osmdroid:osmdroid-android:6.1.11")
     implementation(libs.androidx.preference.ktx)
     implementation(libs.firebase.database.ktx)
+    implementation(libs.androidx.junit.ktx)
     //implementation(libs.osmdroid.android)
     //implementation(libs.osmbonuspack)
     //implementation(libs.androidx.preference.ktx)
