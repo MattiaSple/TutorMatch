@@ -96,7 +96,7 @@ object FirebaseUtil {
     }
 
     // Funzione per gestire la prenotazione e l'aggiornamento atomico delle fasce orarie
-    suspend fun creaPrenotazioniConBatch(
+    suspend fun creaPrenotazioniConTransazione(
         listaFasceSelezionate: List<Calendario>,
         idStudente: String,
         annuncioId: String
@@ -111,58 +111,57 @@ object FirebaseUtil {
             if (annuncio != null) {
                 val tutorRef = annuncio.tutor // Recupera il riferimento al tutor dall'annuncio
 
-                // Inizializza il batch
-                val batch = db.batch()
-                var operazioneFallita = false
+                // Esegui una transazione
+                db.runTransaction { transaction ->
+                    // Itera sulle fasce orarie selezionate
+                    listaFasceSelezionate.forEach { fasciaOraria ->
+                        // Cerca la fascia oraria con tutor, data, ora e statoPren = false
+                        val querySnapshot = db.collection("calendario")
+                            .whereEqualTo("tutorRef", tutorRef)
+                            .whereEqualTo("data", fasciaOraria.data)
+                            .whereEqualTo("oraInizio", fasciaOraria.oraInizio)
+                            .whereEqualTo("statoPren", false) // Filtra solo fasce non prenotate
+                            .get()
+                            .getResult()
 
-                // Itera sulle fasce orarie selezionate
-                listaFasceSelezionate.forEach { fasciaOraria ->
-                    val querySnapshot = db.collection("calendario")
-                        .whereEqualTo("tutorRef", tutorRef)
-                        .whereEqualTo("data", fasciaOraria.data)
-                        .whereEqualTo("oraInizio", fasciaOraria.oraInizio)
-                        .get()
-                        .await()
+                        if (!querySnapshot.isEmpty) {
+                            val calendarioDocument = querySnapshot.documents.first()
+                            val calendarioRef = calendarioDocument.reference
 
-                    if (!querySnapshot.isEmpty) {
-                        val calendarioDocument = querySnapshot.documents.first()
-                        val calendarioRef = calendarioDocument.reference
+                            // Verifica ancora lo stato della fascia oraria
+                            val statoPren = transaction.get(calendarioRef).getBoolean("statoPren") ?: true
+                            if (!statoPren) {
+                                // Aggiorna lo stato della fascia oraria a true
+                                transaction.update(calendarioRef, "statoPren", true)
 
-                        // Aggiungi l'aggiornamento dello stato al batch
-                        batch.update(calendarioRef, "statoPren", true)
-
-                        // Crea un nuovo documento per ogni prenotazione
-                        val prenotazioneRef = db.collection("prenotazioni").document()
-                        val prenotazione = mapOf(
-                            "annuncioRef" to annuncioRef,
-                            "fasciaCalendarioRef" to calendarioRef,
-                            "studenteRef" to idStudente,
-                            "tutorRef" to tutorRef!!.id
-                        )
-
-                        // Aggiungi la prenotazione al batch
-                        batch.set(prenotazioneRef, prenotazione)
-                    } else {
-                        operazioneFallita = true
-                        throw Exception("Fascia oraria non trovata")
+                                // Crea un documento di prenotazione
+                                val prenotazioneRef = db.collection("prenotazioni").document()
+                                val prenotazione = mapOf(
+                                    "annuncioRef" to annuncioRef,
+                                    "fasciaCalendarioRef" to calendarioRef,
+                                    "studenteRef" to idStudente,
+                                    "tutorRef" to tutorRef!!.id
+                                )
+                                transaction.set(prenotazioneRef, prenotazione)
+                            } else {
+                                throw Exception("La fascia oraria è già stata prenotata")
+                            }
+                        } else {
+                            throw Exception("Fascia oraria non trovata o già prenotata")
+                        }
                     }
-                }
-
-                // Commit del batch solo se non ci sono errori
-                if (!operazioneFallita) {
-                    batch.commit().await() // Attende il commit del batch
-                    true // Operazione completata con successo
-                } else {
-                    false // Operazione fallita
-                }
-
+                    // Se tutte le operazioni sono andate a buon fine, ritorna true
+                    true
+                }.await() // Attende il completamento della transazione
             } else {
                 throw Exception("Annuncio non trovato")
             }
         } catch (e: Exception) {
-            false // Fallimento dell'operazione
+            e.printStackTrace()
+            false // Ritorna false in caso di errore
         }
     }
+
 
 
 

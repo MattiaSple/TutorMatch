@@ -145,6 +145,7 @@ class AnnunciViewModel(application: Application) : AndroidViewModel(application)
                     _message.value = "Errore nell'eliminazione dell'annuncio: ${e.message}"
                 }
             }
+
         }
     }
 

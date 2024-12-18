@@ -34,7 +34,7 @@ class PrenotazioneViewModel : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 // Chiamata a FirebaseUtil per salvare le prenotazioni su Firestore
-                val risultato = FirebaseUtil.creaPrenotazioniConBatch(
+                val risultato = FirebaseUtil.creaPrenotazioniConTransazione(
                     listaFasceSelezionate = prenotazioniSelezionate,
                     idStudente = studenteRef,
                     annuncioId = annuncioRef
@@ -76,18 +76,18 @@ class PrenotazioneViewModel : ViewModel() {
                 val success = withContext(Dispatchers.IO) {
                     FirebaseUtil.eliminaPrenotazioneF(prenotazione)
                 }
-
+                // Verifica che la lista delle prenotazioni non sia null
+                val nuovaLista = _listaPrenotazioni.value?.toMutableList() ?: mutableListOf()
                 if (success) {
-                    // Verifica che la lista delle prenotazioni non sia null e aggiorna la lista
-                    val nuovaLista = _listaPrenotazioni.value?.toMutableList() ?: mutableListOf()
-
                     // Rimuovi la prenotazione dalla lista se presente
                     if (nuovaLista.remove(prenotazione)) {
                         _listaPrenotazioni.value = nuovaLista
                     }
                 } else {
                     // Notifica all'utente che la prenotazione non è stata trovata
-                    _notificaPrenotazione.postValue("Prenotazione non trovata nella lista, aggiorna la pagina")
+                    _notificaPrenotazione.postValue("Prenotazione già eliminata")
+                    nuovaLista.remove(prenotazione)
+                    _listaPrenotazioni.value = nuovaLista
                 }
             } catch (e: Exception) {
                 // Gestisci eventuali errori durante l'eliminazione
