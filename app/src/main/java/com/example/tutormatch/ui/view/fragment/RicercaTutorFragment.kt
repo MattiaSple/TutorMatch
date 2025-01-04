@@ -29,7 +29,6 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import android.widget.SeekBar
-import androidx.annotation.Nullable
 
 import androidx.lifecycle.ViewModelProvider
 
@@ -60,7 +59,7 @@ class RicercaTutorFragment : Fragment() {
             ricercaTutorViewModel.getPosizioneStudente()
         } else {
             // Gestisci il caso in cui il permesso non viene concesso
-            setPosizioneStatica()
+            ricercaTutorViewModel.getPosizioneStatica(userIdStudente)
         }
     }
 
@@ -70,17 +69,17 @@ class RicercaTutorFragment : Fragment() {
         annunciViewModel = ViewModelProvider(this)[AnnunciViewModel::class.java]
         chatViewModel = ViewModelProvider(this)[ChatViewModel::class.java]
         // Inizializza il launcher per gestire il risultato delle impostazioni di localizzazione
-        locationSettingsLauncher = registerForActivityResult(
-            ActivityResultContracts.StartIntentSenderForResult()
-        ) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                // L'utente ha attivato i servizi di localizzazione, procedi
-                ricercaTutorViewModel.getPosizioneStudente()
-            } else {
-                // L'utente ha rifiutato di attivare i servizi di localizzazione
-                setPosizioneStatica()
-            }
-        }
+//        locationSettingsLauncher = registerForActivityResult(
+//            ActivityResultContracts.StartIntentSenderForResult()
+//        ) { result ->
+//            if (result.resultCode == Activity.RESULT_OK) {
+//                // L'utente ha attivato i servizi di localizzazione, procedi
+//                ricercaTutorViewModel.getPosizioneStudente()
+//            } else {
+//                // L'utente ha rifiutato di attivare i servizi di localizzazione
+//                ricercaTutorViewModel.getPosizioneStatica(userIdStudente)
+//            }
+//        }
 
         // Configura il User-Agent per osmdroid
         Configuration.getInstance().userAgentValue = BuildConfig.APPLICATION_ID
@@ -117,7 +116,6 @@ class RicercaTutorFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         userIdStudente = requireArguments().getString("userId").toString()
         nome = requireArguments().getString("nome").toString()
         cognome = requireArguments().getString("cognome").toString()
@@ -132,24 +130,25 @@ class RicercaTutorFragment : Fragment() {
                     val intentSenderRequest = IntentSenderRequest.Builder(it.resolution).build()
                     locationSettingsLauncher.launch(intentSenderRequest)
                 } catch (sendEx: IntentSender.SendIntentException) {
-                    setPosizioneStatica()
+                    ricercaTutorViewModel.getPosizioneStatica(userIdStudente)
                 }
             }
         })
 
-        // Controlla i permessi e ottieni la posizione
+        // Controlla i permessi, vede se è stato già concesso
         if (checkLocationPermission()) {
             ricercaTutorViewModel.checkAndRequestLocation()
         } else {
             requestLocationPermission()
         }
 
+
         // Attiva l'osservazione in tempo reale
         annunciViewModel.aggiornaListaAnnunciInTempoReale()
 
-        annunciViewModel.listaAnnunciFiltrati.observe(viewLifecycleOwner, Observer { listaFiltrata ->
+        annunciViewModel.listaAnnunciFiltrati.observe(viewLifecycleOwner) { listaFiltrata ->
             aggiornaMappa(listaFiltrata)  // Mostra solo gli annunci filtrati
-        })
+        }
 
         binding.applyButton.setOnClickListener {
             if(binding.inPersonCheckBox.isChecked || binding.onlineCheckBox.isChecked)
@@ -336,25 +335,27 @@ class RicercaTutorFragment : Fragment() {
         } catch (_: Exception) {
         }
     }
-
+    // chiede all'utente il permesso di accesso alla posizione,
+    // mostrando una finestra di dialogo che consente all'utente di accettare o rifiutare la richiesta
     private fun requestLocationPermission() {
         requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
     }
 
     // Metodo per controllare se i permessi di localizzazione sono stati concessi
     private fun checkLocationPermission(): Boolean {
-        return ActivityCompat.checkSelfPermission(
+        val fineLocationGranted = ActivityCompat.checkSelfPermission(
             requireContext(),
             Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
+
+        val coarseLocationGranted = ActivityCompat.checkSelfPermission(
+            requireContext(),
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        return fineLocationGranted || coarseLocationGranted
     }
 
-    // Metodo per centrare la mappa su una posizione statica se non è possibile ottenere la posizione dell'utente
-    private fun setPosizioneStatica() {
-        val romeLocation = GeoPoint(41.9028, 12.4964)  // Coordinate di Roma
-        mapView.controller.setCenter(romeLocation)
-        mapView.controller.setZoom(10.0)
-    }
 
     override fun onDestroyView() {
         super.onDestroyView()
@@ -371,4 +372,5 @@ class RicercaTutorFragment : Fragment() {
         super.onResume()
         mapView.onResume()
     }
+
 }

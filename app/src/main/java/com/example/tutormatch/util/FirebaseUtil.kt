@@ -506,11 +506,11 @@ object FirebaseUtil {
 
 
     // Funzione per ottenere il GeoPoint (usa una chiamata REST esterna)
-    suspend fun getGeoPoint(tutorRef: DocumentReference): GeoPoint? {
+    suspend fun getGeoPoint(utenteRef: DocumentReference): GeoPoint? {
         return try {
 
             // Recupera i dati dell'utente
-            val documentSnapshot = db.collection("utenti").document(tutorRef.id).get().await()
+            val documentSnapshot = db.collection("utenti").document(utenteRef.id).get().await()
             val utente = documentSnapshot.toObject(Utente::class.java)!!
 
             val indirizzoCompleto = "${utente.via}, ${utente.cap}, ${utente.residenza}"
