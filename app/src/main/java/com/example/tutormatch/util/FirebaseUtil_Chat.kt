@@ -151,11 +151,22 @@ object FirebaseUtil_Chat {
                 "timestamp" to ServerValue.TIMESTAMP,
                 "unreadBy" to unreadByEmail // Lista di email che non hanno letto il messaggio
             )
-        messagesRef.child(newMessageId).setValue(message).addOnSuccessListener {
-            chatRef.child(chatId).child("lastMessage").setValue(message)
-            onComplete()
+
+            // Aggiorna il campo lastMessage prima
+            chatRef.child(chatId).child("lastMessage").setValue(message).addOnSuccessListener {
+                // Poi aggiungi il messaggio alla lista
+                messagesRef.child(newMessageId).setValue(message).addOnSuccessListener {
+                    onComplete()
+                }.addOnFailureListener {
+                    // Gestisci eventuali errori nell'aggiunta del messaggio
+                    it.printStackTrace()
+                }
+            }.addOnFailureListener {
+                // Gestisci eventuali errori nell'aggiornamento di lastMessage
+                it.printStackTrace()
+            }
         }
-      }
     }
+
 }
 
