@@ -56,30 +56,29 @@ class HomeActivity : AppCompatActivity() {
             when (item.itemId) {
                 R.id.navigation_home -> {
                     // Sostituisce il fragment con HomeFragmentTutor quando si seleziona la home
-                    replaceFragment(HomeFragmentTutor(), userId, nome, cognome, ruolo)
+                    replaceFragment(HomeFragmentTutor(), userId)
                     true
                 }
                 R.id.navigation_prenotazione -> {
-                    replaceFragment(PrenotazioniFragment(), userId, nome, cognome, ruolo)
+                    replaceFragment(PrenotazioniFragment(), userId, ruolo = ruolo)
                     true
                 }
                 R.id.navigation_calendario_tutor -> {
-                    replaceFragment(CalendarioFragment(), userId, nome, cognome, ruolo)
+                    replaceFragment(CalendarioFragment(), userId)
                     true
                 }
                 R.id.navigation_chat_tutor -> {
-                    replaceFragment(ChatFragment(), userId, nome, cognome, ruolo)
+                    replaceFragment(ChatFragment(), userId, nome, cognome)
                     true
                 }
                 R.id.navigation_profilo_tutor -> {
-                    replaceFragment(ProfiloFragment(), userId, nome, cognome, ruolo)
+                    replaceFragment(ProfiloFragment(), userId, ruolo = ruolo)
                     true
                 }
                 else -> false
             }
         }
         // Imposta il fragment iniziale come HomeFragmentTutor
-        replaceFragment(HomeFragmentTutor(), userId, nome, cognome, ruolo)
         navView.selectedItemId = R.id.navigation_home
     }
 
@@ -90,35 +89,34 @@ class HomeActivity : AppCompatActivity() {
             when (item.itemId) {
                 R.id.navigation_home -> {
                     // Sostituisce il fragment con HomeFragmentStudente quando si seleziona la home
-                    replaceFragment(HomeFragmentStudente(), userId, nome, cognome, ruolo)
+                    replaceFragment(HomeFragmentStudente(), userId)
                     true
                 }
                 R.id.navigation_ricerca_tutor -> {
-                    replaceFragment(RicercaTutorFragment(), userId, nome, cognome, ruolo)
+                    replaceFragment(RicercaTutorFragment(), userId, nome, cognome)
                     true
                 }
                 R.id.navigation_prenotazione -> {
-                    replaceFragment(PrenotazioniFragment(), userId, nome, cognome, ruolo)
+                    replaceFragment(PrenotazioniFragment(), userId, ruolo = ruolo)
                     true
                 }
                 R.id.navigation_chat -> {
-                    replaceFragment(ChatFragment(), userId, nome, cognome, ruolo)
+                    replaceFragment(ChatFragment(), userId, nome, cognome)
                     true
                 }
                 R.id.navigation_profilo -> {
-                    replaceFragment(ProfiloFragment(), userId, nome, cognome, ruolo)
+                    replaceFragment(ProfiloFragment(), userId, ruolo = ruolo)
                     true
                 }
                 else -> false
             }
         }
         // Imposta il fragment iniziale come HomeFragmentStudente
-        replaceFragment(HomeFragmentStudente(), userId, nome, cognome, ruolo)
         navView.selectedItemId = R.id.navigation_home
     }
 
     // Funzione per sostituire i fragment, passando parametri come userId, nome, cognome e ruolo
-    fun replaceFragment(fragment: Fragment, userId: String, nome: String? = "", cognome: String? = "", ruolo: Boolean, annuncioId: String? = null) {
+    fun replaceFragment(fragment: Fragment, userId: String, nome: String? = "", cognome: String? = "", ruolo: Boolean? = false, annuncioId: String? = null) {
         // Ottiene il fragment attualmente visualizzato
         val currentFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment_activity_main)
 
@@ -129,7 +127,7 @@ class HomeActivity : AppCompatActivity() {
                 putString("userId", userId)
                 nome?.let { putString("nome", it) }
                 cognome?.let { putString("cognome", cognome) }
-                putBoolean("ruolo", ruolo)
+                ruolo?.let{ putBoolean("ruolo", ruolo) }
                 annuncioId?.let { putString("annuncioId", it) }
             }
             fragment.arguments = bundle
@@ -158,8 +156,8 @@ class HomeActivity : AppCompatActivity() {
             .commit()
     }
 
-    // Gestisce la navigazione quando viene premuto il tasto "indietro" dell'app
-    override fun onSupportNavigateUp(): Boolean {
-        return findNavController(R.id.nav_host_fragment_activity_main).navigateUp() || super.onSupportNavigateUp()
-    }
+    // Gestisce la navigazione quando viene premuto il tasto "indietro" dell'app (DA VEDERE)
+//    override fun onSupportNavigateUp(): Boolean {
+//        return findNavController(R.id.nav_host_fragment_activity_main).navigateUp() || super.onSupportNavigateUp()
+//    }
 }

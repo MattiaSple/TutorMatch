@@ -1,6 +1,5 @@
 package com.example.tutormatch.ui.view.activity
 
-import androidx.databinding.adapters.CompoundButtonBindingAdapter.setChecked
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.clearText
 import androidx.test.espresso.action.ViewActions.click

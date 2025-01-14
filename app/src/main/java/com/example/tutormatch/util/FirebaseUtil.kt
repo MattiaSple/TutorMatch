@@ -688,9 +688,9 @@ object FirebaseUtil {
     }
 
     // Funzione che controlla se ci sono prenotazioni per un utente specifico
-    suspend fun hasReservations(userId: String, isTutor: Boolean): Boolean {
+    suspend fun hasReservations(userId: String, ruolo: Boolean): Boolean {
         return try {
-            val query = if (isTutor) {
+            val query = if (ruolo) {
                 db.collection("prenotazioni").whereEqualTo("tutorRef", userId)
             } else {
                 db.collection("prenotazioni").whereEqualTo("studenteRef", userId)

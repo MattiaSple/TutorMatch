@@ -49,13 +49,13 @@ class PrenotazioniFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val userId = arguments?.getString("userId")
-        val ruolo = arguments?.getBoolean("ruolo")
+        val userId = requireArguments().getString("userId")!!
+        val ruolo = requireArguments().getBoolean("ruolo")
 
         // Osserva il messaggio di creazione della chat
-        chatViewModel.chatCreationMessage.observe(viewLifecycleOwner, Observer { message ->
+        chatViewModel.chatCreationMessage.observe(viewLifecycleOwner) { message ->
             Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
-        })
+        }
 
         // Osserva i dati della chat (annuncio, studente, tutor)
         prenotazioneViewModel.datiChat.observe(viewLifecycleOwner) { (annuncio, studente, tutor) ->
@@ -86,7 +86,7 @@ class PrenotazioniFragment : Fragment() {
 
         adapterPrenotazione = PrenotazioneAdapter(
             emptyList(),
-            ruolo!!,
+            ruolo,
             onDeleteClick = { prenotazione ->
                 prenotazioneViewModel.eliminaPrenotazione(prenotazione)
             },
@@ -100,9 +100,8 @@ class PrenotazioniFragment : Fragment() {
         binding.recyclerViewPrenotazioni.adapter = adapterPrenotazione
 
         // Carica le prenotazioni dell'utente
-        userId?.let {
-            prenotazioneViewModel.caricaPrenotazioni(ruolo, it)
-        }
+        prenotazioneViewModel.caricaPrenotazioni(ruolo, userId)
+
 
         prenotazioneViewModel.listaPrenotazioni.observe(viewLifecycleOwner, Observer { prenotazioni ->
             adapterPrenotazione.updatePrenotazioni(prenotazioni)

@@ -68,18 +68,6 @@ class RicercaTutorFragment : Fragment() {
         ricercaTutorViewModel = ViewModelProvider(this)[RicercaTutorViewModel::class.java]
         annunciViewModel = ViewModelProvider(this)[AnnunciViewModel::class.java]
         chatViewModel = ViewModelProvider(this)[ChatViewModel::class.java]
-        // Inizializza il launcher per gestire il risultato delle impostazioni di localizzazione
-//        locationSettingsLauncher = registerForActivityResult(
-//            ActivityResultContracts.StartIntentSenderForResult()
-//        ) { result ->
-//            if (result.resultCode == Activity.RESULT_OK) {
-//                // L'utente ha attivato i servizi di localizzazione, procedi
-//                ricercaTutorViewModel.getPosizioneStudente()
-//            } else {
-//                // L'utente ha rifiutato di attivare i servizi di localizzazione
-//                ricercaTutorViewModel.getPosizioneStatica(userIdStudente)
-//            }
-//        }
 
         // Configura il User-Agent per osmdroid
         Configuration.getInstance().userAgentValue = BuildConfig.APPLICATION_ID
@@ -236,10 +224,10 @@ class RicercaTutorFragment : Fragment() {
                     tutorEmail = tutorEmail,
                     tutorName = nomeTutor,
                     tutorSurname = cognomeTutor,
-                    userName = arguments?.getString("nome") ?: "",
-                    userSurname = arguments?.getString("cognome") ?: "",
+                    userName = nome,
+                    userSurname = cognome,
                     materia = annuncio.materia,
-                    onSuccess = {},
+                    onSuccess = { Toast.makeText(context, "Vai nella sezione chat!", Toast.LENGTH_SHORT).show() },
                     onFailure = { errorMessage ->
                         Toast.makeText(context, "Errore: $errorMessage", Toast.LENGTH_SHORT).show()
                     },
@@ -251,7 +239,7 @@ class RicercaTutorFragment : Fragment() {
 
             binding.btnPrenota.setOnClickListener {
                 (activity as? HomeActivity)?.replaceFragment(
-                    CalendarioPrenotazioneFragment(), userIdStudente, nome, cognome, false, annuncio.id
+                    CalendarioPrenotazioneFragment(), userId = userIdStudente, ruolo = false, annuncioId = annuncio.id
                 )
             }
 

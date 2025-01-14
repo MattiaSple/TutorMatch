@@ -34,8 +34,6 @@ class CalendarioFragment : Fragment() {
 
         val userIdTutor = requireArguments().getString("userId")!!
         calendarioViewModel.setTutorReference(userIdTutor)
-
-
     }
 
 

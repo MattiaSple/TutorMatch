@@ -97,9 +97,6 @@ dependencies {
     implementation(libs.androidx.preference.ktx)
     implementation(libs.firebase.database.ktx)
     implementation(libs.androidx.junit.ktx)
-    //implementation(libs.osmdroid.android)
-    //implementation(libs.osmbonuspack)
-    //implementation(libs.androidx.preference.ktx)
 
     // JUnit per i test unitari
     testImplementation (libs.junit)

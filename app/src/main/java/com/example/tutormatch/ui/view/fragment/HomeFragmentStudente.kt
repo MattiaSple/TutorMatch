@@ -19,6 +19,7 @@ class HomeFragmentStudente : Fragment() {
     private lateinit var _binding: FragmentHomeStudenteBinding
     private val binding get() = _binding
     private lateinit var adapter: ValutaTutorAdapter
+    val userId = arguments?.getString("userId")
 
     // Metodo onCreate: Inizializza elementi non legati alla vista (come il ViewModel)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,6 +37,7 @@ class HomeFragmentStudente : Fragment() {
     ): View {
         // Inflaziona il layout con il ViewBinding
         _binding = FragmentHomeStudenteBinding.inflate(inflater, container, false)
+
         return binding.root  // Restituisce la root della vista
     }
 
@@ -46,14 +48,13 @@ class HomeFragmentStudente : Fragment() {
         // Associa il ViewModel e il ciclo di vita al binding
         binding.viewModel = homeViewModel
         binding.lifecycleOwner = viewLifecycleOwner
-
+        val userId = arguments?.getString("userId")
         // Configura la RecyclerView dopo che la vista è stata creata
         val recyclerView = binding.recyclerViewTutors
         recyclerView.layoutManager = LinearLayoutManager(context)
 
         // Inizializza l'adattatore per la lista dei tutor e gestisci il rating
         adapter = ValutaTutorAdapter(emptyList()) { tutor, rating ->
-            val userId = arguments?.getString("userId")
             if (userId != null) {
                 // Quando un tutor viene valutato, rimuovilo dalla lista e aggiorna la valutazione
                 homeViewModel.rateTutorAndRemoveFromList(userId, tutor, rating)
@@ -80,7 +81,6 @@ class HomeFragmentStudente : Fragment() {
         }
 
         // Carica l'utente e i riferimenti ai tutor da valutare se l'userId è presente
-        val userId = arguments?.getString("userId")
         if (userId != null) {
             // Ottiene l'utente da Firestore tramite FirebaseUtil
             homeViewModel.getListaTutorDaValutare(userId)

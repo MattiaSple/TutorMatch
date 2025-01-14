@@ -29,7 +29,7 @@ class ChatFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentChatBinding.inflate(inflater, container, false)
-        chatViewModel = ViewModelProvider(this).get(ChatViewModel::class.java)
+        chatViewModel = ViewModelProvider(this)[ChatViewModel::class.java]
         binding.viewModel = chatViewModel
         binding.lifecycleOwner = this
 
@@ -39,8 +39,12 @@ class ChatFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val currentUserFullName = "${arguments?.getString("nome")} ${arguments?.getString("cognome")}"
-        val userId = arguments?.getString("userId") ?: ""
+        val nome = requireArguments().getString("nome")!!
+        val cognome = requireArguments().getString("cognome")!!
+        val userId = requireArguments().getString("userId")!!
+
+        val currentUserFullName = "$nome $cognome"
+
 
         binding.recyclerViewChat.layoutManager = LinearLayoutManager(context)
 
