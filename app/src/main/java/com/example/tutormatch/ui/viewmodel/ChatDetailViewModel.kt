@@ -41,14 +41,15 @@ class ChatDetailViewModel : ViewModel() {
             // Esegui le operazioni solo se i messaggi sono stati caricati correttamente
             if (messagesList.isNotEmpty()) {
                 markMessagesAsRead(messagesList) // Segna i messaggi come letti
-                val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
-                currentUserEmail?.let {
-                    updateUnreadBy(_chat.value, it) // Aggiorna i messaggi non letti per l'utente corrente
-                }
             }
         }
     }
-
+    fun setUpUpdateUnReadBy(){
+        val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
+        currentUserEmail?.let {
+            updateUnreadBy(_chat.value, it) // Aggiorna i messaggi non letti per l'utente corrente
+        }
+    }
     // Aggiorna i messaggi non letti per l'utente corrente
     private fun updateUnreadBy(chat: Chat?, currentUserEmail: String?) {
         currentUserEmail?.let {

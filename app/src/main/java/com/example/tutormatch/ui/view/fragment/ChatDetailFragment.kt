@@ -60,6 +60,7 @@ class ChatDetailFragment : Fragment() {
         chatDetailViewModel.messages.observe(viewLifecycleOwner) { messages ->
             adapter.updateData(messages)
             _binding?.recyclerViewMessages?.scrollToPosition(messages.size - 1)
+            chatDetailViewModel.setUpUpdateUnReadBy()
         }
 
         // Listener per il layout (controllo se la tastiera è visibile)
