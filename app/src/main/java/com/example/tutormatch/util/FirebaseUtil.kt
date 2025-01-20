@@ -8,6 +8,7 @@ import com.example.tutormatch.data.model.Utente
 import com.example.tutormatch.network.RetrofitInstance
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
@@ -740,5 +741,72 @@ object FirebaseUtil {
             false
         }
     }
+
+    suspend fun updateUserInFirestores(userId: String, updates: Map<String, Any>): Boolean {
+        return try {
+            db.collection("utenti").document(userId).update(updates).await()
+            true // Aggiornamento riuscito
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false // Aggiornamento fallito
+        }
+    }
+
+    suspend fun updateUserInFirestore(
+        userId: String,  // userId è il parametro che ci passi
+        updates: Map<String, Any>
+    ): Boolean {
+        return try {
+            // Recupera l'email dell'utente tramite il suo userId
+            val userDoc = db.collection("utenti").document(userId).get().await()
+            val email = userDoc.getString("email")
+
+            // Aggiorna Firestore con i nuovi dati (nome, cognome, etc.)
+            db.collection("utenti").document(userId).update(updates).await()
+
+            // Se non ci sono modifiche a nome o cognome, esci subito
+            val newName = updates["nome"] as? String
+            val newSurname = updates["cognome"] as? String
+            if (newName == null && newSurname == null) return true
+
+            // Controlla e aggiorna le chat nel Realtime Database
+            val chatsRef = realtimeDb.reference.child("chats")
+            val chatsSnapshot = chatsRef.get().await()
+
+            // Elenco per aggiornare le chat in cui l'utente è presente
+            val chatsToUpdate = mutableListOf<Pair<DatabaseReference, MutableList<String>>>()
+
+            for (chat in chatsSnapshot.children) {
+                val participants = chat.child("participants").value as? List<String> ?: continue
+                val participantsNames = chat.child("participantsNames").value as? MutableList<String> ?: continue
+
+                // Trova la posizione dell'utente nella lista dei partecipanti
+                val userIndex = participants.indexOf(email)
+
+                // Se trovi l'utente, aggiorna il suo nome e cognome
+                val fullName = participantsNames[userIndex].split(" ").toMutableList()
+                if (newName != null) fullName[0] = newName
+                if (newSurname != null) fullName[1] = newSurname
+                participantsNames[userIndex] = fullName.joinToString(" ")
+
+                // Aggiungi la chat da aggiornare alla lista
+                chatsToUpdate.add(chat.ref to participantsNames)
+
+            }
+
+            // Applica gli aggiornamenti alle chat
+            for ((chatRef, updatedNames) in chatsToUpdate) {
+                chatRef.child("participantsNames").setValue(updatedNames).await()
+            }
+
+            true // Tutto è andato a buon fine
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false // Un errore è accaduto
+        }
+    }
+
+
+
 
 }

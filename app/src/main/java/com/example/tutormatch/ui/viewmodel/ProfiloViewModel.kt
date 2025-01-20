@@ -15,8 +15,6 @@ import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
 class ProfiloViewModel(application: Application) : AndroidViewModel(application) {
-    private val firestore = FirebaseFirestore.getInstance() // Istanza di Firestore per accedere al database
-    var utentiCollection = firestore.collection("utenti") // Collezione "utenti" su Firestore
 
     // LiveData per i dettagli del profilo utente
     val nome = MutableLiveData<String>() // Nome dell'utente
@@ -111,9 +109,14 @@ class ProfiloViewModel(application: Application) : AndroidViewModel(application)
                         return@launch
                     }
 
-                    // Esegui l'aggiornamento del documento
-                    utentiCollection.document(userId).update(updates).await()
-                    message.postValue("Profilo salvato con successo.")
+                    // Aggiorna i dati dell'utente su Firestore
+                    val success = FirebaseUtil.updateUserInFirestore(userId, updates)
+                    if (success) {
+                        message.postValue("Profilo salvato con successo.")
+                    } else {
+                        message.postValue("Errore durante l'aggiornamento del profilo.")
+                    }
+
                 } else {
                     message.postValue("Tutti i campi devono essere compilati.")
                     addressVerified.postValue(false) // Se i campi non sono validi
