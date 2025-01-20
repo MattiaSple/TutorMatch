@@ -22,18 +22,30 @@ class ChatDetailViewModel : ViewModel() {
     // Imposta l'ID della chat e carica i dettagli della chat e i messaggi
     fun setChatId(chatId: String) {
         if (chatId.isBlank()) return // Se l'ID è vuoto, non fare nulla
+
         this.chatId = chatId
 
         // Carica i dettagli della chat (chat info e partecipanti)
         FirebaseUtil_Chat.loadChatDetails(chatId) { chat, participants ->
             _chat.value = chat
-            updateUnreadBy(chat, FirebaseAuth.getInstance().currentUser?.email) // Aggiorna i messaggi non letti
+            val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
+            currentUserEmail?.let {
+                updateUnreadBy(chat, it) // Aggiorna i messaggi non letti per l'utente corrente
+            }
         }
 
         // Carica i messaggi della chat ordinati per timestamp
         FirebaseUtil_Chat.loadMessages(chatId) { messagesList ->
             _messages.value = messagesList.sortedBy { it.timestamp }
-            markMessagesAsRead(messagesList) // Segna i messaggi come letti
+
+            // Esegui le operazioni solo se i messaggi sono stati caricati correttamente
+            if (messagesList.isNotEmpty()) {
+                markMessagesAsRead(messagesList) // Segna i messaggi come letti
+                val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
+                currentUserEmail?.let {
+                    updateUnreadBy(_chat.value, it) // Aggiorna i messaggi non letti per l'utente corrente
+                }
+            }
         }
     }
 
