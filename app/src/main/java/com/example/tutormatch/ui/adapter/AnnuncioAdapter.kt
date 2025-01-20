@@ -8,7 +8,7 @@ import com.example.tutormatch.databinding.ItemAnnuncioBinding
 
 // Adapter per gestire una lista di oggetti Annuncio in un RecyclerView
 class AnnuncioAdapter(
-    // Funzione lambda chiamata quando un annuncio viene eliminato
+    // Funzione chiamata quando un annuncio viene eliminato
     private val onDeleteClick: (Annuncio) -> Unit
 ) : RecyclerView.Adapter<AnnuncioAdapter.AnnuncioViewHolder>() {
 

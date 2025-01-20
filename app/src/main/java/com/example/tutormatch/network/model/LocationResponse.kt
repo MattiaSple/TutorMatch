@@ -12,8 +12,8 @@ data class LocationResponse(
 data class Address(
     val road: String?, // Nome della via
     val city: String?, // Nome della città
-    val town: String?, // Nome della cittadina (se presente)
-    val village: String?, // Nome del villaggio (se presente)
+    val town: String?, // Nome della cittadina
+    val village: String?, // Nome del villaggio
     val postcode: String?, // Codice postale
     val country: String? // Paese
 )

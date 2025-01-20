@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 
 class ChatFragment : Fragment() {
 
-    private var _binding: FragmentChatBinding? = null
+    private var _binding: FragmentChatBinding? = null // Binding per il layout del fragment
     private val binding get() = _binding!!
 
     private lateinit var chatViewModel: ChatViewModel
@@ -29,6 +29,7 @@ class ChatFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentChatBinding.inflate(inflater, container, false)
+        // Inizializzazione del ViewModel
         chatViewModel = ViewModelProvider(this)[ChatViewModel::class.java]
         binding.viewModel = chatViewModel
         binding.lifecycleOwner = this
@@ -52,7 +53,6 @@ class ChatFragment : Fragment() {
         lifecycleScope.launch {
             try {
                 // Ottieni l'utente da Firestore in modo asincrono
-                //val utente = FirebaseUtil.getUserFromFirestore(userId) //Da mettere nel view model
 
                 val utente = chatViewModel.getUser(userId)
                 // Verifica se il binding è ancora valido
@@ -97,7 +97,7 @@ class ChatFragment : Fragment() {
                     adapter?.updateData(chats)
                 }
             } catch (_: Exception) {
-                //vediamo se aggiungere qualche cosa
+                //
             }
         }
     }

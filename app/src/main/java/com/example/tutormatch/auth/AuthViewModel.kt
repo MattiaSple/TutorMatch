@@ -58,7 +58,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             return
         }
 
-        // Prima di registrare l'utente, controlla la validità dell'indirizzo
+        //Controlla la validità dell'indirizzo
         val indirizzo = "${cap.value}, ${residenza.value}, ${via.value}"
         val indirizzoSenzaVia = "${cap.value}, ${residenza.value}"
         viewModelScope.launch {
@@ -124,11 +124,6 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             return@withContext false
         }
     }
-
-    //return@withContext true serve a specificare che true è il valore di ritorno del blocco withContext,
-    // il che è particolarmente utile quando lavori con funzioni di ordine superiore
-    // o in contesti di coroutine dove vuoi gestire esplicitamente il flusso di ritorno all'interno di un lambda.
-
 
     // Funzione per registrare l'utente su Firebase
     fun registraUtente(email: String, password: String) {

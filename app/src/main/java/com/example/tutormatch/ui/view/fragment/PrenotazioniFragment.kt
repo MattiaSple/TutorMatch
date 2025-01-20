@@ -17,50 +17,52 @@ import com.example.tutormatch.ui.viewmodel.PrenotazioneViewModel
 
 class PrenotazioniFragment : Fragment() {
 
-    private var _binding: FragmentPrenotazioniBinding? = null
-    private val binding get() = _binding!!
-    private lateinit var prenotazioneViewModel: PrenotazioneViewModel
-    private lateinit var chatViewModel: ChatViewModel
-    private lateinit var adapterPrenotazione: PrenotazioneAdapter
+    private var _binding: FragmentPrenotazioniBinding? = null // Binding per il layout del fragment
+    private val binding get() = _binding!! // Assicura che il binding non sia nullo
+    private lateinit var prenotazioneViewModel: PrenotazioneViewModel // ViewModel per le prenotazioni
+    private lateinit var chatViewModel: ChatViewModel // ViewModel per le chat
+    private lateinit var adapterPrenotazione: PrenotazioneAdapter // Adapter per le prenotazioni
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Inizializza i ViewModel
         prenotazioneViewModel = ViewModelProvider(this)[PrenotazioneViewModel::class.java]
         chatViewModel = ViewModelProvider(this)[ChatViewModel::class.java]
-
     }
+
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentPrenotazioniBinding.inflate(inflater, container, false)
-        return binding.root
+        return binding.root // Ritorna la root del layout
     }
+
+    // Mostra un dialogo di conferma
     private fun showConfirmationDialog(message: String, onConfirmAction: () -> Unit) {
         AlertDialog.Builder(requireContext())
             .setMessage(message)
             .setPositiveButton("Sì") { _, _ ->
-                // Se l'utente conferma, esegui l'azione di conferma
-                onConfirmAction()
+                onConfirmAction() // Esegui l'azione se confermata
             }
             .setNegativeButton("No", null)
             .show()
     }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val userId = requireArguments().getString("userId")!!
-        val ruolo = requireArguments().getBoolean("ruolo")
+        val userId = requireArguments().getString("userId")!! // ID dell'utente
+        val ruolo = requireArguments().getBoolean("ruolo") // Ruolo dell'utente (tutor o studente)
 
-        // Osserva il messaggio di creazione della chat
+        // Osserva i messaggi di creazione della chat
         chatViewModel.chatCreationMessage.observe(viewLifecycleOwner) { message ->
             Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
         }
 
-        // Osserva i dati della chat (annuncio, studente, tutor)
+        // Osserva i dati necessari per creare la chat
         prenotazioneViewModel.datiChat.observe(viewLifecycleOwner) { (annuncio, studente, tutor) ->
             if (annuncio != null && studente != null && tutor != null) {
-                // Crea la chat utilizzando i dati
+                // Crea la chat utilizzando i dati forniti
                 chatViewModel.creaChatConTutor(
                     tutorEmail = tutor.email,
                     studenteEmail = studente.email,
@@ -84,29 +86,31 @@ class PrenotazioniFragment : Fragment() {
             }
         }
 
+        // Configura l'adapter per il RecyclerView
         adapterPrenotazione = PrenotazioneAdapter(
             emptyList(),
             ruolo,
             onDeleteClick = { prenotazione ->
-                prenotazioneViewModel.eliminaPrenotazione(prenotazione)
+                prenotazioneViewModel.eliminaPrenotazione(prenotazione) // Elimina la prenotazione
             },
             onChatClick = { prenotazione ->
-                // Chiedi al ViewModel di recuperare i dati per la chat
-                prenotazioneViewModel.recuperaDatiChat(prenotazione)
+                prenotazioneViewModel.recuperaDatiChat(prenotazione) // Recupera i dati per la chat
             }
         )
 
+        // Configura il RecyclerView
         binding.recyclerViewPrenotazioni.layoutManager = LinearLayoutManager(context)
         binding.recyclerViewPrenotazioni.adapter = adapterPrenotazione
 
         // Carica le prenotazioni dell'utente
         prenotazioneViewModel.caricaPrenotazioni(ruolo, userId)
 
-
+        // Osserva la lista delle prenotazioni e aggiorna l'adapter
         prenotazioneViewModel.listaPrenotazioni.observe(viewLifecycleOwner, Observer { prenotazioni ->
             adapterPrenotazione.updatePrenotazioni(prenotazioni)
         })
 
+        // Osserva le notifiche di prenotazione
         prenotazioneViewModel.notificaPrenotazione.observe(viewLifecycleOwner, Observer { messaggio ->
             messaggio?.let {
                 Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
@@ -116,6 +120,6 @@ class PrenotazioniFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null
+        _binding = null // Rimuove il binding per evitare memory leaks
     }
 }

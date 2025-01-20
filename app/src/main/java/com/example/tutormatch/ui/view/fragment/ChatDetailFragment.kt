@@ -18,7 +18,7 @@ import androidx.lifecycle.ViewModelProvider
 
 class ChatDetailFragment : Fragment() {
 
-    private var _binding: FragmentChatDetailBinding? = null
+    private var _binding: FragmentChatDetailBinding? = null // Binding per il layout del fragment
     private val binding get() = _binding!!
 
     // Usa il delegato per inizializzare il ViewModel
@@ -99,7 +99,7 @@ class ChatDetailFragment : Fragment() {
             parentFragmentManager.popBackStack()
         }
     }
-
+    // funzione per nascondere la tastiera
     fun hideKeyboard() {
         val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         val view = requireActivity().currentFocus ?: View(requireContext())

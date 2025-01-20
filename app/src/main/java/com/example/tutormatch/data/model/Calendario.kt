@@ -4,7 +4,7 @@ import com.google.firebase.firestore.DocumentReference
 import java.util.Date
 
 data class Calendario(
-    val tutorRef: DocumentReference? = null, // Cambiato a nullable
+    val tutorRef: DocumentReference? = null,
     val data: Date = Date(),
     val oraInizio: String = "",
     val oraFine: String = "",

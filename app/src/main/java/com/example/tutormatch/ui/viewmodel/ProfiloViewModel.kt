@@ -15,29 +15,33 @@ import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
 class ProfiloViewModel(application: Application) : AndroidViewModel(application) {
-    private val firestore = FirebaseFirestore.getInstance()
-    var utentiCollection = firestore.collection("utenti")
+    private val firestore = FirebaseFirestore.getInstance() // Istanza di Firestore per accedere al database
+    var utentiCollection = firestore.collection("utenti") // Collezione "utenti" su Firestore
 
-    val nome = MutableLiveData<String>()
-    val cognome = MutableLiveData<String>()
-    val residenza = MutableLiveData<String>()
-    val via = MutableLiveData<String>()
-    val cap = MutableLiveData<String>()
-    val message = MutableLiveData<String>()
+    // LiveData per i dettagli del profilo utente
+    val nome = MutableLiveData<String>() // Nome dell'utente
+    val cognome = MutableLiveData<String>() // Cognome dell'utente
+    val residenza = MutableLiveData<String>() // Residenza dell'utente (es. città)
+    val via = MutableLiveData<String>() // Via dell'utente
+    val cap = MutableLiveData<String>() // CAP (Codice di Avviamento Postale) dell'utente
+    val message = MutableLiveData<String>() // Messaggi di stato o errore
 
-    private val _navigateToMain = MutableLiveData<Boolean>()
-    val navigateToMain: LiveData<Boolean> = _navigateToMain
+    // LiveData per la navigazione verso la schermata principale
+    private val _navigateToMain = MutableLiveData<Boolean>() // Indica se navigare alla schermata principale
+    val navigateToMain: LiveData<Boolean> = _navigateToMain // Espone un LiveData immutabile per l'osservazione
 
-
-    val mediaValutazioni = MutableLiveData<String>()
-    val isTutor = MutableLiveData<Boolean>()
-    val addressVerified = MutableLiveData<Boolean>() // Nuovo LiveData per la verifica dell'indirizzo
+    // LiveData per informazioni aggiuntive del profilo utente
+    val mediaValutazioni = MutableLiveData<String>() // Media delle valutazioni dell'utente (se è un tutor)
+    val isTutor = MutableLiveData<Boolean>() // Indica se l'utente ha il ruolo di tutor
+    val addressVerified = MutableLiveData<Boolean>() // Indica se l'indirizzo dell'utente è stato verificato
 
     // LiveData per mostrare messaggi all'utente
-    private val _showMessage = MutableLiveData<String?>()
-    val showMessage: LiveData<String?> = _showMessage
+    private val _showMessage = MutableLiveData<String?>() // Messaggi di feedback all'utente
+    val showMessage: LiveData<String?> = _showMessage // Espone un LiveData immutabile per l'osservazione
 
-    private var ruolo: Boolean = false
+    // Variabile per il ruolo dell'utente
+    private var ruolo: Boolean = false // Variabile che indica il ruolo (es. studente o tutor)
+
 
     // Carica i dati del profilo utente
     fun loadUserProfile(userId: String) {

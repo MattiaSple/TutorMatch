@@ -20,48 +20,42 @@ import java.util.*
 
 class CalendarioFragment : Fragment() {
 
-    private lateinit var _binding: FragmentCalendarioTutorBinding
-
-    private lateinit var calendarioViewModel: CalendarioViewModel
-    private lateinit var calendarioAdapter: CalendarioAdapter
-    private lateinit var selectedDate: String
+    private lateinit var _binding: FragmentCalendarioTutorBinding // Binding per il layout del fragment
+    private lateinit var calendarioViewModel: CalendarioViewModel // ViewModel per la gestione dei dati
+    private lateinit var calendarioAdapter: CalendarioAdapter // Adapter per il RecyclerView
+    private lateinit var selectedDate: String // Data selezionata dall'utente
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Inizializzazione del ViewModel
+        // Inizializza il ViewModel e imposta il riferimento al tutor
         calendarioViewModel = ViewModelProvider(this)[CalendarioViewModel::class.java]
-
         val userIdTutor = requireArguments().getString("userId")!!
         calendarioViewModel.setTutorReference(userIdTutor)
     }
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentCalendarioTutorBinding.inflate(inflater, container, false)
 
-        calendarioViewModel = ViewModelProvider(this)[CalendarioViewModel::class.java]
-
+        // Imposta il callback per aggiornare gli spinner degli orari
         calendarioViewModel.setUpdateOrariInizioCallback {
             updateOrariInizioSpinner(selectedDate)
             updateOrariFineSpinner(selectedDate)
         }
 
-        setupRecyclerView()
+        setupRecyclerView() // Configura il RecyclerView
 
-        // Imposta la data di domani come la data minima selezionabile
-        val domani = Calendar.getInstance().apply {
-            add(Calendar.DAY_OF_YEAR, 1) // Aggiungi un giorno per impostare domani
-        }.time
-
+        // Imposta la data minima selezionabile come domani
+        val domani = Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, 1) }.time
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ITALY).apply {
-            timeZone = TimeZone.getTimeZone("Europe/Rome")  // Usa il fuso orario italiano
+            timeZone = TimeZone.getTimeZone("Europe/Rome")
         }
         selectedDate = dateFormat.format(domani)
         _binding.calendarView.minDate = domani.time
 
+        // Listener per il cambio di data nel calendario
         _binding.calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
             selectedDate = String.format(Locale.getDefault(), "%04d-%02d-%02d", year, month + 1, dayOfMonth)
             updateOrariInizioSpinner(selectedDate)
@@ -70,16 +64,15 @@ class CalendarioFragment : Fragment() {
 
         updateOrariInizioSpinner(selectedDate)
 
+        // Listener per il cambio di selezione nello spinner degli orari di inizio
         _binding.spinnerOrariInizio.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 updateOrariFineSpinner(selectedDate)
             }
-
-            override fun onNothingSelected(parent: AdapterView<*>) {
-                // Non fare nulla
-            }
+            override fun onNothingSelected(parent: AdapterView<*>) {}
         }
 
+        // Listener per il pulsante "Aggiungi Disponibilità"
         _binding.buttonAggiungiDisponibilita.setOnClickListener {
             if (_binding.spinnerOrariInizio.adapter.isEmpty || _binding.spinnerOrariFine.adapter.isEmpty) {
                 Toast.makeText(context, "Orari Terminati", Toast.LENGTH_SHORT).show()
@@ -90,32 +83,30 @@ class CalendarioFragment : Fragment() {
                 calendarioViewModel.oraFine.value = oraFineSelezionata
                 calendarioViewModel.data.value = selectedDate
 
-                // Disabilita il bottone
+                // Disabilita il pulsante durante l'operazione
                 _binding.buttonAggiungiDisponibilita.isEnabled = false
 
                 lifecycleScope.launch {
                     val success = calendarioViewModel.salvaDisponibilita()
-
                     if (success) {
                         updateOrariInizioSpinner(selectedDate)
-                        // Riabilita il bottone solo dopo che l'operazione è conclusa
                         _binding.buttonAggiungiDisponibilita.isEnabled = true
                     } else {
                         Toast.makeText(context, "Errore: tutti i campi devono essere compilati", Toast.LENGTH_SHORT).show()
-                        // Riabilita il bottone solo dopo che l'operazione è conclusa
                         _binding.buttonAggiungiDisponibilita.isEnabled = true
                     }
                 }
             }
         }
 
-
+        // Osserva le modifiche nella lista delle disponibilità
         calendarioViewModel.lista_disponibilita.observe(viewLifecycleOwner) { listaDisponibilita ->
             val filteredList = listaDisponibilita.filter { dateFormat.format(it.data) == selectedDate }
             val listaOrdinata = calendarioViewModel.ordinaFasceOrarie(filteredList)
             calendarioAdapter.setCalendari(listaOrdinata)
         }
 
+        // Mostra eventuali messaggi dal ViewModel
         calendarioViewModel.message.observe(viewLifecycleOwner) { message ->
             message?.let {
                 Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
@@ -125,25 +116,26 @@ class CalendarioFragment : Fragment() {
         return _binding.root
     }
 
+    // Configura il RecyclerView con l'adapter
     private fun setupRecyclerView() {
-        calendarioAdapter = CalendarioAdapter(
-            { calendario ->
-                calendarioViewModel.eliminaDisponibilita(calendario)
-            }
-        )
+        calendarioAdapter = CalendarioAdapter { calendario ->
+            calendarioViewModel.eliminaDisponibilita(calendario)
+        }
         _binding.recyclerViewDisponibilita.layoutManager = LinearLayoutManager(context)
         _binding.recyclerViewDisponibilita.adapter = calendarioAdapter
     }
 
+    // Aggiorna lo spinner degli orari di inizio
     private fun updateOrariInizioSpinner(selectedDate: String) {
         calendarioViewModel.caricaDisponibilitaPerData(selectedDate) { existingOrari ->
-            val orari = calendarioViewModel.generateOrari( existingOrari)
+            val orari = calendarioViewModel.generateOrari(existingOrari)
             val adapterInizio = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, orari)
             adapterInizio.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             _binding.spinnerOrariInizio.adapter = adapterInizio
         }
     }
 
+    // Aggiorna lo spinner degli orari di fine
     private fun updateOrariFineSpinner(selectedDate: String) {
         calendarioViewModel.caricaDisponibilitaPerData(selectedDate) { existingOrari ->
             val dateFormat = SimpleDateFormat("HH:mm")
@@ -155,19 +147,16 @@ class CalendarioFragment : Fragment() {
                 dateFormat.format(calendar.time)
             }
             val orarioInizioSelezionato = _binding.spinnerOrariInizio.selectedItem as? String
-
             if (orarioInizioSelezionato != null) {
-                val orari = calendarioViewModel.generateOrari( incrementedOrari)
+                val orari = calendarioViewModel.generateOrari(incrementedOrari)
                 val orariFiltrati = orari.filter { it > orarioInizioSelezionato }.toMutableList()
-
                 if (!existingOrari.contains("23:00")) {
                     orariFiltrati.add("00:00")
                 }
                 val adapterFineAggiornato = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, orariFiltrati)
                 adapterFineAggiornato.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                 _binding.spinnerOrariFine.adapter = adapterFineAggiornato
-            }
-            else{
+            } else {
                 val emptyAdapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_spinner_item, mutableListOf())
                 emptyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                 _binding.spinnerOrariFine.adapter = emptyAdapter

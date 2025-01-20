@@ -14,8 +14,9 @@ import kotlinx.coroutines.withContext
 
 class AnnuncioViewModel(application: Application) : AndroidViewModel(application) {
 
-    var flagFiltro: Boolean = false
+    var flagFiltro: Boolean = false // Flag per indicare se il filtro è attivo
 
+    // LiveData per contenere i dati degli annunci
     private val _listaAnnunciTutor = MutableLiveData<List<Annuncio>>()
     val listaAnnunciTutor: LiveData<List<Annuncio>> get() = _listaAnnunciTutor
 
@@ -28,15 +29,17 @@ class AnnuncioViewModel(application: Application) : AndroidViewModel(application
     private val _message = MutableLiveData<String>()
     val message: LiveData<String> get() = _message
 
-    val materia = MutableLiveData<String>()
+    val materia = MutableLiveData<String>() // Materia selezionata per i filtri
 
-    lateinit var _tutorRef: DocumentReference
+    lateinit var _tutorRef: DocumentReference // Riferimento al tutor su Firestore
 
+    // Imposta il riferimento al tutor e carica i relativi annunci
     fun setTutorReference(tutorRef: String) {
         _tutorRef = FirebaseUtil.getDocumentRefById(tutorRef)
         loadAnnunci()
     }
 
+    // Carica gli annunci associati al tutor
     private fun loadAnnunci() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -50,6 +53,7 @@ class AnnuncioViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    // Aggiorna gli annunci in tempo reale ascoltando le modifiche su Firestore
     fun aggiornaListaAnnunciInTempoReale() {
         getAllAnnunci()
 
@@ -63,6 +67,7 @@ class AnnuncioViewModel(application: Application) : AndroidViewModel(application
         )
     }
 
+    // Recupera tutti gli annunci dalla collezione Firestore
     private fun getAllAnnunci() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -76,6 +81,7 @@ class AnnuncioViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    // Salva un nuovo annuncio su Firestore
     suspend fun salvaAnnuncio(
         materia: String,
         prezzo: String,
@@ -92,7 +98,6 @@ class AnnuncioViewModel(application: Application) : AndroidViewModel(application
 
         try {
             withContext(Dispatchers.IO) {
-                // Verifica se l'annuncio esiste già
                 val esiste = FirebaseUtil.verificaAnnuncioEsistente(
                     materia, prezzo, descrizione, online, presenza, _tutorRef
                 )
@@ -102,20 +107,19 @@ class AnnuncioViewModel(application: Application) : AndroidViewModel(application
                     }
                     return@withContext
                 }
-                // Prova a ottenere il GeoPoint per l'indirizzo completo
-                val geoPoint = FirebaseUtil.getGeoPoint(_tutorRef)
 
+                val geoPoint = FirebaseUtil.getGeoPoint(_tutorRef)
                 if (geoPoint != null) {
-                    // Salva l'annuncio con il GeoPoint
                     FirebaseUtil.salvaAnnuncioConGeoPoint(
-                        geoPoint, materia, prezzo, descrizione, online, presenza, _tutorRef)
+                        geoPoint, materia, prezzo, descrizione, online, presenza, _tutorRef
+                    )
                 } else {
                     withContext(Dispatchers.Main) {
                         _message.value = "Errore nella geocodifica dell'indirizzo"
                     }
                     return@withContext
                 }
-                // Aggiorna la UI e carica gli annunci
+
                 withContext(Dispatchers.Main) {
                     _message.value = "Annuncio salvato con successo"
                     loadAnnunci()
@@ -128,6 +132,7 @@ class AnnuncioViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    // Elimina un annuncio esistente
     fun eliminaAnnuncio(annuncio: Annuncio) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -148,7 +153,7 @@ class AnnuncioViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-
+    // Filtra gli annunci in base ai criteri forniti
     fun filtraAnnunciMappa(
         filtroMateria: String,
         filtroBudget: Int,
@@ -174,6 +179,7 @@ class AnnuncioViewModel(application: Application) : AndroidViewModel(application
         _listaAnnunciFiltrati.postValue(annunciFiltrati)
     }
 
+    // Svuota la lista degli annunci filtrati
     fun svuotaListaAnnunciFiltrati() {
         _listaAnnunciFiltrati.postValue(emptyList())
     }

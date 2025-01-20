@@ -137,16 +137,6 @@ class HomeActivity : AppCompatActivity() {
             }
             fragment.arguments = bundle
 
-            // Aggiungi il fragment alla back stack solo se ruolo è true
-//            val transaction = supportFragmentManager.beginTransaction()
-//                .replace(R.id.nav_host_fragment_activity_main, fragment)
-//
-//            if (currentFragment is RicercaTutorFragment) {
-//                // Aggiungi alla back stack solo se ruolo è true
-//                transaction.addToBackStack(null)
-//            }
-//            transaction.commit()
-            // Sostituisce il fragment visualizzato con il nuovo
             supportFragmentManager.commit {
                 replace(R.id.nav_host_fragment_activity_main, fragment)
                 // Non aggiunge alla back stack per evitare comportamenti non desiderati nel back button
@@ -169,11 +159,6 @@ class HomeActivity : AppCompatActivity() {
             .addToBackStack(null)
             .commit()
     }
-
-    // Gestisce la navigazione quando viene premuto il tasto "indietro" dell'app (DA VEDERE)
-//    override fun onSupportNavigateUp(): Boolean {
-//        return findNavController(R.id.nav_host_fragment_activity_main).navigateUp() || super.onSupportNavigateUp()
-//    }
 
     override fun onDestroy() {
         super.onDestroy()

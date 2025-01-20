@@ -27,13 +27,14 @@
             android:screenOrientation="portrait"/>
         <activity
             android:name=".auth.AuthActivity"
-            android:windowSoftInputMode="adjustPan"
+            android:windowSoftInputMode="adjustResize"
             android:exported="false"
             android:screenOrientation="portrait"/>
         <activity
             android:name=".ui.view.activity.LoginActivity"
+            android:windowSoftInputMode="adjustResize"
             android:exported="false"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.view.activity.MainActivity"
             android:screenOrientation="portrait"

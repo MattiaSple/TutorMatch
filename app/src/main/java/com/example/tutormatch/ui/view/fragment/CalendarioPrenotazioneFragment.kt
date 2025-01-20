@@ -17,89 +17,84 @@ import com.example.tutormatch.ui.view.activity.HomeActivity
 import com.example.tutormatch.ui.viewmodel.CalendarioViewModel
 import com.example.tutormatch.ui.viewmodel.PrenotazioneViewModel
 import kotlinx.coroutines.launch
-
 import java.text.SimpleDateFormat
 import java.util.*
 
 class CalendarioPrenotazioneFragment : Fragment() {
 
-    private lateinit var _binding: FragmentCalendarioPrenotazioneBinding
-    private lateinit var calendarioViewModel: CalendarioViewModel
-    private lateinit var prenotazioneViewModel: PrenotazioneViewModel
-    private lateinit var selezioneFasceOrarieAdapter: SelezioneFasceOrarieAdapter
-    private var selectedDate: String? = null
-    private lateinit var annuncioIdSel: String
-    private lateinit var idStudente: String
-    private lateinit var nome: String
-    private lateinit var cognome: String
-
-    private val listaFasceSelezionate = mutableListOf<Calendario>() // Fasce selezionate
+    private lateinit var _binding: FragmentCalendarioPrenotazioneBinding // Binding per il layout del fragment
+    private lateinit var calendarioViewModel: CalendarioViewModel // ViewModel per la disponibilità del tutor
+    private lateinit var prenotazioneViewModel: PrenotazioneViewModel // ViewModel per la gestione delle prenotazioni
+    private lateinit var selezioneFasceOrarieAdapter: SelezioneFasceOrarieAdapter // Adapter per le fasce orarie
+    private var selectedDate: String? = null // Data selezionata dall'utente
+    private lateinit var annuncioIdSel: String // ID dell'annuncio selezionato
+    private lateinit var idStudente: String // ID dello studente
+    private lateinit var nome: String // Nome dello studente
+    private lateinit var cognome: String // Cognome dello studente
+    private val listaFasceSelezionate = mutableListOf<Calendario>() // Lista delle fasce orarie selezionate
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentCalendarioPrenotazioneBinding.inflate(inflater, container, false)
 
-        // Inizializza i ViewModel
+        // Inizializzazione dei ViewModel
         calendarioViewModel = ViewModelProvider(this)[CalendarioViewModel::class.java]
         prenotazioneViewModel = ViewModelProvider(this)[PrenotazioneViewModel::class.java]
 
-        // Recupera l'annuncioId
+        // Recupera i parametri passati al fragment
         idStudente = arguments?.getString("userId").toString()
         nome = arguments?.getString("nome").toString()
         cognome = arguments?.getString("cognome").toString()
         annuncioIdSel = arguments?.getString("annuncioId").toString()
 
+        // Controlla se il tutor è disponibile e configura il RecyclerView
         lifecycleScope.launch {
             val tutorTrovato = calendarioViewModel.getTutorDaAnnuncio(annuncioIdSel)
             if (!tutorTrovato) {
-                // Naviga verso il fragment RicercaTutorFragment
                 (activity as? HomeActivity)?.replaceFragment(
                     RicercaTutorFragment(),
                     userId = idStudente,
                     nome = nome,
                     cognome = cognome
                 )
-            }else{
-                setupRecyclerView() // Configura il RecyclerView
+            } else {
+                setupRecyclerView()
             }
         }
-//VERIFICA SE COSI FUNZIONA
-        //calendarioViewModel.getTutorDaAnnuncio(annuncioIdSel)
 
-
-        // Imposta la data di domani come predefinita (perchè non si possono prenotare il giorno stesso)
-        val data = Calendar.getInstance()
-        data.add(Calendar.DAY_OF_MONTH,1)
+        // Imposta la data minima selezionabile (domani)
+        val data = Calendar.getInstance().apply { add(Calendar.DAY_OF_MONTH, 1) }
         val domani = data.time
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ITALY).apply {
-            timeZone = TimeZone.getTimeZone("Europe/Rome")  // Usa il fuso orario italiano
+            timeZone = TimeZone.getTimeZone("Europe/Rome")
         }
         selectedDate = dateFormat.format(domani)
         _binding.calendarView.minDate = domani.time
 
-        // Ascolta i cambiamenti di data nel CalendarView
+        // Listener per il cambio di data nel CalendarView
         _binding.calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
-
             selectedDate = String.format(Locale.getDefault(), "%04d-%02d-%02d", year, month + 1, dayOfMonth)
             calendarioViewModel.loadDisponibilita()
-
         }
 
-        // Osserva le fasce orarie disponibili per la data selezionata
+        // Osserva le fasce orarie disponibili
         calendarioViewModel.lista_disponibilita.observe(viewLifecycleOwner) { listaDisponibilita ->
-            val filteredList = listaDisponibilita.filter { dateFormat.format(it.data) == selectedDate && !it.statoPren}
+            val filteredList = listaDisponibilita.filter {
+                dateFormat.format(it.data) == selectedDate && !it.statoPren
+            }
             val listaOrdinata = calendarioViewModel.ordinaFasceOrarie(filteredList)
             selezioneFasceOrarieAdapter.setFasceOrarie(listaOrdinata)
         }
 
+        // Mostra messaggi dal ViewModel
         calendarioViewModel.message.observe(viewLifecycleOwner) { message ->
             message?.let {
                 Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
             }
         }
 
-        // Imposta l'azione sul pulsante "Prenota"
+        // Listener per il pulsante "Prenota"
         _binding.btnPrenota.setOnClickListener {
             if (listaFasceSelezionate.isNotEmpty()) {
                 prenotazioneViewModel.creaPrenotazioni(listaFasceSelezionate, idStudente, annuncioIdSel)
@@ -108,6 +103,7 @@ class CalendarioPrenotazioneFragment : Fragment() {
             }
         }
 
+        // Listener per il pulsante "Chiudi"
         _binding.btnChiudi.setOnClickListener {
             (activity as? HomeActivity)?.replaceFragment(
                 RicercaTutorFragment(),
@@ -121,7 +117,7 @@ class CalendarioPrenotazioneFragment : Fragment() {
         prenotazioneViewModel.prenotazioneSuccesso.observe(viewLifecycleOwner) { successo ->
             if (successo) {
                 Toast.makeText(requireContext(), "Prenotazioni aggiornate!", Toast.LENGTH_SHORT).show()
-                calendarioViewModel.loadDisponibilita()  // Ricarica la disponibilità
+                calendarioViewModel.loadDisponibilita() // Aggiorna le disponibilità
             } else {
                 Toast.makeText(requireContext(), "Errore durante la prenotazione.\nProva a riselezionare il giorno", Toast.LENGTH_SHORT).show()
             }
@@ -130,12 +126,12 @@ class CalendarioPrenotazioneFragment : Fragment() {
         return _binding.root
     }
 
+    // Configura il RecyclerView
     private fun setupRecyclerView() {
         selezioneFasceOrarieAdapter = SelezioneFasceOrarieAdapter { fasceSelezionate ->
             listaFasceSelezionate.clear()
             listaFasceSelezionate.addAll(fasceSelezionate)
         }
-
         _binding.recyclerViewOrariDisponibili.layoutManager = LinearLayoutManager(context)
         _binding.recyclerViewOrariDisponibili.adapter = selezioneFasceOrarieAdapter
     }

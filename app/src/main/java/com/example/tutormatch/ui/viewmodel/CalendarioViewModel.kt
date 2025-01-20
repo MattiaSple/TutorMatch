@@ -16,74 +16,71 @@ import java.util.*
 
 class CalendarioViewModel(application: Application) : AndroidViewModel(application) {
 
+    // LiveData per la lista delle disponibilità del tutor
     private val _lista_disponibilita = MutableLiveData<List<Calendario>>()
     val lista_disponibilita: LiveData<List<Calendario>> get() = _lista_disponibilita
 
+    // LiveData per mostrare messaggi di errore o successo
     private val _message = MutableLiveData<String>()
     val message: LiveData<String> get() = _message
 
+    // LiveData per gestire data e orari della disponibilità
     val data = MutableLiveData<String>()
     val oraInizio = MutableLiveData<String>()
     val oraFine = MutableLiveData<String>()
     val statoPren = MutableLiveData<Boolean>()
 
+    // Riferimento al documento del tutor in Firestore
     private lateinit var _tutorRef: DocumentReference
 
+    // Callback per aggiornare gli orari di inizio
     private var updateOrariInizioCallback: (() -> Unit)? = null
 
+    // Imposta il callback per aggiornare gli orari di inizio
     fun setUpdateOrariInizioCallback(callback: () -> Unit) {
         updateOrariInizioCallback = callback
     }
 
-
+    // Imposta il riferimento al tutor e carica le sue disponibilità
     fun setTutorReference(tutorRef: String) {
         viewModelScope.launch {
             try {
-                // Recupera il tutor dall'ID
-                _tutorRef = FirebaseUtil.getDocumentRefById(tutorRef)
-
-                // Se il tutor viene recuperato con successo, carica le disponibilità
-                loadDisponibilita()
+                _tutorRef = FirebaseUtil.getDocumentRefById(tutorRef) // Recupera il riferimento del tutor
+                loadDisponibilita() // Carica le disponibilità del tutor
             } catch (e: Exception) {
-                // Gestisci eccezioni o errori imprevisti
                 _message.postValue("Errore nel recupero del tutor: ${e.message}")
             }
         }
     }
 
+    // Carica le disponibilità del tutor dal database
     fun loadDisponibilita() {
-        viewModelScope.launch{
+        viewModelScope.launch {
             try {
                 val loadedDisponibilita = FirebaseUtil.loadDisponibilita(_tutorRef)
                 withContext(Dispatchers.Main) {
                     _lista_disponibilita.value = loadedDisponibilita
-                    updateOrariInizioCallback?.invoke()
+                    updateOrariInizioCallback?.invoke() // Aggiorna il callback per gli orari di inizio
                 }
             } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    _message.value = "Errore nel caricamento delle fasce orarie."
-                }
+                _message.postValue("Errore nel caricamento delle fasce orarie.")
             }
         }
     }
 
+    // Carica le disponibilità per una data specifica e restituisce gli orari esistenti tramite callback
     fun caricaDisponibilitaPerData(data: String, callback: (List<String>) -> Unit) {
-        data.let {
-            viewModelScope.launch{
-                try {
-                    val existingOrari = FirebaseUtil.caricaDisponibilitaPerData(_tutorRef, data)
-                    withContext(Dispatchers.Main) {
-                        callback(existingOrari)
-                    }
-                } catch (e: Exception) {
-                    withContext(Dispatchers.Main) {
-                        callback(emptyList())
-                    }
-                }
+        viewModelScope.launch {
+            try {
+                val existingOrari = FirebaseUtil.caricaDisponibilitaPerData(_tutorRef, data)
+                callback(existingOrari) // Restituisce gli orari esistenti
+            } catch (e: Exception) {
+                callback(emptyList()) // Restituisce una lista vuota in caso di errore
             }
         }
     }
 
+    // Genera una lista di orari disponibili, escludendo quelli già occupati
     fun generateOrari(existingOrari: List<String>): List<String> {
         val orari = mutableListOf<String>()
         val calendar = Calendar.getInstance(TimeZone.getTimeZone("Europe/Rome"))  // Imposta il fuso orario di Roma
@@ -108,13 +105,14 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
         return orari
     }
 
-
+    // Salva una nuova disponibilità per il tutor
     suspend fun salvaDisponibilita(): Boolean {
         val dataVal = data.value?.trim() ?: ""
         val oraInizioVal = oraInizio.value ?: ""
         val oraFineVal = oraFine.value ?: ""
         val statoPrenVal = statoPren.value ?: false
 
+        // Controlla che i campi obbligatori siano riempiti
         if (dataVal.isBlank() || oraInizioVal.isBlank() || oraFineVal.isBlank()) {
             _message.value = "Data, Ora Inizio e Ora Fine sono necessari!"
             return false
@@ -126,6 +124,7 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
         val inizioParsed = timeFormat.parse(oraInizioVal)
         val fineParsed = timeFormat.parse(oraFineVal)
 
+        // Calcola le fasce orarie da salvare
         val disponibilitaList = mutableListOf<Calendario>()
         val calendar = Calendar.getInstance().apply { time = inizioParsed }
 
@@ -158,12 +157,13 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
         }
 
         return try {
+            // Salva le fasce orarie nel database
             withContext(Dispatchers.IO) {
                 FirebaseUtil.salvaDisponibilita(disponibilitaList)
             }
             withContext(Dispatchers.Main) {
                 _message.value = "Disponibilità salvate con successo"
-                loadDisponibilita()
+                loadDisponibilita() // Ricarica le disponibilità
             }
             true
         } catch (e: Exception) {
@@ -175,10 +175,10 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
     }
 
 
+    // Elimina una disponibilità esistente
     fun eliminaDisponibilita(calendario: Calendario) {
-        if(calendario.statoPren)
-        {
-            _message.value = "Eliminare prima la prenotazione\nAvvisa lo studente!"
+        if (calendario.statoPren) { // Controlla se la fascia è già prenotata
+            _message.postValue("Eliminare prima la prenotazione\nAvvisa lo studente!")
             return
         }
         viewModelScope.launch(Dispatchers.IO) {
@@ -186,21 +186,19 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
                 val success = FirebaseUtil.eliminaDisponibilita(calendario)
                 withContext(Dispatchers.Main) {
                     if (success) {
-                        _message.value = "Disponibilità eliminata con successo"
+                        _message.postValue("Disponibilità eliminata con successo")
                     } else {
-                        _message.value = "Errore nell'eliminazione della disponibilità"
+                        _message.postValue("Errore nell'eliminazione della disponibilità")
                     }
                 }
-                loadDisponibilita() // Ricarica le disponibilità dopo l'eliminazione
+                loadDisponibilita() // Aggiorna la lista delle disponibilità
             } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    _message.value = "Errore nell'eliminazione della disponibilità: ${e.message}"
-                }
+                _message.postValue("Errore nell'eliminazione della disponibilità: ${e.message}")
             }
         }
     }
 
-
+    // Ottiene il riferimento del tutor a partire dall'ID di un annuncio
     suspend fun getTutorDaAnnuncio(annuncioId: String): Boolean {
         return withContext(Dispatchers.IO) {
             try {
@@ -229,7 +227,7 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
 
 
 
-
+    // Ordina una lista di fasce orarie in base all'orario di inizio
     fun ordinaFasceOrarie(fasceOrarie: List<Calendario>): List<Calendario> {
         return fasceOrarie.sortedBy { it.oraInizio }
     }
