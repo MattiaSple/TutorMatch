@@ -11,29 +11,26 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.tutormatch.databinding.FragmentHomeTutorBinding
 import com.example.tutormatch.ui.adapter.AnnuncioAdapter
-import com.example.tutormatch.ui.viewmodel.AnnunciViewModel
-import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.Dispatchers
+import com.example.tutormatch.ui.viewmodel.AnnuncioViewModel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class HomeFragmentTutor : Fragment() {
 
     private lateinit var _binding: FragmentHomeTutorBinding
     private val binding get() = _binding
-    private lateinit var annunciViewModel: AnnunciViewModel
+    private lateinit var annuncioViewModel: AnnuncioViewModel
     private lateinit var annuncioAdapter: AnnuncioAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         // Inizializzazione del ViewModel in onCreate (non è legato alla vista)
-        annunciViewModel = ViewModelProvider(this)[AnnunciViewModel::class.java]
+        annuncioViewModel = ViewModelProvider(this)[AnnuncioViewModel::class.java]
 
         // Se c'è un userId, passarlo al ViewModel
         val userId = arguments?.getString("userId")
         userId?.let {
-            annunciViewModel.setTutorReference(it)
+            annuncioViewModel.setTutorReference(it)
         }
     }
 
@@ -66,7 +63,7 @@ class HomeFragmentTutor : Fragment() {
             val presenza = binding.checkBoxPresenza.isChecked
 
             lifecycleScope.launch {
-                annunciViewModel.salvaAnnuncio(materia, prezzo, descrizione, online, presenza)
+                annuncioViewModel.salvaAnnuncio(materia, prezzo, descrizione, online, presenza)
                 binding.buttonSalva.isEnabled = true
             }
         }
@@ -74,13 +71,13 @@ class HomeFragmentTutor : Fragment() {
 
 
         // Osserva la lista di annunci dal ViewModel
-        annunciViewModel.listaAnnunciTutor.observe(viewLifecycleOwner) { listaAnnunci ->
+        annuncioViewModel.listaAnnunciTutor.observe(viewLifecycleOwner) { listaAnnunci ->
             annuncioAdapter.setAnnunci(listaAnnunci)
             annuncioAdapter.notifyDataSetChanged()
         }
 
         // Osserva i messaggi dal ViewModel per mostrare i Toast
-        annunciViewModel.message.observe(viewLifecycleOwner) { message ->
+        annuncioViewModel.message.observe(viewLifecycleOwner) { message ->
             message?.let {
                 Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
             }
@@ -90,7 +87,7 @@ class HomeFragmentTutor : Fragment() {
     private fun setupRecyclerView() {
         // Inizializza l'adapter per la RecyclerView
         annuncioAdapter = AnnuncioAdapter { annuncio ->
-            annunciViewModel.eliminaAnnuncio(annuncio)
+            annuncioViewModel.eliminaAnnuncio(annuncio)
         }
         binding.recyclerViewAnnunci.layoutManager = LinearLayoutManager(context)
         binding.recyclerViewAnnunci.adapter = annuncioAdapter

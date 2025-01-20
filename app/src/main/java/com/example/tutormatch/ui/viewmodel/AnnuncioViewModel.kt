@@ -12,7 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class AnnunciViewModel(application: Application) : AndroidViewModel(application) {
+class AnnuncioViewModel(application: Application) : AndroidViewModel(application) {
 
     var flagFiltro: Boolean = false
 

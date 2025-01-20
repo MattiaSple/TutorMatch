@@ -21,6 +21,7 @@
             android:layout_margin="16dp"
             app:cardBackgroundColor="@color/coloreSecondario"
             app:cardCornerRadius="16dp"
+            app:layout_constraintBottom_toTopOf="@+id/imageView4"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -64,7 +65,8 @@
             android:padding="16dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/imageView4">
 
             <TextView
                 android:id="@+id/textView12"
@@ -77,10 +79,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:backgroundTint="#000000"
+                android:hint="@string/editTextEmail"
                 android:inputType="textEmailAddress"
                 android:minHeight="48dp"
                 android:padding="10dp"
-                android:hint="@string/editTextEmail"
                 android:text="@={viewModel.email}" />
 
             <TextView
@@ -104,7 +106,7 @@
                 android:id="@+id/accedi"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="60px"
+                android:layout_marginTop="50dp"
                 android:backgroundTint="@color/coloreSecondario"
                 android:onClick="@{() -> viewModel.onLoginClick()}"
                 android:text="@string/accedi"

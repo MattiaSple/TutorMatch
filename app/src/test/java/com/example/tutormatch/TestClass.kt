@@ -20,14 +20,14 @@ import org.robolectric.shadows.ShadowLooper
 class TestClass {
 
     private lateinit var application: android.app.Application
-    private lateinit var viewModelAnnunci: AnnunciViewModel
+    private lateinit var viewModelAnnunci: AnnuncioViewModel
     private lateinit var viewModelCalendario: CalendarioViewModel
     private lateinit var viewModelScadenze: ScadenzeViewModel
 
     @Before
     fun setUp() {
         application = RuntimeEnvironment.application
-        viewModelAnnunci = AnnunciViewModel(application)
+        viewModelAnnunci = AnnuncioViewModel(application)
         viewModelCalendario = CalendarioViewModel(application)
         viewModelScadenze = ScadenzeViewModel()
     }

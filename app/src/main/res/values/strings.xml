@@ -84,12 +84,10 @@
     <string name="nomeCognome">Nome cognome</string>
     <!-- tag della pagina Homefragment "studente" (fragment_home_studente) -->
     <string name="tutorial">
-    Benvenuto su TutorMatch, la tua soluzione ideale per trovare il tutor perfetto!
-    Comunicazione facile e diretta: organizza le tue lezioni con un semplice messaggio. La chat integrata ti permette di rimanere sempre in contatto con il tuo tutor e gestire ogni dettaglio della tua esperienza di apprendimento.
-    Valuta e fai crescere la community: dopo ogni lezione, condividi la tua esperienza valutando il tutor, aiutando così altri studenti a fare la scelta giusta.
-    Prenotazioni rapide e sicure: scegli l’orario che preferisci direttamente dal calendario del tutor e conferma la tua lezione in pochi tocchi.
-    Vuoi insegnare? Diventa un tutor su TutorMatch! Registra il tuo profilo, aggiungi le materie che desideri insegnare e indica la tua disponibilità. Unisciti alla nostra community di insegnanti appassionati e aiuta gli studenti a raggiungere i loro obiettivi.
+    Con TutorMatch organizzare il tuo percorso di apprendimento non è mai stato così semplice. Puoi prenotare le lezioni in pochi tocchi, scegliendo l’orario che preferisci direttamente dal calendario del tutor.\nRicorda che le prenotazioni devono essere fatte entro il giorno precedente alla lezione: pianifica in anticipo per non perdere l’occasione!\nDopo ogni lezione, hai l’opportunità di valutare il tuo tutor e condividere la tua esperienza. Questo aiuta tutta la community a crescere e scegliere con maggiore consapevolezza.\nSe hai più lezioni con lo stesso tutor nello stesso giorno, potrai lasciare una sola valutazione per quel giorno, in modo semplice ed efficace.\nLa chat integrata ti permette di comunicare direttamente con il tuo tutor per organizzare i dettagli delle lezioni o per qualsiasi domanda. Tutto è pensato per rendere la tua esperienza fluida e piacevole.
     </string>
+    <string name="logout">Logout</string>
+    <string name="stella">stella</string>
     <string-array name="materie_array">
         <item>Antropologia</item>
         <item>Architettura</item>

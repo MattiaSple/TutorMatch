@@ -71,6 +71,7 @@
                     <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:contentDescription="@string/stella"
                         android:src="@drawable/ic_star" />
                 </LinearLayout>
 
@@ -85,6 +86,7 @@
                     android:layout_height="wrap_content"
                     android:backgroundTint="#000000"
                     android:hint="@string/editTextNome"
+                    android:inputType="textPersonName"
                     android:minHeight="48dp"
                     android:padding="10dp"
                     android:text="@={viewModel.nome}" />
@@ -97,6 +99,7 @@
                 <EditText
                     android:id="@+id/cognome"
                     android:layout_width="match_parent"
+                    android:inputType="textPersonName"
                     android:layout_height="wrap_content"
                     android:backgroundTint="#000000"
                     android:hint="@string/editTextCognome"
@@ -112,6 +115,7 @@
                 <EditText
                     android:id="@+id/residenza"
                     android:layout_width="match_parent"
+                    android:inputType="text"
                     android:layout_height="wrap_content"
                     android:backgroundTint="#000000"
                     android:hint="@string/editTextResidenza"
@@ -130,6 +134,7 @@
                     android:layout_height="wrap_content"
                     android:backgroundTint="#000000"
                     android:hint="@string/editTextVia"
+                    android:inputType="text"
                     android:minHeight="48dp"
                     android:padding="10dp"
                     android:text="@={viewModel.via}" />
@@ -140,7 +145,7 @@
                     android:text="@string/textCap" />
 
                 <EditText
-                    android:id="@+id/civico"
+                    android:id="@+id/cap"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:backgroundTint="#000000"
@@ -186,7 +191,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:backgroundTint="@color/coloreSecondario"
-                android:text="Logout"
+                android:text="@string/logout"
                 android:textColor="@color/colorBackground"/>
         </LinearLayout>
 

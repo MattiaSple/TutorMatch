@@ -102,8 +102,12 @@ class ProfiloFragment : Fragment() {
     // Naviga alla MainActivity dopo l'eliminazione dell'account
     private fun navigateToMainActivity() {
         val intent = Intent(activity, MainActivity::class.java)
+
+        // Aggiungi i flag per resettare lo stack delle attività
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+
         startActivity(intent)
-        activity?.finish()
+        activity?.finish() // Assicurati di chiudere l'attività corrente
     }
 
     override fun onDestroyView() {

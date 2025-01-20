@@ -535,14 +535,14 @@ object FirebaseUtil {
     }
 
     // Funzione per caricare i dati del profilo utente
-    suspend fun getUserProfile(userId: String): Utente? {
-        return try {
-            val documentSnapshot = db.collection("utenti").document(userId).get().await()
-            documentSnapshot.toObject(Utente::class.java)
-        } catch (e: Exception) {
-            null // Se c'è un errore restituiamo null
-        }
-    }
+//    suspend fun getUserProfile(userId: String): Utente? {
+//        return try {
+//            val documentSnapshot = db.collection("utenti").document(userId).get().await()
+//            documentSnapshot.toObject(Utente::class.java)
+//        } catch (e: Exception) {
+//            null // Se c'è un errore restituiamo null
+//        }
+//    }
 
     // Funzione per caricare le disponibilità per data con tutorRef come DocumentReference
     suspend fun caricaDisponibilitaPerData(tutorRef: DocumentReference, data: String): List<String> {

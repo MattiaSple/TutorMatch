@@ -7,12 +7,16 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.tutormatch.R
 import com.example.tutormatch.data.model.Calendario
 import com.example.tutormatch.databinding.FragmentCalendarioPrenotazioneBinding
 import com.example.tutormatch.ui.adapter.SelezioneFasceOrarieAdapter
+import com.example.tutormatch.ui.view.activity.HomeActivity
 import com.example.tutormatch.ui.viewmodel.CalendarioViewModel
 import com.example.tutormatch.ui.viewmodel.PrenotazioneViewModel
+import kotlinx.coroutines.launch
 
 import java.text.SimpleDateFormat
 import java.util.*
@@ -26,6 +30,8 @@ class CalendarioPrenotazioneFragment : Fragment() {
     private var selectedDate: String? = null
     private lateinit var annuncioIdSel: String
     private lateinit var idStudente: String
+    private lateinit var nome: String
+    private lateinit var cognome: String
 
     private val listaFasceSelezionate = mutableListOf<Calendario>() // Fasce selezionate
 
@@ -40,11 +46,27 @@ class CalendarioPrenotazioneFragment : Fragment() {
 
         // Recupera l'annuncioId
         idStudente = arguments?.getString("userId").toString()
+        nome = arguments?.getString("nome").toString()
+        cognome = arguments?.getString("cognome").toString()
         annuncioIdSel = arguments?.getString("annuncioId").toString()
 
+        lifecycleScope.launch {
+            val tutorTrovato = calendarioViewModel.getTutorDaAnnuncio(annuncioIdSel)
+            if (!tutorTrovato) {
+                // Naviga verso il fragment RicercaTutorFragment
+                (activity as? HomeActivity)?.replaceFragment(
+                    RicercaTutorFragment(),
+                    userId = idStudente,
+                    nome = nome,
+                    cognome = cognome
+                )
+            }else{
+                setupRecyclerView() // Configura il RecyclerView
+            }
+        }
+//VERIFICA SE COSI FUNZIONA
+        //calendarioViewModel.getTutorDaAnnuncio(annuncioIdSel)
 
-        calendarioViewModel.getTutorDaAnnuncio(annuncioIdSel)
-        setupRecyclerView() // Configura il RecyclerView
 
         // Imposta la data di domani come predefinita (perchè non si possono prenotare il giorno stesso)
         val data = Calendar.getInstance()
@@ -86,13 +108,22 @@ class CalendarioPrenotazioneFragment : Fragment() {
             }
         }
 
+        _binding.btnChiudi.setOnClickListener {
+            (activity as? HomeActivity)?.replaceFragment(
+                RicercaTutorFragment(),
+                userId = idStudente,
+                nome = nome,
+                cognome = cognome
+            )
+        }
+
         // Osserva il risultato delle prenotazioni
         prenotazioneViewModel.prenotazioneSuccesso.observe(viewLifecycleOwner) { successo ->
             if (successo) {
                 Toast.makeText(requireContext(), "Prenotazioni aggiornate!", Toast.LENGTH_SHORT).show()
                 calendarioViewModel.loadDisponibilita()  // Ricarica la disponibilità
             } else {
-                Toast.makeText(requireContext(), "Errore durante la prenotazione", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Errore durante la prenotazione.\nProva a riselezionare il giorno", Toast.LENGTH_SHORT).show()
             }
         }
 

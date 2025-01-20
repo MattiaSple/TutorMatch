@@ -4,6 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.tutormatch.data.model.Chat
+import com.example.tutormatch.data.model.Utente
+import com.example.tutormatch.util.FirebaseUtil
 import com.example.tutormatch.util.FirebaseUtil_Chat
 import com.google.firebase.auth.FirebaseAuth
 
@@ -18,6 +20,16 @@ class ChatViewModel : ViewModel() {
     init {
         loadUserChats()
     }
+
+    suspend fun getUser(userId: String): Utente? {
+        return try {
+            val utente = FirebaseUtil.getUserFromFirestore(userId)
+            utente // Ritorna l'utente ottenuto
+        } catch (e: Exception) {
+            null
+        }
+    }
+
 
     fun loadUserChats() {
         val userEmail = FirebaseAuth.getInstance().currentUser?.email

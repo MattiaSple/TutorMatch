@@ -1,7 +1,6 @@
 package com.example.tutormatch.ui.view.fragment
 
 import android.Manifest
-import android.app.Activity
 import android.app.AlertDialog
 import android.content.IntentSender
 import android.content.pm.PackageManager
@@ -20,7 +19,7 @@ import com.example.tutormatch.R
 import com.example.tutormatch.data.model.Annuncio
 import com.example.tutormatch.databinding.FragmentRicercaTutorBinding
 import com.example.tutormatch.ui.view.activity.HomeActivity
-import com.example.tutormatch.ui.viewmodel.AnnunciViewModel
+import com.example.tutormatch.ui.viewmodel.AnnuncioViewModel
 import com.example.tutormatch.ui.viewmodel.ChatViewModel
 import com.example.tutormatch.ui.viewmodel.RicercaTutorViewModel
 import org.osmdroid.config.Configuration
@@ -31,6 +30,8 @@ import org.osmdroid.views.overlay.Marker
 import android.widget.SeekBar
 
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 
 class RicercaTutorFragment : Fragment() {
 
@@ -39,7 +40,7 @@ class RicercaTutorFragment : Fragment() {
 
     // Inizializziamo i ViewModel usando il delegate di Kotlin
     private lateinit var ricercaTutorViewModel: RicercaTutorViewModel
-    private lateinit var annunciViewModel: AnnunciViewModel
+    private lateinit var annuncioViewModel: AnnuncioViewModel
     private lateinit var chatViewModel: ChatViewModel
 
     private lateinit var mapView: MapView
@@ -66,7 +67,7 @@ class RicercaTutorFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         ricercaTutorViewModel = ViewModelProvider(this)[RicercaTutorViewModel::class.java]
-        annunciViewModel = ViewModelProvider(this)[AnnunciViewModel::class.java]
+        annuncioViewModel = ViewModelProvider(this)[AnnuncioViewModel::class.java]
         chatViewModel = ViewModelProvider(this)[ChatViewModel::class.java]
 
         // Configura il User-Agent per osmdroid
@@ -132,9 +133,9 @@ class RicercaTutorFragment : Fragment() {
 
 
         // Attiva l'osservazione in tempo reale
-        annunciViewModel.aggiornaListaAnnunciInTempoReale()
+        annuncioViewModel.aggiornaListaAnnunciInTempoReale()
 
-        annunciViewModel.listaAnnunciFiltrati.observe(viewLifecycleOwner) { listaFiltrata ->
+        annuncioViewModel.listaAnnunciFiltrati.observe(viewLifecycleOwner) { listaFiltrata ->
             aggiornaMappa(listaFiltrata)  // Mostra solo gli annunci filtrati
         }
 
@@ -146,9 +147,9 @@ class RicercaTutorFragment : Fragment() {
                 val budgetSelezionato = binding.budgetSeekBar.progress  // Valore del budget dalla SeekBar
                 val isOnlineChecked = binding.onlineCheckBox.isChecked  // Stato della checkbox "Online"
                 val isInPersonChecked = binding.inPersonCheckBox.isChecked  // Stato della checkbox "In presenza"
-                annunciViewModel.flagFiltro = true
+                annuncioViewModel.flagFiltro = true
                 // Applica i filtri con i parametri ottenuti dall'utente
-                annunciViewModel.filtraAnnunciMappa(materiaSelezionata, budgetSelezionato, isOnlineChecked, isInPersonChecked)
+                annuncioViewModel.filtraAnnunciMappa(materiaSelezionata, budgetSelezionato, isOnlineChecked, isInPersonChecked)
             }else{
                 Toast.makeText(context,"Inserire la modalità", Toast.LENGTH_SHORT).show()
             }
@@ -160,15 +161,15 @@ class RicercaTutorFragment : Fragment() {
                 binding.budgetSeekBar.progress = 0
                 binding.onlineCheckBox.isChecked = false
                 binding.inPersonCheckBox.isChecked = false
-                annunciViewModel.flagFiltro = false
-                annunciViewModel.svuotaListaAnnunciFiltrati()
+                annuncioViewModel.flagFiltro = false
+                annuncioViewModel.svuotaListaAnnunciFiltrati()
             }
         }
 
-        annunciViewModel.listaAnnunci.observe(viewLifecycleOwner, Observer {
-            if(annunciViewModel.flagFiltro)
+        annuncioViewModel.listaAnnunci.observe(viewLifecycleOwner, Observer {
+            if(annuncioViewModel.flagFiltro)
             {
-                annunciViewModel.filtraAnnunciMappa(binding.subjectSpinner.selectedItem.toString(),binding.budgetSeekBar.progress, binding.onlineCheckBox.isChecked, binding.inPersonCheckBox.isChecked )
+                annuncioViewModel.filtraAnnunciMappa(binding.subjectSpinner.selectedItem.toString(),binding.budgetSeekBar.progress, binding.onlineCheckBox.isChecked, binding.inPersonCheckBox.isChecked )
             }
         })
 
@@ -197,6 +198,7 @@ class RicercaTutorFragment : Fragment() {
     private fun showMarkerDetails(marker: Marker, annuncio: Annuncio) {
         annuncio.tutor?.get()?.addOnSuccessListener { documentSnapshot ->
             val nomeTutor = documentSnapshot.getString("nome")!!
+            val idTutor = documentSnapshot.getString("userId")!!
             val cognomeTutor = documentSnapshot.getString("cognome")!!
             val tutorEmail = documentSnapshot.getString("email")!!
             val feedbackList = documentSnapshot.get("feedback") as? List<Int> ?: emptyList()
@@ -220,27 +222,51 @@ class RicercaTutorFragment : Fragment() {
 
             // Gestione del bottone per chattare
             binding.btnChat.setOnClickListener {
-                chatViewModel.creaChatConTutor(
-                    tutorEmail = tutorEmail,
-                    tutorName = nomeTutor,
-                    tutorSurname = cognomeTutor,
-                    userName = nome,
-                    userSurname = cognome,
-                    materia = annuncio.materia,
-                    onSuccess = { Toast.makeText(context, "Vai nella sezione chat!", Toast.LENGTH_SHORT).show() },
-                    onFailure = { errorMessage ->
-                        Toast.makeText(context, "Errore: $errorMessage", Toast.LENGTH_SHORT).show()
-                    },
-                    onConfirm = { message, onConfirmAction ->
-                        showConfirmationDialog(message, onConfirmAction)
+                lifecycleScope.launch {
+                    val tutor = chatViewModel.getUser(idTutor) // Recupera il tutor
+                    if (tutor == null) {
+                        Toast.makeText(context, "Il tutor non esiste.", Toast.LENGTH_SHORT).show()
+                        binding.markerDetailCard.visibility = View.GONE
+                    } else {
+                        chatViewModel.creaChatConTutor(
+                            tutorEmail = tutor.email,
+                            tutorName = tutor.nome,
+                            tutorSurname = tutor.cognome,
+                            userName = nome,
+                            userSurname = cognome,
+                            materia = annuncio.materia,
+                            onSuccess = {
+                                Toast.makeText(context, "Vai nella sezione chat!", Toast.LENGTH_SHORT).show()
+                            },
+                            onFailure = { errorMessage ->
+                                Toast.makeText(context, "Errore: $errorMessage", Toast.LENGTH_SHORT).show()
+                                binding.markerDetailCard.visibility = View.GONE
+                            },
+                            onConfirm = { message, onConfirmAction ->
+                                showConfirmationDialog(message, onConfirmAction)
+                            }
+                        )
                     }
-                )
+                }
             }
 
             binding.btnPrenota.setOnClickListener {
-                (activity as? HomeActivity)?.replaceFragment(
-                    CalendarioPrenotazioneFragment(), userId = userIdStudente, ruolo = false, annuncioId = annuncio.id
-                )
+                lifecycleScope.launch {
+                    val tutor = chatViewModel.getUser(idTutor) // Recupera il tutor
+                    if (tutor == null) {
+                        Toast.makeText(context, "Il tutor non esiste.", Toast.LENGTH_SHORT).show()
+                        binding.markerDetailCard.visibility = View.GONE
+                    } else {
+                        (activity as? HomeActivity)?.replaceFragment(
+                            CalendarioPrenotazioneFragment(),
+                            userId = userIdStudente,
+                            ruolo = false,
+                            nome = nome,
+                            cognome = cognome,
+                            annuncioId = annuncio.id
+                        )
+                    }
+                }
             }
 
             binding.btnClose.setOnClickListener {

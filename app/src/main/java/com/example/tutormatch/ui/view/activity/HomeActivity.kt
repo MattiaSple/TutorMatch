@@ -3,6 +3,7 @@ package com.example.tutormatch.ui.view.activity
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.commit
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
@@ -119,6 +120,10 @@ class HomeActivity : AppCompatActivity() {
     fun replaceFragment(fragment: Fragment, userId: String, nome: String? = "", cognome: String? = "", ruolo: Boolean? = false, annuncioId: String? = null) {
         // Ottiene il fragment attualmente visualizzato
         val currentFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment_activity_main)
+        // Pulisce la back stack se il fragment corrente è CalendarioPrenotazioneFragment o ChatDetailFragment
+        if (currentFragment is ChatDetailFragment) {
+            supportFragmentManager.popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+        }
 
         // Verifica se il fragment attuale è diverso dal fragment che si vuole visualizzare
         if (currentFragment?.javaClass != fragment.javaClass) {
@@ -132,6 +137,15 @@ class HomeActivity : AppCompatActivity() {
             }
             fragment.arguments = bundle
 
+            // Aggiungi il fragment alla back stack solo se ruolo è true
+//            val transaction = supportFragmentManager.beginTransaction()
+//                .replace(R.id.nav_host_fragment_activity_main, fragment)
+//
+//            if (currentFragment is RicercaTutorFragment) {
+//                // Aggiungi alla back stack solo se ruolo è true
+//                transaction.addToBackStack(null)
+//            }
+//            transaction.commit()
             // Sostituisce il fragment visualizzato con il nuovo
             supportFragmentManager.commit {
                 replace(R.id.nav_host_fragment_activity_main, fragment)
@@ -160,4 +174,12 @@ class HomeActivity : AppCompatActivity() {
 //    override fun onSupportNavigateUp(): Boolean {
 //        return findNavController(R.id.nav_host_fragment_activity_main).navigateUp() || super.onSupportNavigateUp()
 //    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // Libera i binding per evitare memory leak
+        if (::bindingStudente.isInitialized) bindingStudente.unbind()
+        if (::bindingTutor.isInitialized) bindingTutor.unbind()
+    }
+
 }

@@ -52,8 +52,9 @@ class ChatFragment : Fragment() {
         lifecycleScope.launch {
             try {
                 // Ottieni l'utente da Firestore in modo asincrono
-                val utente = FirebaseUtil.getUserFromFirestore(userId)
+                //val utente = FirebaseUtil.getUserFromFirestore(userId) //Da mettere nel view model
 
+                val utente = chatViewModel.getUser(userId)
                 // Verifica se il binding è ancora valido
                 if (_binding == null) return@launch
 
@@ -95,9 +96,8 @@ class ChatFragment : Fragment() {
                     // Verifica che l'adapter non sia nullo
                     adapter?.updateData(chats)
                 }
-            } catch (e: Exception) {
-                // Gestisci eventuali errori
-                // Puoi aggiungere un messaggio di errore o un log
+            } catch (_: Exception) {
+                //vediamo se aggiungere qualche cosa
             }
         }
     }

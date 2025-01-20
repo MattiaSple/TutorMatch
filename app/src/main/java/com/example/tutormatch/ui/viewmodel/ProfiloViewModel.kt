@@ -43,7 +43,7 @@ class ProfiloViewModel(application: Application) : AndroidViewModel(application)
     fun loadUserProfile(userId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val utente = FirebaseUtil.getUserProfile(userId)
+                val utente = FirebaseUtil.getUserFromFirestore(userId)
                 utente?.let {
                     nome.postValue(it.nome)
                     cognome.postValue(it.cognome)

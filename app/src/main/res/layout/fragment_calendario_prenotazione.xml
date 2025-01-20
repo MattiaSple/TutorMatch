@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".ui.view.fragment.CalendarioPrenotazioneFragment">
 
+
     <!-- CardView per il titolo principale -->
     <androidx.cardview.widget.CardView
         android:id="@+id/cardView"
@@ -14,6 +15,7 @@
         android:layout_margin="16dp"
         app:cardBackgroundColor="@color/coloreSecondario"
         app:cardCornerRadius="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/scrollView2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -33,66 +35,82 @@
 
     </androidx.cardview.widget.CardView>
 
-    <!-- CalendarView per selezionare una data -->
-    <CalendarView
-        android:id="@+id/calendarView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cardView" />
-
-    <!-- CardView per il titolo delle lezioni -->
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cardViewLezioni"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        app:cardBackgroundColor="@color/coloreSecondario"
-        app:cardCornerRadius="20dp"
-        app:cardElevation="4dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/calendarView">
-
-        <TextView
-            android:id="@+id/titoloLezioni"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:paddingStart="10dp"
-            android:paddingTop="5dp"
-            android:paddingEnd="10dp"
-            android:paddingBottom="5dp"
-            android:text="@string/lezioniDisponibili"
-            android:textColor="@color/colorBackground"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-    </androidx.cardview.widget.CardView>
-
-    <!-- RecyclerView per mostrare le fasce orarie disponibili -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerViewOrariDisponibili"
+    <!-- ScrollView per la parte scorrevole del layout -->
+    <ScrollView
+        android:id="@+id/scrollView2"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/btnPrenota"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cardViewLezioni" />
-
-    <!-- Button per confermare la prenotazione -->
-    <Button
-        android:id="@+id/btnPrenota"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/prenota"
-        android:backgroundTint="@color/coloreSecondario"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/cardView">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- CalendarView per selezionare una data -->
+            <CalendarView
+                android:id="@+id/calendarView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="12dp" />
+
+            <!-- CardView per il titolo delle lezioni -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardViewLezioni"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="@color/coloreSecondario"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="4dp">
+
+                <TextView
+                    android:id="@+id/titoloLezioni"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:padding="10dp"
+                    android:text="@string/lezioniDisponibili"
+                    android:textColor="@color/colorBackground"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </androidx.cardview.widget.CardView>
+
+            <!-- RecyclerView per mostrare le fasce orarie disponibili -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerViewOrariDisponibili"
+                android:layout_width="match_parent"
+                android:layout_height="250dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Button per confermare la prenotazione -->
+            <Button
+                android:id="@+id/btnPrenota"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginBottom="12dp"
+                android:backgroundTint="@color/coloreSecondario"
+                android:text="@string/prenota" />
+
+            <!-- Button per chiudere -->
+            <Button
+                android:id="@+id/btnChiudi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:backgroundTint="@color/coloreSecondario"
+                android:text="@string/chiudi" />
+
+        </LinearLayout>
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -61,7 +61,7 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    _message.value = "Errore nel caricamento delle disponibilità: ${e.message}"
+                    _message.value = "Errore nel caricamento delle fasce orarie."
                 }
             }
         }
@@ -201,26 +201,32 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
     }
 
 
-    fun getTutorDaAnnuncio(annuncioId: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+    suspend fun getTutorDaAnnuncio(annuncioId: String): Boolean {
+        return withContext(Dispatchers.IO) {
             try {
                 // Chiamata a FirebaseUtil per ottenere il tutorRef
                 val tutorRef = FirebaseUtil.getTutorDaAnnuncioF(annuncioId)
-                withContext(Dispatchers.Main) {
-                    if (tutorRef != null) {
+                if (tutorRef != null) {
+                    withContext(Dispatchers.Main) {
                         _tutorRef = tutorRef
-                        loadDisponibilita()
-                    }else{
+                        loadDisponibilita() // Carica disponibilità solo se il tutor è stato trovato
+                    }
+                    true
+                } else {
+                    withContext(Dispatchers.Main) {
                         _message.value = "Tutor non trovato"
                     }
+                    false
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     _message.value = "Errore nel recupero del tutor: ${e.message}"
                 }
+                false
             }
         }
     }
+
 
 
 

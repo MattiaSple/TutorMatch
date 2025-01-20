@@ -2,7 +2,6 @@ package com.example.tutormatch.util
 
 import com.example.tutormatch.data.model.Chat
 import com.example.tutormatch.data.model.Message
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 
 object FirebaseUtil_Chat {
