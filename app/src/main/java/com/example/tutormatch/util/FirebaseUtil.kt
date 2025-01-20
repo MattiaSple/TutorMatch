@@ -742,16 +742,6 @@ object FirebaseUtil {
         }
     }
 
-    suspend fun updateUserInFirestores(userId: String, updates: Map<String, Any>): Boolean {
-        return try {
-            db.collection("utenti").document(userId).update(updates).await()
-            true // Aggiornamento riuscito
-        } catch (e: Exception) {
-            e.printStackTrace()
-            false // Aggiornamento fallito
-        }
-    }
-
     suspend fun updateUserInFirestore(
         userId: String,  // userId è il parametro che ci passi
         updates: Map<String, Any>
