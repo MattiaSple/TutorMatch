@@ -13,7 +13,6 @@ import com.example.tutormatch.databinding.FragmentChatBinding
 import com.example.tutormatch.ui.adapter.ChatAdapter
 import com.example.tutormatch.ui.viewmodel.ChatViewModel
 import com.example.tutormatch.ui.view.activity.HomeActivity
-import com.example.tutormatch.util.FirebaseUtil
 import kotlinx.coroutines.launch
 
 class ChatFragment : Fragment() {
@@ -97,7 +96,7 @@ class ChatFragment : Fragment() {
                     adapter?.updateData(chats)
                 }
             } catch (_: Exception) {
-                //
+                //non facciamo fare nulla in tal caso
             }
         }
     }

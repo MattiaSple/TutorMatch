@@ -37,12 +37,12 @@ class MainActivity : AppCompatActivity() {
         scadenzeViewModel.gestisciScadenze()
     }
 
-    // Funzione chiamata quando si clicca il pulsante "Tutor"
+    // Funzione chiamata quando si clicca il pulsante "crea un account Tutor"
     fun navigateToTutor(v: View) {
         navigateToSecondActivity(true)
     }
 
-    // Funzione chiamata quando si clicca il pulsante "Studente"
+    // Funzione chiamata quando si clicca il pulsante "crea un account Studente"
     fun navigateToStudent(v: View) {
         navigateToSecondActivity(false)
     }

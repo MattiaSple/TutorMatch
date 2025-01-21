@@ -107,7 +107,7 @@ class ProfiloFragment : Fragment() {
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
 
         startActivity(intent)
-        activity?.finish() // Assicurati di chiudere l'attività corrente
+        activity?.finish() // Assicura di chiudere l'attività corrente
     }
 
     override fun onDestroyView() {

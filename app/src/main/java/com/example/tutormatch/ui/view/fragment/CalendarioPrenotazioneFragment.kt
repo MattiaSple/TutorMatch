@@ -9,7 +9,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.tutormatch.R
 import com.example.tutormatch.data.model.Calendario
 import com.example.tutormatch.databinding.FragmentCalendarioPrenotazioneBinding
 import com.example.tutormatch.ui.adapter.SelezioneFasceOrarieAdapter
